@@ -1917,7 +1917,7 @@ export default function App() {
 
       {/* Styled Footer */}
       <footer className="bg-slate-950 border-t border-slate-850 py-6 text-center text-xs text-slate-500 font-mono mt-12">
-        <p>© {new Date().getFullYear()} Eu Sou Capaz • Desafio Grupo Fitness • Foco, Consistência e Evolução • Todo Treino Conta!</p>
+        <p className="notranslate" translate="no">© {new Date().getFullYear()} Eu Sou Capaz • Desafio Grupo Fitness • Foco, Consistência e Evolução • Todo Treino Conta!</p>
       </footer>
 
       {/* PWA mobile installation option banner */}

@@ -48,7 +48,7 @@ export function RegistrationModal({ existingNames, onRegister, email, onCancel }
         </div>
 
         <p className="text-xs text-slate-400 leading-relaxed mb-5 font-sans">
-          Seja bem-vindo ao aplicativo do desafio de 30 dias <strong>Eu Sou Capaz</strong>! Cada usuário precisa de um nome de atleta para postar treinos e ser listado no placar. Como você deseja se registrar?
+          Seja bem-vindo ao aplicativo do desafio de 30 dias <strong className="notranslate" translate="no">Eu Sou Capaz</strong>! Cada usuário precisa de um nome de atleta para postar treinos e ser listado no placar. Como você deseja se registrar?
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs font-mono">

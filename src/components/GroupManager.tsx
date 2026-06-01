@@ -469,7 +469,7 @@ export function GroupManager({
                   👥 Participação: <strong className="text-indigo-400 font-bold">Comunidade Global</strong>
                 </span>
               </div>
-              <h3 className="font-black text-lg text-slate-50 font-display">
+              <h3 className="font-black text-lg text-slate-50 font-display notranslate" translate="no">
                 🏆 Desafio Geral Eu Sou Capaz
               </h3>
               <p className="text-xs text-slate-400 leading-normal font-sans max-w-2xl">

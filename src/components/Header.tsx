@@ -236,7 +236,7 @@ export function Header({
             {/* Brand Titles and the 4-Icon Goal Grid in direct alignment */}
             <div className="space-y-2.5 flex-1 select-none">
               <div className="flex flex-col sm:flex-row items-center sm:items-baseline gap-2">
-                <h1 className="text-3xl font-black tracking-tight font-display text-white flex items-center gap-1.5 uppercase leading-none">
+                <h1 className="text-3xl font-black tracking-tight font-display text-white flex items-center gap-1.5 uppercase leading-none notranslate" translate="no">
                   EU SOU <span className="text-amber-500">CAPAZ</span>
                 </h1>
               </div>
