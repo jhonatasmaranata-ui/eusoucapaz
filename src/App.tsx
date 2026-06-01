@@ -1790,51 +1790,48 @@ export default function App() {
         {activeGroupId && activeGroupId !== 'EMPTY-PRIVATE' ? (
           <>
              {/* Athletic App Tab Selector */}
-            <div className="border-b border-slate-850/60 sticky top-0 bg-slate-950/95 backdrop-blur-md z-40 py-2.5 -mx-4 px-4 sm:mx-0 sm:px-0">
-              <div className="flex justify-around sm:justify-start sm:gap-8 max-w-xl mx-auto sm:mx-0" id="app-challenge-navigation-tabs">
+            <div className="border-b border-slate-850/40 sticky top-0 bg-slate-950/95 backdrop-blur-md z-40 py-3 -mx-4 px-4 sm:mx-0 sm:px-0 mb-5">
+              <div className="grid grid-cols-3 max-w-xl mx-auto sm:mx-0 p-1 bg-slate-900/90 border border-slate-850/80 rounded-xl gap-1 shadow-inner" id="app-challenge-navigation-tabs">
                 <button
                   type="button"
                   onClick={() => setActiveTab('painel')}
-                  className={`pb-2.5 pt-1 font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider relative transition-all cursor-pointer flex items-center gap-1.5 notranslate ${
-                    activeTab === 'painel' ? 'text-[#fc5200]' : 'text-slate-400 hover:text-slate-200'
+                  className={`py-2 px-1 font-sans text-[10px] min-[380px]:text-[11px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 notranslate ${
+                    activeTab === 'painel' 
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-md shadow-orange-500/10 font-black' 
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850/50'
                   }`}
                   translate="no"
                 >
-                  <Flame className="w-4 h-4 text-[#fc5200]" />
-                  Desafios
-                  {activeTab === 'painel' && (
-                    <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#fc5200] rounded-full animate-fadeIn" />
-                  )}
+                  <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                  <span className="truncate">Desafio</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setActiveTab('registrar')}
-                  className={`pb-2.5 pt-1 font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider relative transition-all cursor-pointer flex items-center gap-1.5 notranslate ${
-                    activeTab === 'registrar' ? 'text-[#fc5200]' : 'text-slate-400 hover:text-slate-200'
+                  className={`py-2 px-1 font-sans text-[10px] min-[380px]:text-[11px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 notranslate ${
+                    activeTab === 'registrar' 
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-md shadow-orange-500/10 font-black' 
+                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-850/50'
                   }`}
                   translate="no"
                 >
-                  <CheckSquare className="w-4 h-4 text-emerald-400" />
-                  Atividade
-                  {activeTab === 'registrar' && (
-                    <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#fc5200] rounded-full animate-fadeIn" />
-                  )}
+                  <CheckSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                  <span className="truncate">Atividade</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setActiveTab('classificacao')}
-                  className={`pb-2.5 pt-1 font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider relative transition-all cursor-pointer flex items-center gap-1.5 notranslate ${
-                    activeTab === 'classificacao' ? 'text-[#fc5200]' : 'text-slate-400 hover:text-slate-200'
+                  className={`py-2 px-1 font-sans text-[10px] min-[380px]:text-[11px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 notranslate ${
+                    activeTab === 'classificacao' 
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-md shadow-orange-500/10 font-black' 
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850/50'
                   }`}
                   translate="no"
                 >
-                  <Trophy className="w-4 h-4 text-amber-500" />
-                  Classificação
-                  {activeTab === 'classificacao' && (
-                    <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#fc5200] rounded-full animate-fadeIn" />
-                  )}
+                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                  <span className="truncate">Classificação</span>
                 </button>
               </div>
             </div>

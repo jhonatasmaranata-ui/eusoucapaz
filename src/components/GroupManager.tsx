@@ -642,14 +642,14 @@ export function GroupManager({
               {/* Dynamic Group-Active Rules Checklist */}
               <div className="bg-slate-900/40 p-3.5 border border-slate-850/60 rounded-xl space-y-2">
                 <span className="text-slate-500 uppercase tracking-widest text-[9px] font-mono font-bold block mb-1">Vigência do Desafio</span>
-                <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-300">
-                  <div className="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 border border-slate-900 rounded-lg">
+                <div className="grid grid-cols-1 min-[340px]:grid-cols-2 gap-2 text-[10px] font-mono text-slate-300">
+                  <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1.5 border border-slate-900 rounded-lg">
                     <Calendar className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                    <span className="truncate">Início: <strong>{activeGroup.rules.startDate.split('-').reverse().join('/')}</strong></span>
+                    <span className="text-[10.5px]">Início: <strong>{activeGroup.rules.startDate.split('-').reverse().join('/')}</strong></span>
                   </div>
-                  <div className="flex items-center gap-2 bg-slate-950 px-2.5 py-1.5 border border-slate-900 rounded-lg">
+                  <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1.5 border border-slate-900 rounded-lg">
                     <Calendar className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                    <span className="truncate">Término: <strong>{activeGroup.rules.endDate ? activeGroup.rules.endDate.split('-').reverse().join('/') : 'Sem limite'}</strong></span>
+                    <span className="text-[10.5px]">Término: <strong>{activeGroup.rules.endDate ? activeGroup.rules.endDate.split('-').reverse().join('/') : 'Sem limite'}</strong></span>
                   </div>
                 </div>
               </div>

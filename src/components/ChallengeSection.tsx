@@ -197,27 +197,29 @@ export function ChallengeSection({
         }`}
         id={`${isMine ? 'my' : 'par'}-challenge-card`}
       >
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            <Trophy className={`w-5 h-5 ${progress.isFullyCompleted ? 'text-amber-400 animate-bounce' : 'text-indigo-400'}`} />
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+          <div className="flex items-start gap-2">
+            <Trophy className={`w-5 h-5 ${progress.isFullyCompleted ? 'text-amber-400 animate-bounce' : 'text-indigo-400'} shrink-0 mt-0.5`} />
             <div>
-              <h4 className="text-sm font-bold text-slate-100">{challengeTitle}</h4>
+              <h4 className="text-sm font-bold text-slate-100 leading-snug">{challengeTitle}</h4>
               <p className="text-[10px] text-slate-400 font-mono uppercase mt-0.5">
                 {isMine ? 'Seu Desafio em Consistência' : `Desafio de ${score.name}`}
               </p>
             </div>
           </div>
 
-          {progress.isFullyCompleted ? (
-            <span className="px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/35 text-[9.5px] font-bold text-amber-400 rounded-full font-mono flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              DESAFIO CONCLUÍDO
-            </span>
-          ) : (
-            <span className="px-2.5 py-0.5 bg-slate-950 border border-slate-800 text-[9.5px] font-bold text-slate-400 rounded-full font-mono">
-              EM PROGRESSO
-            </span>
-          )}
+          <div className="shrink-0 self-start sm:self-auto">
+            {progress.isFullyCompleted ? (
+              <span className="inline-flex px-2 py-0.5 bg-amber-500/10 border border-amber-500/35 text-[9px] font-bold text-amber-400 rounded-full font-mono items-center gap-1">
+                <Sparkles className="w-2.5 h-2.5 text-amber-400 animate-pulse" />
+                CONCLUÍDO
+              </span>
+            ) : (
+              <span className="inline-flex px-2.5 py-0.5 bg-slate-950 border border-slate-850 text-[9px] font-bold text-slate-450 rounded-full font-mono uppercase tracking-wider">
+                Em Progresso
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Requirements Stats Progress Bars */}
@@ -225,12 +227,14 @@ export function ChallengeSection({
           
           {/* Gym Requirement */}
           <div>
-            <div className="flex justify-between items-center text-xs mb-1.5">
+            <div className="flex flex-wrap justify-between items-baseline gap-x-2 gap-y-1 text-xs mb-1.5">
               <span className="text-slate-400 flex items-center gap-1 font-mono">
-                <Dumbbell className="w-3.5 h-3.5 text-red-500" />
-                Treino (Musculação/Funcional)
+                <Dumbbell className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                <span>
+                  Treino <span className="text-[10px] text-slate-500 font-sans font-medium">(Musculação/Funcional)</span>
+                </span>
               </span>
-              <span className="font-bold text-slate-200">
+              <span className="font-bold text-slate-200 whitespace-nowrap">
                 {progress.gymDaysProgress} / {progress.gymDaysTarget} dias
               </span>
             </div>
@@ -246,12 +250,14 @@ export function ChallengeSection({
 
           {/* Cardio requirement */}
           <div>
-            <div className="flex justify-between items-center text-xs mb-1.5">
+            <div className="flex flex-wrap justify-between items-baseline gap-x-2 gap-y-1 text-xs mb-1.5">
               <span className="text-slate-400 flex items-center gap-1 font-mono">
-                <Route className="w-3.5 h-3.5 text-indigo-400" />
-                {progress.activityType} (Aeróbico Principal)
+                <Route className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                <span>
+                  {progress.activityType} <span className="text-[10px] text-slate-500 font-sans font-medium">(Aeróbico Principal)</span>
+                </span>
               </span>
-              <span className="font-bold text-slate-200">
+              <span className="font-bold text-slate-200 whitespace-nowrap">
                 {progress.cardioDaysProgress} / {progress.cardioDaysTarget} {progress.cardioDaysTarget === 1 ? 'dia' : 'dias'}
               </span>
             </div>
@@ -273,12 +279,14 @@ export function ChallengeSection({
           {/* Cardio 2 requirement (Terceiro Exercício) */}
           {progress.hasSecondCardio && (
             <div>
-              <div className="flex justify-between items-center text-xs mb-1.5">
+              <div className="flex flex-wrap justify-between items-baseline gap-x-2 gap-y-1 text-xs mb-1.5">
                 <span className="text-slate-400 flex items-center gap-1 font-mono">
-                  <Route className="w-3.5 h-3.5 text-teal-400" />
-                  {progress.secondCardioType} (Aeróbico Extra)
+                  <Route className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                  <span>
+                    {progress.secondCardioType} <span className="text-[10px] text-slate-500 font-sans font-medium">(Aeróbico Extra)</span>
+                  </span>
                 </span>
-                <span className="font-bold text-slate-200">
+                <span className="font-bold text-slate-200 whitespace-nowrap">
                   {progress.secondCardioDaysProgress} / {progress.secondCardioDaysTarget} {progress.secondCardioDaysTarget === 1 ? 'dia' : 'dias'}
                 </span>
               </div>
