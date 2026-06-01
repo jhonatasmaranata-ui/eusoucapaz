@@ -1,0 +1,6 @@
+{
+  "name": "Eu Sou Capaz",
+  "description": "Aplicativo de desafio de 30 dias para incentivar a consistência diária em treinos e exercícios aeróbicos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

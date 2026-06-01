@@ -1,0 +1,206 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Primitive Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Master Gate: Checks membership in a group
+    function isGroupMember(groupId, userId) {
+      return exists(/databases/$(database)/documents/groups/$(groupId)/members/$(userId));
+    }
+
+    // User Profile schema validation
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['athleteName', 'email'])
+        && data.keys().size() <= 15
+        && data.athleteName is string
+        && data.athleteName.size() >= 1
+        && data.athleteName.size() <= 200
+        && data.email is string
+        && data.email.size() <= 100
+        && (!data.keys().hasAll(['registeredAt']) || (data.registeredAt is string))
+        && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 3000))
+        && (!data.keys().hasAll(['joinedGroups']) || (data.joinedGroups is map));
+    }
+
+    // Group schema validation
+    function isValidGroup(data) {
+      return data.keys().hasAll(['id', 'name', 'description', 'creatorId', 'inviteCode', 'rules', 'createdAt'])
+        && data.keys().size() >= 7
+        && data.keys().size() <= 15
+        && data.id is string
+        && data.id.size() >= 1
+        && data.id.size() <= 64
+        && data.name is string
+        && data.name.size() >= 1
+        && data.name.size() <= 200
+        && data.description is string
+        && data.description.size() <= 2000
+        && data.creatorId is string
+        && data.creatorId == request.auth.uid
+        && data.inviteCode is string
+        && data.inviteCode.size() >= 1
+        && data.inviteCode.size() <= 64
+        && data.createdAt is string
+        && data.rules is map
+        && data.rules.keys().hasAll(['startDate', 'gymPointsPerCheckIn', 'distanceMultiplier', 'comboPointsPerDay'])
+        && data.rules.startDate is string
+        && data.rules.gymPointsPerCheckIn is number
+        && data.rules.distanceMultiplier is number
+        && data.rules.comboPointsPerDay is number;
+    }
+
+    // Group Member schema validation
+    function isValidGroupMember(data) {
+      return data.keys().hasAll(['userId', 'athleteName', 'email', 'role', 'joinedAt'])
+        && data.keys().size() <= 15
+        && data.userId is string
+        && data.userId == request.auth.uid
+        && data.athleteName is string
+        && data.athleteName.size() >= 1
+        && data.athleteName.size() <= 200
+        && data.email is string
+        && data.email.size() <= 100
+        && data.role is string
+        && data.joinedAt is string
+        && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 3000));
+    }
+
+    // Workout Activity Schema Validation
+    function isValidActivity(data) {
+      return data.keys().hasAll(['name', 'type', 'distance', 'date', 'userId', 'timestamp', 'checkInCode', 'isGymWorkout'])
+        && data.keys().size() >= 8
+        && data.keys().size() <= 15
+        && data.name is string
+        && data.name.size() >= 1
+        && data.name.size() <= 200
+        && data.type is string
+        && data.type.size() >= 1
+        && data.type.size() <= 200
+        && data.distance is number
+        && data.distance >= 0.0
+        && data.distance <= 1000.0
+        && data.date is string
+        && data.date.size() == 10
+        && data.userId is string
+        && data.userId == request.auth.uid
+        && data.timestamp is string
+        && data.timestamp.size() >= 2
+        && data.timestamp.size() <= 30
+        && data.checkInCode is string
+        && data.checkInCode.size() <= 100
+        && data.isGymWorkout is bool
+        && (!data.keys().hasAll(['customActivityName']) || (data.customActivityName is string && data.customActivityName.size() <= 100))
+        && (!data.keys().hasAll(['calories']) || (data.calories is number));
+    }
+
+    // Challenge Goal validation
+    function isValidChallengeGoal(data) {
+      return data.keys().hasAll(['id', 'athleteName', 'type'])
+        && data.keys().size() <= 15
+        && data.id is string
+        && data.athleteName is string
+        && data.type is string;
+    }
+
+    // Users Collection rules
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isSignedIn() 
+        && isValidId(userId) 
+        && request.auth.uid == userId 
+        && isValidUserProfile(incoming());
+      allow update: if isSignedIn() 
+        && isValidId(userId) 
+        && request.auth.uid == userId 
+        && isValidUserProfile(incoming())
+        && (!incoming().keys().hasAll(['email']) || !existing().keys().hasAll(['email']) || incoming().email == existing().email)
+        && (!incoming().keys().hasAll(['registeredAt']) || !existing().keys().hasAll(['registeredAt']) || incoming().registeredAt == existing().registeredAt);
+      allow delete: if false;
+    }
+
+    // Groups Collection rules
+    match /groups/{groupId} {
+      allow read: if true;
+      allow create: if isSignedIn() 
+        && isValidId(groupId) 
+        && isValidGroup(incoming());
+      allow update: if isSignedIn() 
+        && isValidId(groupId) 
+        && existing().creatorId == request.auth.uid 
+        && isValidGroup(incoming())
+        && incoming().creatorId == existing().creatorId
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() 
+        && isValidId(groupId) 
+        && existing().creatorId == request.auth.uid;
+
+      // Group Members subcollection rules
+      match /members/{memberId} {
+        allow read: if true;
+        allow create: if isSignedIn() 
+          && isValidId(memberId) 
+          && memberId == request.auth.uid 
+          && isValidGroupMember(incoming());
+        allow update: if isSignedIn() 
+          && isValidId(memberId) 
+          && memberId == request.auth.uid 
+          && isValidGroupMember(incoming())
+          && incoming().userId == existing().userId;
+        allow delete: if isSignedIn() 
+          && (memberId == request.auth.uid || get(/databases/$(database)/documents/groups/$(groupId)).data.creatorId == request.auth.uid);
+      }
+
+      // Group Activities subcollection rules
+      match /activities/{activityId} {
+        allow read: if true;
+        allow create: if isSignedIn() 
+          && isValidId(activityId) 
+          && isGroupMember(groupId, request.auth.uid) 
+          && isValidActivity(incoming());
+        allow update: if isSignedIn() 
+          && isValidId(activityId) 
+          && isGroupMember(groupId, request.auth.uid) 
+          && existing().userId == request.auth.uid 
+          && isValidActivity(incoming())
+          && incoming().userId == existing().userId;
+        allow delete: if isSignedIn() 
+          && isValidId(activityId) 
+          && (existing().userId == request.auth.uid || get(/databases/$(database)/documents/groups/$(groupId)).data.creatorId == request.auth.uid);
+      }
+
+      // Group Challenges targets rules
+      match /challenges/{challengeId} {
+        allow read: if true;
+        allow create, update: if isSignedIn() 
+          && isValidId(challengeId) 
+          && challengeId == request.auth.uid 
+          && isGroupMember(groupId, request.auth.uid)
+          && isValidChallengeGoal(incoming());
+        allow delete: if isSignedIn() 
+          && isValidId(challengeId) 
+          && challengeId == request.auth.uid;
+      }
+    }
+  }
+}

@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-neutral-950 text-stone-100 antialiased selection:bg-orange-500/30 selection:text-orange-400;
+    background-image: 
+      radial-gradient(ellipse at top, rgba(249, 115, 22, 0.12) 0%, rgba(20, 20, 20, 0) 60%),
+      radial-gradient(ellipse at bottom, rgba(120, 53, 4, 0.08) 0%, rgba(10, 10, 10, 0) 70%);
+    background-attachment: fixed;
+  }
+}
+
+/* Custom Tactical Glass Cards */
+.tactical-card {
+  @apply bg-neutral-900/90 backdrop-blur-md border border-neutral-800 rounded-2xl shadow-xl transition-all duration-300;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.03);
+}
+
+.tactical-card:hover {
+  @apply border-neutral-700/80;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(249, 115, 22, 0.08);
+}
+
+/* Steel and Orange Glowing Borders */
+.border-glow-orange {
+  @apply border border-orange-500/30 shadow-[0_0_15px_-3px_rgba(249,115,22,0.15)];
+}
+
+.border-glow-orange:hover {
+  @apply border-orange-500/55 shadow-[0_0_20px_-2px_rgba(249,115,22,0.3)];
+}
+
+/* Scorched Text Style */
+.text-scorched-orange {
+  @apply bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-500 bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)];
+}
+
+.text-metallic-silver {
+  @apply bg-gradient-to-r from-stone-100 via-stone-300 to-stone-400 bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)];
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(10, 10, 10, 1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(50, 50, 50, 1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(249, 115, 22, 0.4);
+}
+
+/* Fire Embers/Glow effect animation */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.3));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+    filter: drop-shadow(0 0 20px rgba(249, 115, 22, 0.65));
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s infinite ease-in-out;
+}
+
+/* Slide Up and Fade In entries */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideUpFade {
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

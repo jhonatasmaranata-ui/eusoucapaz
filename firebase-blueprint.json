@@ -1,0 +1,145 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores profile settings and maps a user ID to a registered athlete name.",
+      "type": "object",
+      "properties": {
+        "athleteName": {
+          "type": "string",
+          "description": "The athletic display name in the challenge."
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address."
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "Profile picture URL."
+        },
+        "registeredAt": {
+          "type": "string",
+          "description": "ISO timestamp of registration."
+        },
+        "role": {
+          "type": "string",
+          "description": "Optional global site role."
+        },
+        "joinedGroups": {
+          "type": "object",
+          "description": "Map of group IDs the user has joined to their group names."
+        }
+      },
+      "required": ["athleteName", "email", "registeredAt"]
+    },
+    "GroupChallenge": {
+      "title": "Group Challenge",
+      "description": "Represents a challenge group created by a user with customized details and rules.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "creatorId": { "type": "string" },
+        "inviteCode": { "type": "string" },
+        "rules": { "type": "object" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "creatorId", "inviteCode", "rules", "createdAt"]
+    },
+    "GroupMember": {
+      "title": "Group Member",
+      "description": "Represents a participant mapping inside a challenge group.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "athleteName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string" },
+        "joinedAt": { "type": "string" }
+      },
+      "required": ["userId", "athleteName", "email", "role", "joinedAt"]
+    },
+    "WorkoutActivity": {
+      "title": "Workout Activity",
+      "description": "Represents an individual workout or run logged by an athlete inside a group.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "description": "Athlete's name matching the registration."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of activity."
+        },
+        "distance": {
+          "type": "number",
+          "description": "Distance traveled in kilometers."
+        },
+        "date": {
+          "type": "string",
+          "description": "YYYY-MM-DD local date of the workout."
+        },
+        "checkInCode": {
+          "type": "string",
+          "description": "Gym check-in verification code if applicable."
+        },
+        "isGymWorkout": {
+          "type": "boolean",
+          "description": "True if the activity is a strength workout."
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the user who logged the activity."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Date-time string of activity logging."
+        }
+      },
+      "required": ["id", "name", "type", "distance", "date", "userId", "timestamp"]
+    },
+    "ChallengeGoal": {
+      "title": "Challenge Goal",
+      "description": "Participant's personal monthly targets within a challenge group.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "athleteName": { "type": "string" },
+        "type": { "type": "string" },
+        "targetGymDays": { "type": "number" },
+        "targetActivityType": { "type": "string" },
+        "targetActivityValue": { "type": "number" },
+        "targetActivityMetric": { "type": "string" }
+      },
+      "required": ["id", "athleteName", "type"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Individual user registrations and challenge profile."
+    },
+    "groups/{groupId}": {
+      "schema": { "$ref": "#/entities/GroupChallenge" },
+      "description": "Challenge groups created by various users with custom rules."
+    },
+    "groups/{groupId}/members/{userId}": {
+      "schema": { "$ref": "#/entities/GroupMember" },
+      "description": "Roster of participants under a specific challenge group."
+    },
+    "groups/{groupId}/activities/{activityId}": {
+      "schema": { "$ref": "#/entities/WorkoutActivity" },
+      "description": "Workouts list logged dynamically by users inside a specific group."
+    },
+    "groups/{groupId}/challenges/{challengeId}": {
+      "schema": { "$ref": "#/entities/ChallengeGoal" },
+      "description": "Athlete monthly targets inside a specific, customized group."
+    }
+  }
+}
