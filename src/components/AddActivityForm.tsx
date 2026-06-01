@@ -324,12 +324,12 @@ export function AddActivityForm({
           <label className="block text-slate-400 mb-1.5 font-semibold">Tipo de Atividade:</label>
           <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
             {[
-              { label: 'Musculação', value: 'Treino', icon: Dumbbell, color: 'text-red-400' },
+              { label: 'Treino', value: 'Treino', icon: Dumbbell, color: 'text-red-400' },
               { label: 'Corrida', value: 'Corrida', icon: Route, color: 'text-indigo-400' },
               { label: 'Caminhada', value: 'Caminhada', icon: Compass, color: 'text-sky-400' },
-              { label: 'Pedalada (Bike)', value: 'Pedalada', icon: Route, color: 'text-amber-500' },
-              { label: 'Natação/Hidro', value: 'Natação', icon: Waves, color: 'text-cyan-400' },
-              { label: 'Outra Ativ.', value: 'Outra', icon: Flame, color: 'text-orange-500' },
+              { label: 'Pedalada', value: 'Pedalada', icon: Route, color: 'text-amber-500' },
+              { label: 'Natação', value: 'Natação', icon: Waves, color: 'text-cyan-400' },
+              { label: 'Outras', value: 'Outra', icon: Flame, color: 'text-orange-500' },
             ].map(item => {
               const IconComp = item.icon;
               const isSel = activityType === item.value;

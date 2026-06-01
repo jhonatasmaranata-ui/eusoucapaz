@@ -299,203 +299,57 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
       </div>
 
       {/* Grid Quick Metric Figures */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-4 mb-6">
+      <div className="grid grid-cols-1 gap-3 mb-6 animate-fadeIn" id="participant-quick-metrics-stack">
         
         {/* Combos Card */}
-        <div className="p-4 rounded-xl bg-slate-950 border border-slate-850 flex items-center gap-3.5 shadow-sm hover:border-amber-500/25 transition-all">
-          <div className="p-2.5 bg-amber-500/10 text-amber-500 rounded-lg border border-amber-500/20">
-            <Flame className="w-5 h-5 fill-amber-500/10" />
+        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-850 flex items-center justify-between gap-4 shadow-sm hover:border-amber-500/25 transition-all">
+          <div className="flex items-center gap-3 text-left">
+            <div className="p-2.5 bg-amber-500/10 text-amber-500 rounded-lg border border-amber-500/20 shrink-0">
+              <Flame className="w-4.5 h-4.5 fill-amber-500/10" />
+            </div>
+            <div>
+              <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">Dias de Combos</div>
+              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">Treino + Cardio no mesmo dia</div>
+            </div>
           </div>
-          <div>
-            <div className="text-xs font-semibold text-slate-400 tracking-wide font-mono uppercase">Dias de Combos Ativos</div>
-            <div className="text-lg font-bold text-amber-400 mt-0.5 font-mono">{comboDaysCount} Dias</div>
-            <div className="text-[10px] text-slate-500 mt-0.5 leading-normal">Treino + Aeróbico no mesmo dia</div>
+          <div className="text-right shrink-0">
+            <div className="text-sm font-black text-amber-400 font-mono">{comboDaysCount} {comboDaysCount === 1 ? 'Dia' : 'Dias'}</div>
           </div>
         </div>
 
         {/* Volume Outdoor Card */}
-        <div className="p-4 rounded-xl bg-slate-950 border border-slate-850 flex items-center gap-3.5 shadow-sm hover:border-indigo-500/25 transition-all">
-          <div className="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-lg border border-indigo-500/20">
-            <Route className="w-5 h-5" />
+        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-850 flex items-center justify-between gap-4 shadow-sm hover:border-indigo-500/25 transition-all">
+          <div className="flex items-center gap-3 text-left">
+            <div className="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-lg border border-indigo-500/20 shrink-0">
+              <Route className="w-4.5 h-4.5" />
+            </div>
+            <div>
+              <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">Pontos de Cardio</div>
+              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">{score.totalDistance.toFixed(1)} Km rodados</div>
+            </div>
           </div>
-          <div>
-            <div className="text-xs font-semibold text-slate-400 tracking-wide font-mono uppercase">Pontuação de Cardio</div>
-            <div className="text-lg font-bold text-indigo-300 mt-0.5 font-mono">{score.distancePoints.toFixed(1)} pontos</div>
-            <div className="text-[10px] text-slate-500 mt-0.5 leading-normal">{score.totalDistance.toFixed(1)} Km rodados</div>
+          <div className="text-right shrink-0">
+            <div className="text-sm font-black text-indigo-300 font-mono">{score.distancePoints.toFixed(1)} pts</div>
           </div>
         </div>
 
         {/* Gym Workouts Count Card */}
-        <div className="p-4 rounded-xl bg-slate-950 border border-slate-850 flex items-center gap-3.5 shadow-sm hover:border-red-500/25 transition-all">
-          <div className="p-2.5 bg-red-500/10 text-red-400 rounded-lg border border-red-500/20">
-            <Dumbbell className="w-5 h-5" />
+        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-850 flex items-center justify-between gap-4 shadow-sm hover:border-red-500/25 transition-all">
+          <div className="flex items-center gap-3 text-left">
+            <div className="p-2.5 bg-red-500/10 text-red-400 rounded-lg border border-red-500/20 shrink-0">
+              <Dumbbell className="w-4.5 h-4.5" />
+            </div>
+            <div>
+              <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">Dias de Treino</div>
+              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">{score.gymPoints} pontos bônus</div>
+            </div>
           </div>
-          <div>
-            <div className="text-xs font-semibold text-slate-400 tracking-wide font-mono uppercase">Dias de Treino</div>
-            <div className="text-lg font-bold text-red-400 mt-0.5 font-mono">{score.totalWorkouts} dias</div>
-            <div className="text-[10px] text-slate-500 mt-0.5 leading-normal">{score.gymPoints} pontos bônus ({gymOnlyDaysCount} dias bônus só treino)</div>
+          <div className="text-right shrink-0">
+            <div className="text-sm font-black text-red-400 font-mono">{score.totalWorkouts} {score.totalWorkouts === 1 ? 'dia' : 'dias'}</div>
           </div>
         </div>
 
       </div>
-
-      {/* INDIVIDUALIZED MONTHLY CHALLENGE CARD MODULE */}
-      {(() => {
-        const participantChallenge = challenges.find(
-          c => isSameAthlete(c.athleteName, score.name)
-        );
-
-        if (!participantChallenge) {
-          return (
-            <div className="mb-6 p-4 rounded-xl bg-slate-950/40 border border-slate-850 text-center font-sans">
-              <p className="text-xs text-slate-500">
-                🏁 Este atleta ainda não tem um <strong className="text-slate-400">Desafio Mensal</strong> ativo configurado neste mês.
-              </p>
-            </div>
-          );
-        }
-
-        const progress = calculateChallengeProgress(score, participantChallenge);
-        
-        // Target and Remainder calculations
-        const gymRemaining = participantChallenge.targetGymDays - progress.gymDaysProgress;
-        const cardioDaysRemaining = progress.cardioDaysTarget - progress.cardioDaysProgress;
-
-        // Percentages capped for visual bars (can still count actuals beyond)
-        const gymPercent = Math.min(100, Math.round((progress.gymDaysProgress / progress.gymDaysTarget) * 100)) || 0;
-        const cardioPercent = Math.min(100, Math.round((progress.cardioDaysProgress / progress.cardioDaysTarget) * 100)) || 0;
-
-        let challengeTitle = "Desafio de Consistência Individual";
-        if (participantChallenge.type === 'option1') challengeTitle = "Desafio Treino + Corrida G1";
-        if (participantChallenge.type === 'option2') challengeTitle = "Desafio Treino + Caminhada G2";
-        if (participantChallenge.type === 'option3') challengeTitle = "Desafio Treino + Ciclismo G3";
-        if (participantChallenge.type === 'option4') challengeTitle = "Desafio Treino + Natação G4";
-        if (participantChallenge.type === 'custom') challengeTitle = "Meta Personalizada Atleta";
-
-        const isFullyCompleted = progress.isFullyCompleted;
-
-        return (
-          <div className={`mb-6 p-5 rounded-2xl border ${
-            isFullyCompleted 
-              ? 'bg-gradient-to-br from-amber-950/20 to-slate-900 border-amber-500/30 shadow-lg shadow-amber-500/5' 
-              : 'bg-slate-950 border-slate-850'
-          }`} id={`profile-challenge-${score.name.toLowerCase()}`}>
-            
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-850 pb-3 mb-4">
-              <div className="flex items-center gap-2">
-                <Trophy className={`w-5 h-5 ${isFullyCompleted ? 'text-amber-400 animate-bounce' : 'text-indigo-400'}`} />
-                <div>
-                  <h4 className="text-sm font-bold text-slate-100">{challengeTitle}</h4>
-                  <p className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">
-                    Desafio Mensal Correspondente
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                {isFullyCompleted ? (
-                  <span className="px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/35 text-[9.5px] font-bold text-amber-400 rounded-full font-mono flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-amber-400" />
-                    DESAFIO CONCLUÍDO ⭐
-                  </span>
-                ) : (
-                  <span className="px-2.5 py-0.5 bg-slate-900 border border-slate-800 text-[9.5px] font-bold text-slate-400 rounded-full font-mono">
-                    EM PROGRESSO 🎯
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <p className="text-xs text-slate-450 leading-relaxed mb-4 font-sans">
-              Este atleta tem como meta para o ciclo realizar no mínimo <strong className="text-red-400">{participantChallenge.targetGymDays} treinos</strong> e realizar no mínimo <strong className="text-indigo-400">{progress.cardioDaysTarget} {progress.cardioDaysTarget === 1 ? 'dia' : 'dias'} de cardio ({participantChallenge.targetActivityType})</strong>{progress.cardioKmTarget ? ` com pelo menos ${progress.cardioKmTarget} km por dia` : ''}.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-5 font-sans">
-              {/* Gym Requirement */}
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400 flex items-center gap-1 font-mono">
-                    <Dumbbell className="w-3.5 h-3.5 text-red-400" />
-                    Treinos (Consistência)
-                  </span>
-                  <span className="font-bold text-slate-200">
-                    {progress.gymDaysProgress} / {progress.gymDaysTarget} dias
-                  </span>
-                </div>
-                
-                <div className="w-full h-10 bg-slate-900 rounded-xl p-3 border border-slate-850 flex items-center justify-between gap-4">
-                  <div className="flex-1 h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-850">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        progress.gymCompleted ? 'bg-gradient-to-r from-red-600 to-red-400' : 'bg-red-500'
-                      }`} 
-                      style={{ width: `${gymPercent}%` }}
-                    />
-                  </div>
-                  <div className="shrink-0 font-mono text-xs">
-                    {gymRemaining > 0 ? (
-                      <span className="text-[11px] text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded border border-red-500/15">
-                        Falta(m) {gymRemaining} treino(s)
-                      </span>
-                    ) : (
-                      <span className="text-[11px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                        Superado (+{Math.abs(gymRemaining)} extra{Math.abs(gymRemaining) !== 1 ? 's' : ''}) ✅
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Cardio Requirement */}
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400 flex items-center gap-1 font-mono">
-                    <Route className="w-3.5 h-3.5 text-indigo-400" />
-                    Cardio {progress.activityType}
-                  </span>
-                  <span className="font-bold text-slate-200">
-                    {progress.cardioDaysProgress} / {progress.cardioDaysTarget} {progress.cardioDaysTarget === 1 ? 'dia' : 'dias'}
-                  </span>
-                </div>
-
-                <div className="w-full h-10 bg-slate-900 rounded-xl p-3 border border-slate-850 flex items-center justify-between gap-4">
-                  <div className="flex-1 h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-850">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        progress.activityCompleted ? 'bg-gradient-to-r from-indigo-500 to-sky-500' : 'bg-indigo-500'
-                      }`} 
-                      style={{ width: `${cardioPercent}%` }}
-                    />
-                  </div>
-                  <div className="shrink-0 font-mono text-xs">
-                    {cardioDaysRemaining > 0 ? (
-                      <span className="text-[11px] text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/15">
-                        Falta(m) {cardioDaysRemaining} dia(s)
-                      </span>
-                    ) : (
-                      <span className="text-[11px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                        Superado (+{Math.abs(cardioDaysRemaining)} extra{Math.abs(cardioDaysRemaining) !== 1 ? 's' : ''}) ✅
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {isFullyCompleted && (
-              <div className="mt-4 p-3 bg-amber-500/5 rounded-xl border border-amber-500/10 text-[11px] font-sans leading-relaxed text-amber-300 flex items-start gap-2 animate-pulse">
-                <Sparkles className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
-                <div>
-                  <p>
-                    <strong>Heroísmo de Consistência:</strong> {score.name} completou os objetivos do desafio com excelência! Siga treinando para somar ainda mais pontos de liderança e impulsionar a equipe!
-                  </p>
-                </div>
-              </div>
-            )}
-
-          </div>
-        );
-      })()}
 
       {/* Tabs */}
       <div className="flex border-b border-slate-850 mb-4 text-xs font-mono overflow-x-auto whitespace-nowrap scrollbar-none shrink-0">
