@@ -333,6 +333,7 @@ export function isAerobicoActivity(a: Activity): boolean {
 
 /**
  * Classifies an activity as TREINO / OUTROS (flat 5.0 points presence)
+ * Last updated for Vercel deployment synced with GitHub.
  */
 export function isTreinoActivity(a: Activity): boolean {
   if (a.isGymWorkout) return true;
