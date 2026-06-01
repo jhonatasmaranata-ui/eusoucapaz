@@ -1750,23 +1750,6 @@ export default function App() {
       {/* Core Workspace Layout */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
-        {/* Dynamic Challenges Workspaces Group Selection Panel */}
-        <GroupManager 
-          user={user}
-          athleteName={athleteName}
-          activeGroup={groupDetails}
-          userGroups={userGroups}
-          groupMembers={groupMembers}
-          onSelectGroup={(groupId) => {
-            setActiveGroupId(groupId);
-            localStorage.setItem('es_capaz_active_group_id', groupId);
-          }}
-          onCreateGroup={handleCreateGroup}
-          onJoinGroup={handleJoinGroup}
-          onUpdateGroupRules={handleUpdateGroupRules}
-          onLeaveGroup={handleLeaveGroup}
-        />
-
         {activeGroupId && activeGroupId !== 'EMPTY-PRIVATE' ? (
           <>
              {/* Athletic App Tab Selector */}
@@ -1822,6 +1805,23 @@ export default function App() {
             {/* TAB CONTENT: Painel de Desafios */}
             {activeTab === 'painel' && (
               <div className="space-y-6 animate-fadeIn">
+                {/* Dynamic Challenges Workspaces Group Selection Panel (Only on first tab) */}
+                <GroupManager 
+                  user={user}
+                  athleteName={athleteName}
+                  activeGroup={groupDetails}
+                  userGroups={userGroups}
+                  groupMembers={groupMembers}
+                  onSelectGroup={(groupId) => {
+                    setActiveGroupId(groupId);
+                    localStorage.setItem('es_capaz_active_group_id', groupId);
+                  }}
+                  onCreateGroup={handleCreateGroup}
+                  onJoinGroup={handleJoinGroup}
+                  onUpdateGroupRules={handleUpdateGroupRules}
+                  onLeaveGroup={handleLeaveGroup}
+                />
+
                 {/* Goals / Targets Display Block */}
                 <ChallengeSection 
                   athleteName={athleteName}
@@ -1879,18 +1879,36 @@ export default function App() {
             )}
           </>
         ) : (
-          <div className="bg-slate-900/20 border border-slate-855 border-slate-850/60 rounded-2xl p-8 text-center space-y-4 shadow-xl max-w-2xl mx-auto" id="private-challenges-empty-state-placeholder">
-            <div className="w-12 h-12 bg-indigo-950/80 border border-indigo-500/30 text-indigo-400 rounded-full flex items-center justify-center mx-auto shadow-inner">
-              <Lock className="w-5 h-5 animate-pulse" />
-            </div>
-            <div className="space-y-1.5">
-              <h4 className="font-bold text-slate-100 text-sm">Painel de Atividades Oculto</h4>
-              <p className="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
-                Você selecionou a aba de <strong>Desafios Particulares</strong>. Crie um novo desafio ou entre em um através do código no painel acima para habilitar o placar, as metas e postar novos treinos!
-              </p>
-              <p className="text-xs text-slate-500 leading-relaxed max-w-md mx-auto">
-                Para navegar no torneio geral público, clique no botão <strong>Desafio Público Geral (Mensal)</strong> acima.
-              </p>
+          <div className="space-y-6">
+            <GroupManager 
+              user={user}
+              athleteName={athleteName}
+              activeGroup={groupDetails}
+              userGroups={userGroups}
+              groupMembers={groupMembers}
+              onSelectGroup={(groupId) => {
+                setActiveGroupId(groupId);
+                localStorage.setItem('es_capaz_active_group_id', groupId);
+              }}
+              onCreateGroup={handleCreateGroup}
+              onJoinGroup={handleJoinGroup}
+              onUpdateGroupRules={handleUpdateGroupRules}
+              onLeaveGroup={handleLeaveGroup}
+            />
+
+            <div className="bg-slate-900/20 border border-slate-855 border-slate-850/60 rounded-2xl p-8 text-center space-y-4 shadow-xl max-w-2xl mx-auto" id="private-challenges-empty-state-placeholder">
+              <div className="w-12 h-12 bg-indigo-950/80 border border-indigo-500/30 text-indigo-400 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <Lock className="w-5 h-5 animate-pulse" />
+              </div>
+              <div className="space-y-1.5">
+                <h4 className="font-bold text-slate-100 text-sm">Painel de Atividades Oculto</h4>
+                <p className="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
+                  Você selecionou a aba de <strong>Desafios Particulares</strong>. Crie um novo desafio ou entre em um através do código no painel para habilitar o placar, as metas e postar novos treinos!
+                </p>
+                <p className="text-xs text-slate-500 leading-relaxed max-w-md mx-auto">
+                  Para navegar no torneio geral público, clique no botão <strong>Desafio Público Geral (Mensal)</strong> acima.
+                </p>
+              </div>
             </div>
           </div>
         )}
