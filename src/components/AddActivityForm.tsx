@@ -604,43 +604,6 @@ export function AddActivityForm({
                         key={act.id} 
                         className="relative flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-900 hover:border-slate-850 transition-all text-xs font-sans overflow-hidden"
                       >
-                        {/* ABSOLUTE OVERLAY FOR STABLE DELETE CONFIRMATION WITHOUT LAYOUT SHIFT */}
-                        {confirmDeleteId === act.id && (
-                          <div 
-                            className="absolute inset-0 bg-slate-950 flex items-center justify-between px-3 z-30 animate-fadeIn notranslate border border-red-950/50 rounded-xl"
-                            translate="no"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <span className="text-xs text-red-400 font-bold flex items-center gap-1.5 truncate">
-                              <Trash2 className="w-4 h-4 text-red-500 animate-pulse shrink-0" />
-                              Excluir treino permanentemente?
-                            </span>
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onDeleteActivity?.(act.id);
-                                  setConfirmDeleteId(null);
-                                }}
-                                className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-slate-100 text-[11px] font-bold rounded-lg transition-colors cursor-pointer shadow-md"
-                              >
-                                Sim, Excluir
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setConfirmDeleteId(null);
-                                }}
-                                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold rounded-lg transition-colors cursor-pointer"
-                              >
-                                Não
-                              </button>
-                            </div>
-                          </div>
-                        )}
-
                         <div className="flex items-center gap-3 truncate">
                           <div className={`p-2 rounded-lg ${isGym ? 'bg-red-950/35 text-red-400' : isNatacao ? 'bg-cyan-950/35 text-cyan-400' : 'bg-indigo-950/35 text-indigo-400'} shrink-0`}>
                             {isGym ? <Dumbbell className="w-4 h-4" /> : isNatacao ? <Waves className="w-4 h-4" /> : <Route className="w-4 h-4" />}
@@ -664,7 +627,9 @@ export function AddActivityForm({
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setConfirmDeleteId(act.id);
+                            if (window.confirm('Tem certeza de que deseja excluir este treino permanentemente?')) {
+                              onDeleteActivity?.(act.id);
+                            }
                           }}
                           className="p-2 bg-red-950/30 hover:bg-red-900/40 text-red-400 rounded-lg cursor-pointer transition-all shrink-0 notranslate border border-red-900/10 hover:border-red-500/20 flex items-center justify-center shadow-sm"
                           translate="no"

@@ -127,13 +127,13 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
         <table className="min-w-full divide-y divide-slate-850">
           <thead className="bg-slate-950">
             <tr>
-              <th scope="col" className="px-4 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Pos.</th>
-              <th scope="col" className="px-4 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Atleta</th>
-              <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Pontos Totais</th>
-              <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Bônus Combo</th>
-              <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Pontos Cardio</th>
-              <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Dias de Treino</th>
-              <th scope="col" className="px-4 py-3 text-right text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Volume Total</th>
+              <th scope="col" className="px-4 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Pos.</th>
+              <th scope="col" className="px-4 py-3 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Atleta</th>
+              <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Pontos Totais</th>
+              <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Bônus Combo</th>
+              <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Pontos Cardio</th>
+              <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Dias de Treino</th>
+              <th scope="col" className="px-4 py-3 text-right text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Volume Total</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-850 text-xs text-slate-300 bg-slate-900">
@@ -184,15 +184,15 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                           </span>
                         )}
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
+                      <div className="text-[10px] text-slate-400 font-mono mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-[170px] sm:max-w-[230px] md:max-w-xs lg:max-w-md block" title={athleteChallenge ? `Desafio: ${athleteChallenge.targetGymDays}d + ${athleteChallenge.targetActivityValue}${athleteChallenge.targetActivityMetric === 'km' ? 'km' : 'd'} ${athleteChallenge.targetActivityType}` : undefined}>
                         <span>{row.activities.filter(isTreinoActivity).length} Treinos</span>
-                        <span className="text-slate-600">•</span>
+                        <span className="text-slate-600 mx-1">•</span>
                         <span>{row.activities.filter(isAerobicoActivity).length} Aeróbicos</span>
                         {athleteChallenge && (
                           <>
-                            <span className="text-slate-600">•</span>
+                            <span className="text-slate-600 mx-1">•</span>
                             <span className={isChallengeCompleted ? 'text-amber-400 font-bold' : 'text-slate-500'}>
-                              Desafio: {athleteChallenge.targetGymDays}d + {athleteChallenge.targetActivityValue}{athleteChallenge.targetActivityMetric === 'km' ? 'k' : 'd'} {athleteChallenge.targetActivityType}
+                              Alvo: {athleteChallenge.targetGymDays}T + {athleteChallenge.targetActivityValue}{athleteChallenge.targetActivityMetric === 'km' ? 'km' : 'd'} {athleteChallenge.targetActivityType}
                             </span>
                           </>
                         )}
