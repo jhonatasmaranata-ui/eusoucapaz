@@ -1819,45 +1819,6 @@ export default function App() {
             {/* TAB CONTENT: Painel de Desafios */}
             {activeTab === 'painel' && (
               <div className="space-y-6 animate-fadeIn">
-                {/* Dynamic Bento statistics */}
-                <section className="grid grid-cols-1 sm:grid-cols-3 gap-4" id="group-bento-metrics">
-                  <div className="bg-slate-900 border border-slate-850 p-4 rounded-2xl flex flex-col justify-between">
-                    <span className="text-slate-400 font-mono text-[10px] tracking-widest uppercase font-semibold">Distância Total Equipe</span>
-                    <div className="mt-2.5 flex items-baseline gap-1.5">
-                      <span className="text-2xl font-black text-indigo-400 font-mono">{summaryMetrics.totalKm.toFixed(1)}</span>
-                      <span className="text-xs text-slate-400">km</span>
-                    </div>
-                    <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center gap-1">
-                      <Route className="w-3 h-3 text-indigo-400" />
-                      Soma total de volume outdoor
-                    </p>
-                  </div>
-
-                  <div className="bg-slate-900 border border-slate-850 p-4 rounded-2xl flex flex-col justify-between">
-                    <span className="text-slate-400 font-mono text-[10px] tracking-widest uppercase font-semibold">Dias de Treino</span>
-                    <div className="mt-2.5 flex items-baseline gap-1.5">
-                      <span className="text-2xl font-black text-red-400 font-mono">{summaryMetrics.totalWorkouts}</span>
-                      <span className="text-xs text-slate-400">marcas</span>
-                    </div>
-                    <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center gap-1">
-                      <Dumbbell className="w-3.5 h-3.5 text-red-400" />
-                      Sessões de treino
-                    </p>
-                  </div>
-
-                  <div className="bg-slate-900 border border-slate-850 p-4 rounded-2xl flex flex-col justify-between">
-                    <span className="text-slate-400 font-mono text-[10px] tracking-widest uppercase font-semibold">Combos Concluídos</span>
-                    <div className="mt-2.5 flex items-baseline gap-1.5">
-                      <span className="text-2xl font-black text-amber-500 font-mono">{summaryMetrics.totalCombos}</span>
-                      <span className="text-xs text-slate-400">unidades</span>
-                    </div>
-                    <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center gap-1">
-                      <Flame className="w-3.5 h-3.5 text-amber-400" />
-                      Treino + Cardio no mesmo dia
-                    </p>
-                  </div>
-                </section>
-
                 {/* Goals / Targets Display Block */}
                 <ChallengeSection 
                   athleteName={athleteName}
@@ -1870,42 +1831,6 @@ export default function App() {
                   startDate={rules.startDate}
                   endDate={rules.endDate || ''}
                 />
-
-                {/* Formulas representation */}
-                <div className="bg-slate-900 border border-slate-850 rounded-2xl p-5" id="formulas-helper">
-                  <h4 className="text-xs font-bold text-slate-350 font-mono tracking-widest uppercase mb-3 flex items-center gap-1.5">
-                    <Calculator className="w-4 h-4 text-emerald-400" />
-                    REGRAS DE PONTUAÇÃO DO DESAFIO
-                  </h4>
-                  <div className="bg-slate-950 border border-slate-850 p-4 rounded-xl space-y-3 font-mono text-xs text-slate-400">
-                    <div className="pb-2 border-b border-slate-850/50">
-                      <span className="text-red-400 font-bold block mb-1">1. MUSCULAÇÃO / OUTROS = +{rules.gymPointsPerCheckIn} Pontos</span>
-                      <span className="text-xs text-slate-300 leading-normal font-sans">Treino, Funcional, Lutas, Pilates, CrossFit somam <span className="text-red-400 font-bold">{rules.gymPointsPerCheckIn} pontos</span> por dia de prática!</span>
-                    </div>
-                    <div className="pb-2 border-b border-slate-850/50">
-                      <span className="text-indigo-400 font-bold block mb-1">2. CARDIO OUTDOOR = Proporcional ao Giro</span>
-                      <span className="text-xs text-slate-300 leading-normal font-sans">Volume extra de corridas, pedal ou natação geram pontuação na hora:</span>
-                    </div>
-                    <div className="space-y-1.5 text-xs">
-                      <div className="flex justify-between items-center bg-slate-900/60 p-2 rounded border border-slate-850/40">
-                        <span className="text-indigo-400 font-bold">CORRIDA / CAMINHADA:</span>
-                        <span className="text-slate-300 font-bold">1 km = 1.0 ponto * {rules.distanceMultiplier}</span>
-                      </div>
-                      <div className="flex justify-between items-center bg-slate-900/60 p-2 rounded border border-slate-850/40 font-sans">
-                        <span className="text-amber-500 font-bold font-mono">BIKE:</span>
-                        <span className="text-slate-300 font-bold font-mono">3 km = 1.0 ponto * {rules.distanceMultiplier}</span>
-                      </div>
-                      <div className="flex justify-between items-center bg-slate-900/60 p-2 rounded border border-slate-850/40">
-                        <span className="text-cyan-400 font-bold">NATAÇÃO:</span>
-                        <span className="text-slate-300 font-bold font-mono">250m = 1.0 ponto * {rules.distanceMultiplier}</span>
-                      </div>
-                    </div>
-                    <div className="pt-2 text-xs">
-                      <span className="text-emerald-400 font-bold block mb-1">3. COMBO = +{rules.comboPointsPerDay} Pontos</span>
-                      <span className="text-xs text-slate-300 leading-normal font-sans">Consistência Premium: Logar treino E corrida no mesmo dia joga <span className="text-emerald-400 font-bold">+{rules.comboPointsPerDay} pontos bônus</span> na sua conta!</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             )}
 
