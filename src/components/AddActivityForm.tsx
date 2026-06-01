@@ -37,6 +37,7 @@ export function AddActivityForm({
   const [errorInfo, setErrorInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showRecentRoll, setShowRecentRoll] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -622,18 +623,39 @@ export function AddActivityForm({
                           </div>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (window.confirm(`Deseja mesmo excluir este registro de "${act.type}" do dia ${act.date.split('-').reverse().join('/')}?`)) {
-                              onDeleteActivity?.(act.id);
-                            }
-                          }}
-                          className="p-1.5 hover:bg-red-950/35 text-slate-500 hover:text-red-400 rounded-lg cursor-pointer transition-colors shrink-0"
-                          title="Excluir Atividade"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        {confirmDeleteId === act.id ? (
+                          <div className="flex items-center gap-1 shrink-0 animate-fadeIn font-sans">
+                            <span className="text-[10px] text-red-400 font-bold">Excluir?</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onDeleteActivity?.(act.id);
+                                setConfirmDeleteId(null);
+                              }}
+                              className="px-2 py-1 bg-red-600 hover:bg-red-500 text-slate-100 text-[9px] font-bold rounded transition-colors cursor-pointer"
+                            >
+                              Sim
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmDeleteId(null)}
+                              className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[9px] font-bold rounded transition-colors cursor-pointer"
+                            >
+                              Não
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setConfirmDeleteId(act.id);
+                            }}
+                            className="p-1.5 hover:bg-red-950/35 text-slate-500 hover:text-red-400 rounded-lg cursor-pointer transition-colors shrink-0"
+                            title="Excluir Atividade"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
                     );
                   })}
