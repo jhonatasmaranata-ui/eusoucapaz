@@ -279,8 +279,8 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
                 score.rank === 1 
                   ? 'bg-amber-500/10 border-amber-500/35 text-amber-400' 
                   : score.rank <= 3 
-                  ? 'bg-slate-800 border-slate-700 text-slate-300' 
-                  : 'bg-slate-950 border-slate-850 text-slate-450'
+                  ? 'bg-slate-850 border-slate-700 text-slate-300' 
+                  : 'bg-slate-950 border-slate-855 text-slate-450'
               }`} title={`Patente organizada pelo Ranking atual`}>
                 {rankInfo.name}
               </span>
@@ -291,9 +291,6 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
                 </span>
               )}
             </h3>
-            <p className="text-xs text-slate-400 mt-1 font-mono">
-              PERFIL INDIVIDUAL DE DESEMPENHO NO DESAFIO DO FRADE
-            </p>
           </div>
         </div>
 
