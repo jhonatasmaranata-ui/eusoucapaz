@@ -8,6 +8,8 @@ import { ParticipantScore, Activity, Challenge, RuleConfig } from '../types';
 import { Calendar, Flame, Dumbbell, Route, Check, MapPin, Hash, Trophy, Trash2, Waves, Sparkles, Smile, Camera, Image, Eye } from 'lucide-react';
 import { isTreinoActivity, isAerobicoActivity, calculateChallengeProgress, isSameAthlete } from '../utils';
 
+import { getMilitaryRankInfo } from './MilitaryRankBadge';
+
 interface ParticipantDetailsProps {
   score: ParticipantScore | null;
   currentUserId?: string;
@@ -256,6 +258,8 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
     }
   });
 
+  const rankInfo = getMilitaryRankInfo(score.rank);
+
   return (
     <div className="bg-slate-900 border border-slate-850 rounded-2xl p-6 shadow-md" id="participant-dashboard">
       
@@ -263,14 +267,23 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-850 pb-5 mb-5">
         <div className="flex items-center gap-3">
           <div 
-            className="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-500 flex items-center justify-center text-white font-extrabold text-lg uppercase shadow-inner notranslate shrink-0"
+            className={`w-[68px] h-[68px] sm:w-[76px] sm:h-[76px] rounded-xl bg-gradient-to-b ${rankInfo.bgClass} flex flex-col items-center justify-center border shadow-md notranslate shrink-0 p-1 sm:p-1.5`}
             translate="no"
           >
-            {score.name.substring(0, 2)}
+            {rankInfo.icon}
           </div>
           <div>
             <h3 className="text-lg sm:text-xl font-bold text-slate-100 flex flex-wrap items-center gap-2 notranslate" translate="no">
               <span>{score.name}</span>
+              <span className={`text-[9.5px] sm:text-[10.5px] font-extrabold px-2 py-0.5 rounded-md border font-mono tracking-wider uppercase shrink-0 ${
+                score.rank === 1 
+                  ? 'bg-amber-500/10 border-amber-500/35 text-amber-400' 
+                  : score.rank <= 3 
+                  ? 'bg-slate-800 border-slate-700 text-slate-300' 
+                  : 'bg-slate-950 border-slate-850 text-slate-450'
+              }`} title={`Patente organizada pelo Ranking atual`}>
+                {rankInfo.name}
+              </span>
               {score.rank <= 3 && (
                 <span className="text-[10px] sm:text-xs bg-amber-500/10 px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md border border-amber-500/30 font-mono text-amber-400 flex items-center gap-1 font-bold shrink-0 whitespace-nowrap">
                   <Trophy className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-amber-400 fill-amber-400/10" />

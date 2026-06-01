@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { Search, Info, Dumbbell, Route, HelpCircle, Flame, Star } from 'lucide-react';
 import { ParticipantScore, Challenge } from '../types';
 import { calculateChallengeProgress, isAerobicoActivity, isTreinoActivity } from '../utils';
+import { getMilitaryRankInfo } from './MilitaryRankBadge';
 
 interface LeaderboardProps {
   scores: ParticipantScore[];
@@ -127,7 +128,7 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
         <table className="min-w-full divide-y divide-slate-850 table-fixed sm:table-auto">
           <thead className="bg-slate-950">
             <tr>
-              <th scope="col" className="w-[34px] sm:w-auto px-0.5 sm:px-1.5 py-1.5 text-left text-[8px] sm:text-[8.5px] font-bold text-slate-400 uppercase tracking-tight font-mono whitespace-nowrap">Pos.</th>
+              <th scope="col" className="w-[38px] sm:w-[48px] px-0.5 sm:px-1.5 py-1.5 text-center text-[8px] sm:text-[8.5px] font-bold text-slate-400 uppercase tracking-tight font-mono whitespace-nowrap">Pos.</th>
               <th scope="col" className="px-1 sm:px-1.5 py-1.5 text-left text-[8px] sm:text-[8.5px] font-bold text-slate-400 uppercase tracking-tight font-mono whitespace-nowrap">Atleta</th>
               <th scope="col" className="w-[50px] min-[350px]:w-[58px] sm:w-auto px-0.5 sm:px-1.5 py-1.5 text-center text-[8px] sm:text-[8.5px] font-bold text-slate-400 uppercase tracking-tight font-mono whitespace-nowrap">
                 <span className="hidden min-[350px]:inline">Pontos</span>
@@ -179,17 +180,20 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                     }`}
                   >
                     {/* Rank */}
-                    <td className="px-0.5 sm:px-1.5 py-1 sm:py-1.5 whitespace-nowrap align-middle">
-                      <div className="flex items-center">
+                    <td className="w-[38px] sm:w-[48px] px-0.5 sm:px-1.5 py-1 sm:py-1.5 whitespace-nowrap align-middle text-center">
+                      <div className="flex items-center justify-center">
                         {getRankBadge(row.rank)}
                       </div>
                     </td>
 
                     {/* Athlete Name */}
                     <td className="px-1 sm:px-1.5 py-1 sm:py-1.5 whitespace-nowrap align-middle font-medium">
-                      <div className="text-[10px] sm:text-xs font-semibold text-slate-100 group-hover:text-emerald-400 transition-colors notranslate flex items-center gap-0.5 sm:gap-1" translate="no">
-                        <span className="truncate max-w-[70px] min-[330px]:max-w-[85px] min-[360px]:max-w-[100px] min-[400px]:max-w-[125px] sm:max-w-[160px] md:max-w-none block">
+                      <div className="text-[10px] sm:text-xs font-semibold text-slate-100 group-hover:text-emerald-400 transition-colors notranslate flex flex-wrap items-center gap-1" translate="no">
+                        <span className="truncate max-w-[90px] sm:max-w-[180px] block">
                           {row.name}
+                        </span>
+                        <span className="text-[6.5px] sm:text-[7.5px] font-mono font-extrabold px-1 py-[0.5px] bg-slate-950 border border-slate-800 rounded uppercase tracking-tighter shrink-0 select-none text-slate-400" title={`Patente organizada pelo Ranking atual`}>
+                          {getMilitaryRankInfo(row.rank).name}
                         </span>
                         {isChallengeCompleted && (
                           <span className="inline-flex px-0.5 py-0.2 sm:px-1 sm:py-0.5 bg-amber-500/15 border border-amber-500/30 text-[7px] sm:text-[8px] font-bold text-amber-400 rounded font-mono animate-pulse shrink-0" title="Concluiu o Desafio Mensal!">
@@ -214,8 +218,11 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
 
                     {/* Total Points */}
                     <td className="px-0.5 sm:px-1.5 py-1 sm:py-1.5 whitespace-nowrap text-center align-middle">
-                      <span className="inline-flex px-1 sm:px-1.5 py-0.5 rounded text-[9.5px] sm:text-[10.5px] font-bold font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
-                        {row.totalPoints.toFixed(1)}<span className="text-[7.5px] min-[350px]:text-[8.5px] font-semibold ml-0.5">pts</span>
+                      <span 
+                        className="inline-flex px-1 sm:px-1.5 py-0.5 rounded text-[9.5px] sm:text-[10.5px] font-bold font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap notranslate"
+                        translate="no"
+                      >
+                        {row.totalPoints.toFixed(1).replace('.', ',')} pts
                       </span>
                     </td>
 
