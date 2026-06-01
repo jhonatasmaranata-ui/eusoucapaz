@@ -299,7 +299,7 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
       </div>
 
       {/* Grid Quick Metric Figures */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-4 mb-6">
         
         {/* Combos Card */}
         <div className="p-4 rounded-xl bg-slate-950 border border-slate-850 flex items-center gap-3.5 shadow-sm hover:border-amber-500/25 transition-all">
@@ -410,7 +410,7 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
               Este atleta tem como meta para o ciclo realizar no mínimo <strong className="text-red-400">{participantChallenge.targetGymDays} treinos</strong> e realizar no mínimo <strong className="text-indigo-400">{progress.cardioDaysTarget} {progress.cardioDaysTarget === 1 ? 'dia' : 'dias'} de cardio ({participantChallenge.targetActivityType})</strong>{progress.cardioKmTarget ? ` com pelo menos ${progress.cardioKmTarget} km por dia` : ''}.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 font-sans">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-5 font-sans">
               {/* Gym Requirement */}
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center text-xs">

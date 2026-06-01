@@ -1769,15 +1769,16 @@ export default function App() {
 
         {activeGroupId && activeGroupId !== 'EMPTY-PRIVATE' ? (
           <>
-            {/* Athletic App Tab Selector */}
+             {/* Athletic App Tab Selector */}
             <div className="border-b border-slate-850/60 sticky top-0 bg-slate-950/95 backdrop-blur-md z-40 py-2.5 -mx-4 px-4 sm:mx-0 sm:px-0">
               <div className="flex justify-around sm:justify-start sm:gap-8 max-w-xl mx-auto sm:mx-0" id="app-challenge-navigation-tabs">
                 <button
                   type="button"
                   onClick={() => setActiveTab('painel')}
-                  className={`pb-2.5 pt-1 font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider relative transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`pb-2.5 pt-1 font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider relative transition-all cursor-pointer flex items-center gap-1.5 notranslate ${
                     activeTab === 'painel' ? 'text-[#fc5200]' : 'text-slate-400 hover:text-slate-200'
                   }`}
+                  translate="no"
                 >
                   <Flame className="w-4 h-4 text-[#fc5200]" />
                   Painel de Desafios
@@ -1789,9 +1790,10 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('registrar')}
-                  className={`pb-2.5 pt-1 font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider relative transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`pb-2.5 pt-1 font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider relative transition-all cursor-pointer flex items-center gap-1.5 notranslate ${
                     activeTab === 'registrar' ? 'text-[#fc5200]' : 'text-slate-400 hover:text-slate-200'
                   }`}
+                  translate="no"
                 >
                   <CheckSquare className="w-4 h-4 text-emerald-400" />
                   Logar Atividade
@@ -1803,9 +1805,10 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('classificacao')}
-                  className={`pb-2.5 pt-1 font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider relative transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`pb-2.5 pt-1 font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider relative transition-all cursor-pointer flex items-center gap-1.5 notranslate ${
                     activeTab === 'classificacao' ? 'text-[#fc5200]' : 'text-slate-400 hover:text-slate-200'
                   }`}
+                  translate="no"
                 >
                   <Trophy className="w-4 h-4 text-amber-500" />
                   Classificação
