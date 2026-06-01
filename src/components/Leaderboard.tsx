@@ -29,19 +29,19 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
     switch(rank) {
       case 1:
         return (
-          <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-amber-500 text-slate-950 font-bold text-[9px] sm:text-xs shadow-sm shadow-amber-500/20" title="1º Lugar - Ouro">
+          <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 text-sm sm:text-base select-none" title="1º Lugar - Ouro">
             🥇
           </span>
         );
       case 2:
         return (
-          <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-300 text-slate-950 font-bold text-[9px] sm:text-xs shadow-sm shadow-slate-300/20" title="2º Lugar - Prata">
+          <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 text-sm sm:text-base select-none" title="2º Lugar - Prata">
             🥈
           </span>
         );
       case 3:
         return (
-          <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-amber-700 text-amber-100 font-bold text-[9px] sm:text-xs shadow-sm shadow-amber-900/20" title="3º Lugar - Bronze">
+          <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 text-sm sm:text-base select-none" title="3º Lugar - Bronze">
             🥉
           </span>
         );
@@ -170,12 +170,12 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                     key={row.name}
                     id={`athlete-row-${row.name.replace(/\s+/g, '-').toLowerCase()}`}
                     onClick={() => onSelectParticipant(row.name)}
-                    className={`cursor-pointer transition-colors group ${
+                    className={`cursor-pointer transition-colors border-l-[3px] sm:border-l-4 group ${
                       isSelected 
-                        ? 'bg-emerald-950/20 border-l-[3px] sm:border-l-4 border-l-emerald-500 hover:bg-emerald-950/30' 
+                        ? 'bg-emerald-950/20 border-l-emerald-500 hover:bg-emerald-950/30' 
                         : isChallengeCompleted
-                        ? 'bg-amber-500/5 hover:bg-amber-500/10 border-l-[3px] sm:border-l-4 border-l-amber-500/60'
-                        : 'hover:bg-slate-850/40'
+                        ? 'bg-amber-500/5 hover:bg-amber-500/10 border-l-amber-500/60'
+                        : 'border-l-transparent hover:bg-slate-850/40'
                     }`}
                   >
                     {/* Rank */}
@@ -215,7 +215,7 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                     {/* Total Points */}
                     <td className="px-0.5 sm:px-1.5 py-1 sm:py-1.5 whitespace-nowrap text-center align-middle">
                       <span className="inline-flex px-1 sm:px-1.5 py-0.5 rounded text-[9.5px] sm:text-[10.5px] font-bold font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
-                        {row.totalPoints.toFixed(1)}<span className="text-[7.5px] min-[350px]:text-[8.5px] font-medium opacity-90 ml-0.5">pts</span>
+                        {row.totalPoints.toFixed(1)}<span className="text-[7.5px] min-[350px]:text-[8.5px] font-semibold ml-0.5">pts</span>
                       </span>
                     </td>
 

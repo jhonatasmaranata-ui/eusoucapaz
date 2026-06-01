@@ -269,11 +269,11 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
             {score.name.substring(0, 2)}
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-100 flex items-center gap-2 notranslate" translate="no">
-              {score.name}
+            <h3 className="text-lg sm:text-xl font-bold text-slate-100 flex flex-wrap items-center gap-2 notranslate" translate="no">
+              <span>{score.name}</span>
               {score.rank <= 3 && (
-                <span className="text-xs bg-slate-850 px-2 py-0.5 rounded-md border border-slate-750 font-mono text-amber-400 flex items-center gap-1 font-bold">
-                  <Trophy className="w-3.5 h-3.5" />
+                <span className="text-[10px] sm:text-xs bg-amber-500/10 px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md border border-amber-500/30 font-mono text-amber-400 flex items-center gap-1 font-bold shrink-0 whitespace-nowrap">
+                  <Trophy className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-amber-400 fill-amber-400/10" />
                   TOP {score.rank}
                 </span>
               )}
