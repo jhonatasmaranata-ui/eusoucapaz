@@ -53,7 +53,9 @@ import {
   Info,
   Lock,
   Unlock,
-  CalendarDays
+  CalendarDays,
+  Trophy,
+  CheckSquare
 } from 'lucide-react';
 
 export default function App() {
@@ -151,6 +153,7 @@ export default function App() {
   const [selectedParticipantName, setSelectedParticipantName] = useState<string | null>(null);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [showResetChallengeConfirm, setShowResetChallengeConfirm] = useState(false);
+  const [activeTab, setActiveTab] = useState<'painel' | 'registrar' | 'classificacao'>('painel');
 
   const isChallengeActive = useMemo(() => {
     if (!rules.startDate) return false;
@@ -1766,61 +1769,149 @@ export default function App() {
 
         {activeGroupId && activeGroupId !== 'EMPTY-PRIVATE' ? (
           <>
-            {/* Dynamic Bento statistics */}
-            <section className="grid grid-cols-1 sm:grid-cols-3 gap-4" id="group-bento-metrics">
-              <div className="bg-slate-900 border border-slate-850 p-4 rounded-2xl flex flex-col justify-between">
-                <span className="text-slate-400 font-mono text-[10px] tracking-widest uppercase font-semibold">Distância Total Equipe</span>
-                <div className="mt-2.5 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-black text-indigo-400 font-mono">{summaryMetrics.totalKm.toFixed(1)}</span>
-                  <span className="text-xs text-slate-400">km</span>
-                </div>
-                <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center gap-1">
-                  <Route className="w-3 h-3 text-indigo-400" />
-                  Soma total de volume outdoor
-                </p>
+            {/* Athletic App Tab Selector */}
+            <div className="border-b border-slate-850/60 sticky top-0 bg-slate-950/95 backdrop-blur-md z-40 py-2.5 -mx-4 px-4 sm:mx-0 sm:px-0">
+              <div className="flex justify-around sm:justify-start sm:gap-8 max-w-xl mx-auto sm:mx-0" id="app-challenge-navigation-tabs">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('painel')}
+                  className={`pb-2.5 pt-1 font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider relative transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeTab === 'painel' ? 'text-[#fc5200]' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Flame className="w-4 h-4 text-[#fc5200]" />
+                  Painel de Desafios
+                  {activeTab === 'painel' && (
+                    <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#fc5200] rounded-full animate-fadeIn" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('registrar')}
+                  className={`pb-2.5 pt-1 font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider relative transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeTab === 'registrar' ? 'text-[#fc5200]' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <CheckSquare className="w-4 h-4 text-emerald-400" />
+                  Logar Atividade
+                  {activeTab === 'registrar' && (
+                    <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#fc5200] rounded-full animate-fadeIn" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('classificacao')}
+                  className={`pb-2.5 pt-1 font-sans text-xs sm:text-sm font-extrabold uppercase tracking-wider relative transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeTab === 'classificacao' ? 'text-[#fc5200]' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Trophy className="w-4 h-4 text-amber-500" />
+                  Classificação
+                  {activeTab === 'classificacao' && (
+                    <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#fc5200] rounded-full animate-fadeIn" />
+                  )}
+                </button>
               </div>
+            </div>
 
-              <div className="bg-slate-900 border border-slate-850 p-4 rounded-2xl flex flex-col justify-between">
-                <span className="text-slate-400 font-mono text-[10px] tracking-widest uppercase font-semibold">Dias de Treino</span>
-                <div className="mt-2.5 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-black text-red-400 font-mono">{summaryMetrics.totalWorkouts}</span>
-                  <span className="text-xs text-slate-400">marcas</span>
+            {/* TAB CONTENT: Painel de Desafios */}
+            {activeTab === 'painel' && (
+              <div className="space-y-6 animate-fadeIn">
+                {/* Dynamic Bento statistics */}
+                <section className="grid grid-cols-1 sm:grid-cols-3 gap-4" id="group-bento-metrics">
+                  <div className="bg-slate-900 border border-slate-850 p-4 rounded-2xl flex flex-col justify-between">
+                    <span className="text-slate-400 font-mono text-[10px] tracking-widest uppercase font-semibold">Distância Total Equipe</span>
+                    <div className="mt-2.5 flex items-baseline gap-1.5">
+                      <span className="text-2xl font-black text-indigo-400 font-mono">{summaryMetrics.totalKm.toFixed(1)}</span>
+                      <span className="text-xs text-slate-400">km</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center gap-1">
+                      <Route className="w-3 h-3 text-indigo-400" />
+                      Soma total de volume outdoor
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-900 border border-slate-850 p-4 rounded-2xl flex flex-col justify-between">
+                    <span className="text-slate-400 font-mono text-[10px] tracking-widest uppercase font-semibold">Dias de Treino</span>
+                    <div className="mt-2.5 flex items-baseline gap-1.5">
+                      <span className="text-2xl font-black text-red-400 font-mono">{summaryMetrics.totalWorkouts}</span>
+                      <span className="text-xs text-slate-400">marcas</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center gap-1">
+                      <Dumbbell className="w-3.5 h-3.5 text-red-400" />
+                      Sessões de treino
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-900 border border-slate-850 p-4 rounded-2xl flex flex-col justify-between">
+                    <span className="text-slate-400 font-mono text-[10px] tracking-widest uppercase font-semibold">Combos Concluídos</span>
+                    <div className="mt-2.5 flex items-baseline gap-1.5">
+                      <span className="text-2xl font-black text-amber-500 font-mono">{summaryMetrics.totalCombos}</span>
+                      <span className="text-xs text-slate-400">unidades</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center gap-1">
+                      <Flame className="w-3.5 h-3.5 text-amber-400" />
+                      Treino + Cardio no mesmo dia
+                    </p>
+                  </div>
+                </section>
+
+                {/* Goals / Targets Display Block */}
+                <ChallengeSection 
+                  athleteName={athleteName}
+                  activeParticipantScore={activeParticipantScore}
+                  challenges={challenges}
+                  onSaveChallenge={handleSaveChallenge}
+                  isLoggedIn={user !== null}
+                  scores={scores}
+                  isAdmin={isModerator}
+                  startDate={rules.startDate}
+                  endDate={rules.endDate || ''}
+                />
+
+                {/* Formulas representation */}
+                <div className="bg-slate-900 border border-slate-850 rounded-2xl p-5" id="formulas-helper">
+                  <h4 className="text-xs font-bold text-slate-350 font-mono tracking-widest uppercase mb-3 flex items-center gap-1.5">
+                    <Calculator className="w-4 h-4 text-emerald-400" />
+                    REGRAS DE PONTUAÇÃO DO DESAFIO
+                  </h4>
+                  <div className="bg-slate-950 border border-slate-850 p-4 rounded-xl space-y-3 font-mono text-xs text-slate-400">
+                    <div className="pb-2 border-b border-slate-850/50">
+                      <span className="text-red-400 font-bold block mb-1">1. MUSCULAÇÃO / OUTROS = +{rules.gymPointsPerCheckIn} Pontos</span>
+                      <span className="text-xs text-slate-300 leading-normal font-sans">Treino, Funcional, Lutas, Pilates, CrossFit somam <span className="text-red-400 font-bold">{rules.gymPointsPerCheckIn} pontos</span> por dia de prática!</span>
+                    </div>
+                    <div className="pb-2 border-b border-slate-850/50">
+                      <span className="text-indigo-400 font-bold block mb-1">2. CARDIO OUTDOOR = Proporcional ao Giro</span>
+                      <span className="text-xs text-slate-300 leading-normal font-sans">Volume extra de corridas, pedal ou natação geram pontuação na hora:</span>
+                    </div>
+                    <div className="space-y-1.5 text-xs">
+                      <div className="flex justify-between items-center bg-slate-900/60 p-2 rounded border border-slate-850/40">
+                        <span className="text-indigo-400 font-bold">CORRIDA / CAMINHADA:</span>
+                        <span className="text-slate-300 font-bold">1 km = 1.0 ponto * {rules.distanceMultiplier}</span>
+                      </div>
+                      <div className="flex justify-between items-center bg-slate-900/60 p-2 rounded border border-slate-850/40 font-sans">
+                        <span className="text-amber-500 font-bold font-mono">BIKE:</span>
+                        <span className="text-slate-300 font-bold font-mono">3 km = 1.0 ponto * {rules.distanceMultiplier}</span>
+                      </div>
+                      <div className="flex justify-between items-center bg-slate-900/60 p-2 rounded border border-slate-850/40">
+                        <span className="text-cyan-400 font-bold">NATAÇÃO:</span>
+                        <span className="text-slate-300 font-bold font-mono">250m = 1.0 ponto * {rules.distanceMultiplier}</span>
+                      </div>
+                    </div>
+                    <div className="pt-2 text-xs">
+                      <span className="text-emerald-400 font-bold block mb-1">3. COMBO = +{rules.comboPointsPerDay} Pontos</span>
+                      <span className="text-xs text-slate-300 leading-normal font-sans">Consistência Premium: Logar treino E corrida no mesmo dia joga <span className="text-emerald-400 font-bold">+{rules.comboPointsPerDay} pontos bônus</span> na sua conta!</span>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center gap-1">
-                  <Dumbbell className="w-3.5 h-3.5 text-red-400" />
-                  Sessões de treino
-                </p>
               </div>
+            )}
 
-              <div className="bg-slate-900 border border-slate-850 p-4 rounded-2xl flex flex-col justify-between">
-                <span className="text-slate-400 font-mono text-[10px] tracking-widest uppercase font-semibold">Combos Concluídos</span>
-                <div className="mt-2.5 flex items-baseline gap-1.5">
-                  <span className="text-2xl font-black text-amber-500 font-mono">{summaryMetrics.totalCombos}</span>
-                  <span className="text-xs text-slate-400">unidades</span>
-                </div>
-                <p className="text-[10px] text-slate-500 mt-2 font-mono flex items-center gap-1">
-                  <Flame className="w-3.5 h-3.5 text-amber-400" />
-                  Treino + Cardio no mesmo dia
-                </p>
-              </div>
-            </section>
-
-            {/* Goals / Targets Display Block */}
-            <ChallengeSection 
-              athleteName={athleteName}
-              activeParticipantScore={activeParticipantScore}
-              challenges={challenges}
-              onSaveChallenge={handleSaveChallenge}
-              isLoggedIn={user !== null}
-              scores={scores}
-              isAdmin={isModerator}
-              startDate={rules.startDate}
-              endDate={rules.endDate || ''}
-            />
-
-            {/* Split layouts: Active logs and Placar */}
-            <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-12 xl:col-span-5 space-y-6">
+            {/* TAB CONTENT: Logar Atividade */}
+            {activeTab === 'registrar' && (
+              <div className="max-w-2xl mx-auto space-y-6 animate-fadeIn">
                 <AddActivityForm 
                   existingNames={existingNames} 
                   onAddActivity={handleAddManualActivity} 
@@ -1829,195 +1920,35 @@ export default function App() {
                   activities={activities}
                   onDeleteActivity={handleDeleteActivity}
                 />
-
-                {/* Custom Admin Weights Panel */}
-                {false && (
-                  <div className="bg-slate-900 border border-slate-850 rounded-2xl p-5" id="rules-configuration">
-                    <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider font-mono flex items-center justify-between border-b border-slate-850 pb-3 mb-4">
-                      <span className="flex items-center gap-2">
-                        <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
-                        Configurar Pontuação do Desafio
-                      </span>
-                      {isChallengeLocked ? (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-950/40 border border-red-900/40 text-red-400 flex items-center gap-1">
-                          <Lock className="w-2.5 h-2.5" /> BLOQUEADO
-                        </span>
-                      ) : (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-950/40 border border-emerald-900/40 text-emerald-400 flex items-center gap-1">
-                          <Unlock className="w-2.5 h-2.5" /> EDITÁVEL
-                        </span>
-                      )}
-                    </h3>
-                    
-                    <div className="space-y-4 text-xs font-mono">
-                      <div className="grid grid-cols-2 gap-3 pb-1">
-                        <div>
-                          <label className="block text-slate-400 mb-1 font-semibold">Iniciar Contagem em:</label>
-                          <input
-                            type="date"
-                            value={rules.startDate}
-                            onChange={(e) => handleUpdateRules('startDate', e.target.value)}
-                            disabled={isChallengeLocked}
-                            className={`w-full bg-slate-950 border border-slate-850 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 text-center text-xs ${isChallengeLocked ? 'opacity-50 cursor-not-allowed bg-slate-900' : ''}`}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 font-semibold">Término da Contagem (opcional):</label>
-                          <input
-                            type="date"
-                            value={rules.endDate || ''}
-                            onChange={(e) => handleUpdateRules('endDate', e.target.value)}
-                            disabled={isChallengeLocked}
-                            className={`w-full bg-slate-950 border border-slate-850 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 text-center text-xs text-stone-300 ${isChallengeLocked ? 'opacity-50 cursor-not-allowed bg-slate-900' : ''}`}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-2 pt-1">
-                        <div>
-                          <label className="block text-slate-400 mb-1 font-semibold text-[10px] truncate" title="Bônus de Combo">Bônus Combo:</label>
-                          <input
-                            type="number"
-                            value={rules.comboPointsPerDay}
-                            onChange={(e) => handleUpdateRules('comboPointsPerDay', parseInt(e.target.value) || 0)}
-                            disabled={isChallengeLocked}
-                            className={`w-full bg-slate-950 border border-slate-850 rounded-lg px-2 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 text-center font-bold ${isChallengeLocked ? 'opacity-50 cursor-not-allowed bg-slate-900' : ''}`}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 font-semibold text-[10px] truncate" title="Treino Musculação">Musculação:</label>
-                          <input
-                            type="number"
-                            value={rules.gymPointsPerCheckIn}
-                            onChange={(e) => handleUpdateRules('gymPointsPerCheckIn', parseInt(e.target.value) || 0)}
-                            disabled={isChallengeLocked}
-                            className={`w-full bg-slate-950 border border-slate-850 rounded-lg px-2 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 text-center font-bold ${isChallengeLocked ? 'opacity-50 cursor-not-allowed bg-slate-900' : ''}`}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-slate-400 mb-1 font-semibold text-[10px] truncate" title="Multiplicador do Cardio">Mult. Cardio:</label>
-                          <input
-                            type="number"
-                            step="0.1"
-                            value={rules.distanceMultiplier ?? 1.0}
-                            onChange={(e) => handleUpdateRules('distanceMultiplier', parseFloat(e.target.value) || 1.0)}
-                            disabled={isChallengeLocked}
-                            className={`w-full bg-slate-950 border border-slate-850 rounded-lg px-2 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 text-center font-bold ${isChallengeLocked ? 'opacity-50 cursor-not-allowed bg-slate-900' : ''}`}
-                          />
-                        </div>
-                      </div>
-
-                      {isChallengeLocked ? (
-                        <div className="p-3 bg-slate-950 border border-slate-850/80 rounded-xl space-y-2.5">
-                          <div className="flex gap-2">
-                            <Lock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                            <div>
-                              <p className="text-[10px] text-slate-350 leading-relaxed font-sans">
-                                <strong className="text-amber-500">Edição Bloqueada:</strong> O desafio já foi criado e está em andamento (ou planejado para começar). As pontuações e datas estão congeladas.
-                              </p>
-                            </div>
-                          </div>
-                          
-                          {!showResetChallengeConfirm ? (
-                            <button
-                              type="button"
-                              onClick={() => setShowResetChallengeConfirm(true)}
-                              className="w-full py-1.5 px-3 rounded-lg bg-red-950/30 border border-red-900/30 text-red-400 hover:bg-red-950/50 hover:border-red-900/50 text-[10px] uppercase font-mono tracking-wider font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                            >
-                              <Unlock className="w-3 h-3" /> Encerrar e Criar Novo Desafio
-                            </button>
-                          ) : (
-                            <div className="p-3 bg-red-950/20 border border-red-900/30 rounded-lg space-y-2.5 font-sans">
-                              <p className="text-[10px] text-amber-500 leading-normal">
-                                Deseja mesmo encerrar o desafio atual? As pontuações do Placar Geral serão baseadas no novo período e nas regras que você configurar a seguir.
-                              </p>
-                              <div className="flex gap-2">
-                                <button
-                                  type="button"
-                                  onClick={handleResetOrNewChallenge}
-                                  className="px-2.5 py-1.5 bg-red-650 hover:bg-red-700 text-white rounded-md text-[10px] font-bold cursor-pointer transition-colors"
-                                >
-                                  Sim, Encerrar
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setShowResetChallengeConfirm(false)}
-                                  className="px-2.5 py-1.5 bg-slate-850 hover:bg-slate-800 text-slate-300 rounded-md text-[10px] font-semibold cursor-pointer transition-colors"
-                                >
-                                  Cancelar
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="p-3 bg-slate-950 border border-slate-850/60 rounded-xl flex gap-1.5">
-                          <Info className="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5" />
-                          <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
-                            Configurações editáveis. Assim que você preencher novas datas e o desafio se iniciar, todas as regras de pontuação serão travadas automaticamente.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
+            )}
 
-              {/* Right column: leaderboard placars and detail panels */}
-              <div className="lg:col-span-12 xl:col-span-7 space-y-6">
-                <Leaderboard 
-                  scores={scores}
-                  selectedParticipant={activeParticipantScore?.name || null}
-                  onSelectParticipant={(name) => setSelectedParticipantName(name)}
-                  challenges={challenges}
-                />
+            {/* TAB CONTENT: Classificação do Desafio */}
+            {activeTab === 'classificacao' && (
+              <div className="space-y-6 animate-fadeIn">
+                <section className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                  <div className="lg:col-span-12 xl:col-span-7 space-y-6">
+                    <Leaderboard 
+                      scores={scores}
+                      selectedParticipant={activeParticipantScore?.name || null}
+                      onSelectParticipant={(name) => setSelectedParticipantName(name)}
+                      challenges={challenges}
+                    />
+                  </div>
 
-                <ParticipantDetails 
-                  score={activeParticipantScore} 
-                  currentUserId={user?.uid}
-                  onDeleteActivity={handleDeleteActivity}
-                  onUpdateActivityPhoto={handleUpdateActivityPhoto}
-                  challenges={challenges}
-                  rules={rules}
-                />
+                  <div className="lg:col-span-12 xl:col-span-5 space-y-6">
+                    <ParticipantDetails 
+                      score={activeParticipantScore} 
+                      currentUserId={user?.uid}
+                      onDeleteActivity={handleDeleteActivity}
+                      onUpdateActivityPhoto={handleUpdateActivityPhoto}
+                      challenges={challenges}
+                      rules={rules}
+                    />
+                  </div>
+                </section>
               </div>
-            </section>
-
-            {/* Formulas representation */}
-            <div className="bg-slate-900 border border-slate-850 rounded-2xl p-5 mt-6 animate-fadeIn" id="formulas-helper">
-              <h4 className="text-xs font-bold text-slate-350 font-mono tracking-widest uppercase mb-3 flex items-center gap-1.5">
-                <Calculator className="w-4 h-4 text-emerald-400" />
-                REGRAS DE PONTUAÇÃO DO DESAFIO
-              </h4>
-              <div className="bg-slate-950 border border-slate-850 p-4 rounded-xl space-y-3 font-mono text-xs text-slate-400">
-                <div className="pb-2 border-b border-slate-850/50">
-                  <span className="text-red-400 font-bold block mb-1">1. MUSCULAÇÃO / OUTROS = +{rules.gymPointsPerCheckIn} Pontos</span>
-                  <span className="text-xs text-slate-300 leading-normal font-sans">Treino, Funcional, Lutas, Pilates, CrossFit somam <span className="text-red-400 font-bold">{rules.gymPointsPerCheckIn} pontos</span> por dia de prática!</span>
-                </div>
-                <div className="pb-2 border-b border-slate-850/50">
-                  <span className="text-indigo-400 font-bold block mb-1">2. CARDIO OUTDOOR = Proporcional ao Giro</span>
-                  <span className="text-xs text-slate-300 leading-normal font-sans">Volume extra de corridas, pedal ou natação geram pontuação na hora:</span>
-                </div>
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex justify-between items-center bg-slate-900/60 p-2 rounded border border-slate-850/40">
-                    <span className="text-indigo-400 font-bold">CORRIDA / CAMINHADA:</span>
-                    <span className="text-slate-300 font-bold">1 km = 1.0 ponto * {rules.distanceMultiplier}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-slate-900/60 p-2 rounded border border-slate-850/40 font-sans">
-                    <span className="text-amber-500 font-bold font-mono">BIKE:</span>
-                    <span className="text-slate-300 font-bold font-mono">3 km = 1.0 ponto * {rules.distanceMultiplier}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-slate-900/60 p-2 rounded border border-slate-850/40">
-                    <span className="text-cyan-400 font-bold">NATAÇÃO:</span>
-                    <span className="text-slate-300 font-bold font-mono">250m = 1.0 ponto * {rules.distanceMultiplier}</span>
-                  </div>
-                </div>
-                <div className="pt-2 text-xs">
-                  <span className="text-emerald-400 font-bold block mb-1">3. COMBO = +{rules.comboPointsPerDay} Pontos</span>
-                  <span className="text-xs text-slate-300 leading-normal font-sans">Consistência Premium: Logar treino E corrida no mesmo dia joga <span className="text-emerald-400 font-bold">+{rules.comboPointsPerDay} pontos bônus</span> na sua conta!</span>
-                </div>
-              </div>
-            </div>
+            )}
           </>
         ) : (
           <div className="bg-slate-900/20 border border-slate-855 border-slate-850/60 rounded-2xl p-8 text-center space-y-4 shadow-xl max-w-2xl mx-auto" id="private-challenges-empty-state-placeholder">
