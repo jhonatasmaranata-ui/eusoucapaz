@@ -1764,7 +1764,7 @@ export default function App() {
                   translate="no"
                 >
                   <Flame className="w-4 h-4 text-[#fc5200]" />
-                  Painel de Desafios
+                  Desafios
                   {activeTab === 'painel' && (
                     <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#fc5200] rounded-full animate-fadeIn" />
                   )}
@@ -1779,7 +1779,7 @@ export default function App() {
                   translate="no"
                 >
                   <CheckSquare className="w-4 h-4 text-emerald-400" />
-                  Logar Atividade
+                  Atividade
                   {activeTab === 'registrar' && (
                     <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#fc5200] rounded-full animate-fadeIn" />
                   )}
