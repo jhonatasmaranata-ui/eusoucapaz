@@ -336,7 +336,7 @@ export function GroupManager({
                     <textarea
                       value={groupDesc}
                       onChange={(e) => setGroupDesc(e.target.value)}
-                      placeholder="Ex: Grupo focado nos alunos da academia da paulista. Proibido furos!"
+                      placeholder="Ex: Grupo focado na galera unida do treino. Proibido furos!"
                       rows={3}
                       className="w-full bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-slate-100 placeholder:text-slate-700 focus:outline-none focus:border-amber-500 font-sans"
                     />
@@ -379,7 +379,7 @@ export function GroupManager({
                     <div className="bg-slate-900/40 p-3 rounded-xl border border-slate-900/60">
                       <div className="flex justify-between items-center gap-4 mb-1">
                         <label className="block text-slate-200 font-bold font-sans text-[11px] uppercase tracking-wider">
-                          🏋️ Pontos por Treino (Academia)
+                          🏋️ Pontos por Treino
                         </label>
                         <input
                           type="number"

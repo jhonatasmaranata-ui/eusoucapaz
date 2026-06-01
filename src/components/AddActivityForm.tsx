@@ -424,7 +424,7 @@ export function AddActivityForm({
 
           {activityType === 'Treino' && (
             <div>
-              <label className="block text-slate-400 mb-1 font-semibold">Nome da Academia (opcional):</label>
+              <label className="block text-slate-400 mb-1 font-semibold">Local do Treino (opcional):</label>
               <input
                 type="text"
                 value={checkInCode}

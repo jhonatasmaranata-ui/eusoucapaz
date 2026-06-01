@@ -102,7 +102,7 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
           </p>
           <ul className="space-y-2.5 pl-4 list-disc marker:text-emerald-500">
             <li>
-              <span className="font-semibold text-white">1. TREINO / OUTROS ESPORTES = 5 Pontos:</span> Sessões de musculação (academia), pilates, yoga, crossfit, funcional, alongamento ou qualquer outro exercício descrito (dança, futebol, lutas, beach tennis, etc.) garantem <span className="text-red-400 font-bold">5.0 pontos fixos</span> por dia de prática.
+              <span className="font-semibold text-white">1. TREINO / OUTROS ESPORTES = 5 Pontos:</span> Sessões de musculação, funcional, pilates, yoga, crossfit, alongamento ou qualquer outro exercício descrito (dança, futebol, lutas, beach tennis, etc.) garantem <span className="text-red-400 font-bold">5.0 pontos fixos</span> por dia de prática.
             </li>
             <li>
               <span className="font-semibold text-white">2. AERÓBICO = Pontos por Volume:</span> As atividades de distância ou esforço aeróbico somam pontos diretamente com base na distância percorrida:
@@ -132,7 +132,7 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
               <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Pontos Totais</th>
               <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Bônus Combo</th>
               <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Pontos Cardio</th>
-              <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Pontos Treino</th>
+              <th scope="col" className="px-4 py-3 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Dias de Treino</th>
               <th scope="col" className="px-4 py-3 text-right text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">Volume Total</th>
             </tr>
           </thead>
@@ -226,7 +226,7 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                     <td className="px-4 py-3.5 whitespace-nowrap text-center align-middle text-slate-300 font-mono">
                       <div className="flex items-center justify-center gap-1">
                         <Dumbbell className="w-3.5 h-3.5 text-red-400" />
-                        <span>{row.gymPoints}</span>
+                        <span>{row.totalWorkouts}</span>
                       </div>
                     </td>
 

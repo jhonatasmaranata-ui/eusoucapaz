@@ -248,7 +248,7 @@ export function Header({
                   <span>Cardio</span>
                 </div>
                 <div className="w-px h-3 bg-zinc-800" />
-                <div className="flex items-center gap-1.5 text-red-500 fill-red-500/5 group" title="Treino Academia">
+                <div className="flex items-center gap-1.5 text-red-500 fill-red-500/5 group" title="Treino e Força">
                   <Dumbbell className="w-3.5 h-3.5 text-red-500" />
                   <span>Treino</span>
                 </div>
