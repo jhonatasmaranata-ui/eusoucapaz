@@ -30,7 +30,25 @@ export function AddActivityForm({
   const [activityType, setActivityType] = useState('Corrida'); // 'Treino', 'Corrida', 'Caminhada', 'Pedalada', 'Natação', 'Outra'
   const [distance, setDistance] = useState('0');
   const [customActivityName, setCustomActivityName] = useState('');
-  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
+  
+  // Format local date ISO formatted YYYY-MM-DD
+  const todayStr = (() => {
+    const d = new Date();
+    const offset = d.getTimezoneOffset();
+    const localDate = new Date(d.getTime() - (offset * 60 * 1000));
+    return localDate.toISOString().split('T')[0];
+  })();
+
+  const yesterdayStr = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    const offset = d.getTimezoneOffset();
+    const localDate = new Date(d.getTime() - (offset * 60 * 1000));
+    return localDate.toISOString().split('T')[0];
+  })();
+
+  const [date, setDate] = useState(todayStr);
+  const [dateChoice, setDateChoice] = useState<'hoje' | 'ontem' | 'outra'>('hoje');
   const [checkInCode, setCheckInCode] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
   const [successInfo, setSuccessInfo] = useState<string | null>(null);
@@ -358,14 +376,62 @@ export function AddActivityForm({
 
         {/* Conditional Fields: Distance vs Check-in Code */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-1">
-          <div>
-            <label className="block text-slate-400 mb-1 font-semibold">Data da Atividade:</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-850 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 text-center"
-            />
+          <div className="space-y-1.5">
+            <label className="block text-slate-400 mb-1 font-semibold text-xs sm:text-sm">Data da Atividade:</label>
+            <div className="flex gap-1.5" id="date-choice-selectors">
+              <button
+                type="button"
+                onClick={() => {
+                  setDateChoice('hoje');
+                  setDate(todayStr);
+                }}
+                className={`flex-1 py-1.5 px-2 rounded-lg border text-[11px] font-bold transition-all cursor-pointer ${
+                  dateChoice === 'hoje'
+                    ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300'
+                    : 'bg-slate-950 border-slate-850 text-slate-400 hover:border-slate-800'
+                }`}
+              >
+                Hoje
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDateChoice('ontem');
+                  setDate(yesterdayStr);
+                }}
+                className={`flex-1 py-1.5 px-2 rounded-lg border text-[11px] font-bold transition-all cursor-pointer ${
+                  dateChoice === 'ontem'
+                    ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300'
+                    : 'bg-slate-950 border-slate-850 text-slate-400 hover:border-slate-800'
+                }`}
+              >
+                Ontem
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDateChoice('outra');
+                }}
+                className={`flex-1 py-1.5 px-2 rounded-lg border text-[11px] font-bold transition-all cursor-pointer ${
+                  dateChoice === 'outra'
+                    ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300'
+                    : 'bg-slate-950 border-slate-850 text-slate-400 hover:border-slate-800'
+                }`}
+              >
+                Outra
+              </button>
+            </div>
+            
+            {dateChoice === 'outra' && (
+              <div className="mt-1 animate-fadeIn">
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-850 rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-emerald-500 text-left font-sans text-xs"
+                />
+              </div>
+            )}
           </div>
 
           {isCardio && (

@@ -1420,6 +1420,15 @@ export default function App() {
 
   // Delete exercise Activity
   const handleDeleteActivity = async (activityId: string) => {
+    const isLocal = activityId.startsWith('usr_local_');
+
+    // 1. If it's a cloud activity, but they are not securely logged in:
+    if (!isLocal && activeGroupId !== 'demo-group' && (!user || user.uid.startsWith('local_'))) {
+      setAuthError("Você está visualizando o grupo no modo Offline/Convidado. Para excluir atividades da nuvem, faça login com a conta que as criou!");
+      return;
+    }
+
+    // 2. Remove from localStorage backup
     try {
       const localKey = `es_capaz_${activeGroupId}_local_activities`;
       const localSaved = localStorage.getItem(localKey);
@@ -1434,14 +1443,23 @@ export default function App() {
       console.error("Failed to remove local activity:", e);
     }
 
-    setActivities(prev => prev.filter(a => a.id !== activityId));
+    // 3. Keep a backup of the original state in case the delete fails so we can restore it
+    let originalActivities: Activity[] = [];
+    setActivities(prev => {
+      originalActivities = [...prev];
+      return prev.filter(a => a.id !== activityId);
+    });
 
-    if (activeGroupId !== 'demo-group' && user && !user.uid.startsWith('local_')) {
+    // 4. Call Firestore deletion if it's an online activity
+    if (!isLocal && activeGroupId !== 'demo-group') {
       try {
         const docRef = doc(db, 'groups', activeGroupId, 'activities', activityId);
-        await executeWithTimeout(deleteDoc(docRef), 25000, 'timeout');
-      } catch (error) {
-        console.warn("Firestore delete delayed, but local copy removed successfully:", error);
+        await executeWithTimeout(deleteDoc(docRef), 20000, 'timeout');
+      } catch (error: any) {
+        console.warn("Firestore delete failed:", error);
+        setAuthError("Não foi possível excluir o treino da nuvem. Você só pode excluir as suas próprias atividades (ou o criador do grupo)!");
+        // Revert local UI state immediately
+        setActivities(originalActivities);
       }
     }
   };

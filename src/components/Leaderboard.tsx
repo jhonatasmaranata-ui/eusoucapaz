@@ -29,25 +29,25 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
     switch(rank) {
       case 1:
         return (
-          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-500 text-slate-950 font-bold text-sm shadow-md shadow-amber-500/20" title="1º Lugar - Ouro">
+          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-500 text-slate-950 font-bold text-xs shadow-sm shadow-amber-500/20" title="1º Lugar - Ouro">
             🥇
           </span>
         );
       case 2:
         return (
-          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-300 text-slate-950 font-bold text-sm shadow-md shadow-slate-300/20" title="2º Lugar - Prata">
+          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-300 text-slate-950 font-bold text-xs shadow-sm shadow-slate-300/20" title="2º Lugar - Prata">
             🥈
           </span>
         );
       case 3:
         return (
-          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-700 text-amber-100 font-bold text-sm shadow-md shadow-amber-900/20" title="3º Lugar - Bronze">
+          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-700 text-amber-100 font-bold text-xs shadow-sm shadow-amber-900/20" title="3º Lugar - Bronze">
             🥉
           </span>
         );
       default:
         return (
-          <span className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-800 text-slate-400 font-mono text-xs font-semibold">
+          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-800 text-slate-450 font-mono text-[10px] font-semibold">
             {rank}
           </span>
         );
@@ -127,18 +127,18 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
         <table className="min-w-full divide-y divide-slate-850">
           <thead className="bg-slate-950">
             <tr>
-              <th scope="col" className="px-2 py-2 text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Pos.</th>
-              <th scope="col" className="px-2 py-2 text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Atleta</th>
-              <th scope="col" className="px-2 py-2 text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Pontos Totais</th>
-              <th scope="col" className="px-2 py-2 text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Bônus Combo</th>
-              <th scope="col" className="px-2 py-2 text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Pontos Cardio</th>
-              <th scope="col" className="px-2 py-2 text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Dias de Treino</th>
+              <th scope="col" className="px-1.5 py-2 text-left text-[8.5px] font-bold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Pos.</th>
+              <th scope="col" className="px-1.5 py-2 text-left text-[8.5px] font-bold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Atleta</th>
+              <th scope="col" className="px-1.5 py-2 text-center text-[8.5px] font-bold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Pontos</th>
+              <th scope="col" className="px-1.5 py-2 text-center text-[8.5px] font-bold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Combo</th>
+              <th scope="col" className="px-1.5 py-2 text-center text-[8.5px] font-bold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap">Cardio</th>
+              <th scope="col" className="px-1.5 py-2 text-center text-[8.5px] font-bold text-slate-400 uppercase tracking-wider font-mono whitespace-nowrap font-sans">Treinos</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-850 text-[11px] text-slate-300 bg-slate-900">
+          <tbody className="divide-y divide-slate-850 text-[10.5px] text-slate-300 bg-slate-900">
             {filteredScores.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-2 py-6 text-center text-slate-500 font-mono">
+                <td colSpan={6} className="px-1.5 py-6 text-center text-slate-500 font-mono text-[10px]">
                   Nenhum atleta encontrado para "{searchTerm}".
                 </td>
               </tr>
@@ -167,15 +167,15 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                     }`}
                   >
                     {/* Rank */}
-                    <td className="px-2 py-2 whitespace-nowrap align-middle">
+                    <td className="px-1.5 py-1.5 whitespace-nowrap align-middle">
                       <div className="flex items-center">
                         {getRankBadge(row.rank)}
                       </div>
                     </td>
 
                     {/* Athlete Name */}
-                    <td className="px-2 py-2 whitespace-nowrap align-middle font-medium">
-                      <div className="text-xs font-semibold text-slate-100 group-hover:text-emerald-400 transition-colors notranslate flex items-center gap-1" translate="no">
+                    <td className="px-1.5 py-1.5 whitespace-nowrap align-middle font-medium">
+                      <div className="text-[11px] sm:text-xs font-semibold text-slate-100 group-hover:text-emerald-400 transition-colors notranslate flex items-center gap-1" translate="no">
                         {row.name}
                         {isChallengeCompleted && (
                           <span className="inline-flex px-1 py-0.5 bg-amber-500/15 border border-amber-500/30 text-[8px] font-bold text-amber-400 rounded font-mono animate-pulse shrink-0" title="Concluiu o Desafio Mensal!">
@@ -183,7 +183,7 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                           </span>
                         )}
                       </div>
-                      <div className="text-[9px] text-slate-400 font-mono mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-[130px] sm:max-w-[200px] md:max-w-xs lg:max-w-md block" title={athleteChallenge ? `Desafio: ${athleteChallenge.targetGymDays}d + ${athleteChallenge.targetActivityValue}${athleteChallenge.targetActivityMetric === 'km' ? 'km' : 'd'} ${athleteChallenge.targetActivityType}` : undefined}>
+                      <div className="text-[8.5px] text-slate-400 font-mono mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-[110px] sm:max-w-[180px] md:max-w-xs lg:max-w-md block" title={athleteChallenge ? `Desafio: ${athleteChallenge.targetGymDays}d + ${athleteChallenge.targetActivityValue}${athleteChallenge.targetActivityMetric === 'km' ? 'km' : 'd'} ${athleteChallenge.targetActivityType}` : undefined}>
                         <span>{row.activities.filter(isTreinoActivity).length} Treinos</span>
                         <span className="text-slate-600 mx-1">•</span>
                         <span>{row.activities.filter(isAerobicoActivity).length} Aeróbicos</span>
@@ -199,14 +199,14 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                     </td>
 
                     {/* Total Points */}
-                    <td className="px-2 py-2 whitespace-nowrap text-center align-middle">
-                      <span className="inline-flex px-1.5 py-0.5 rounded text-[11px] font-bold font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <td className="px-1.5 py-1.5 whitespace-nowrap text-center align-middle">
+                      <span className="inline-flex px-1.5 py-0.5 rounded text-[10.5px] font-bold font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                         {row.totalPoints.toFixed(1)} pts
                       </span>
                     </td>
 
                     {/* Combo Points */}
-                    <td className="px-2 py-2 whitespace-nowrap text-center align-middle text-slate-300 font-mono text-[11px]">
+                    <td className="px-1.5 py-1.5 whitespace-nowrap text-center align-middle text-slate-300 font-mono text-[10px]">
                       <div className="flex items-center justify-center gap-1">
                         <Flame className="w-3 h-3 text-amber-500" />
                         <span>{row.comboPoints}</span>
@@ -214,7 +214,7 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                     </td>
 
                     {/* Distance Points */}
-                    <td className="px-2 py-2 whitespace-nowrap text-center align-middle text-slate-300 font-mono text-[11px]">
+                    <td className="px-1.5 py-1.5 whitespace-nowrap text-center align-middle text-slate-300 font-mono text-[10px]">
                       <div className="flex items-center justify-center gap-1">
                         <Route className="w-3 h-3 text-indigo-400" />
                         <span>{row.distancePoints.toFixed(1)}</span>
@@ -222,7 +222,7 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                     </td>
 
                     {/* Gym Points */}
-                    <td className="px-2 py-2 whitespace-nowrap text-center align-middle text-slate-300 font-mono text-[11px]">
+                    <td className="px-1.5 py-1.5 whitespace-nowrap text-center align-middle text-slate-300 font-mono text-[10px]">
                       <div className="flex items-center justify-center gap-1">
                         <Dumbbell className="w-3 h-3 text-red-400" />
                         <span>{row.totalWorkouts}</span>
