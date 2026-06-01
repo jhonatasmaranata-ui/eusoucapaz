@@ -745,7 +745,8 @@ export default function App() {
       setActivities(() => {
         // Load custom local backup to preserve offline entries
         let localCustoms: Activity[] = [];
-        const localSaved = localStorage.getItem(`es_capaz_${activeGroupId}_local_activities`);
+        const localKey = `es_capaz_${activeGroupId}_local_activities`;
+        const localSaved = localStorage.getItem(localKey);
         if (localSaved) {
           try {
             const parsed = JSON.parse(localSaved) as Activity[];
@@ -756,17 +757,35 @@ export default function App() {
         }
 
         const liveIds = new Set(liveActivities.map(a => a.id));
+        let needsClearing = false;
+
         const unsyncedLocals = localCustoms.filter(localAct => {
-          if (liveIds.has(localAct.id)) return false;
+          if (liveIds.has(localAct.id)) {
+            needsClearing = true;
+            return false;
+          }
           
-          return !liveActivities.some(liveAct => 
+          const hasCloudMatch = liveActivities.some(liveAct => 
             liveAct.name === localAct.name &&
             liveAct.type === localAct.type &&
             liveAct.date === localAct.date &&
-            Math.abs(liveAct.distance - localAct.distance) < 0.01 &&
+            Math.abs((liveAct.distance || 0) - (localAct.distance || 0)) < 0.01 &&
             liveAct.timestamp === localAct.timestamp
           );
+
+          if (hasCloudMatch) {
+            needsClearing = true;
+            return false;
+          }
+
+          return true;
         });
+
+        if (needsClearing) {
+          try {
+            localStorage.setItem(localKey, JSON.stringify(unsyncedLocals));
+          } catch (_) {}
+        }
 
         // SELF-HEALING AUTOMATIC SYNC: Upload offline local workouts to cloud
         if (unsyncedLocals.length > 0 && user && athleteName && !user.uid.startsWith('local_')) {
@@ -791,12 +810,12 @@ export default function App() {
             addDoc(colRef, cleanedActivity).then((newCloudDoc) => {
               console.log("Self-healing: Offline activity successfully synchronized. Cloud ID:", newCloudDoc.id);
               // Clean up the local cached activity from local storage list
-              const updatedLocalSaved = localStorage.getItem(`es_capaz_${activeGroupId}_local_activities`);
+              const updatedLocalSaved = localStorage.getItem(localKey);
               if (updatedLocalSaved) {
                 try {
                   const currentLocs = JSON.parse(updatedLocalSaved) as Activity[];
                   const filtered = currentLocs.filter(a => a.id !== act.id);
-                  localStorage.setItem(`es_capaz_${activeGroupId}_local_activities`, JSON.stringify(filtered));
+                  localStorage.setItem(localKey, JSON.stringify(filtered));
                 } catch (_) {}
               }
             }).catch(e => {
