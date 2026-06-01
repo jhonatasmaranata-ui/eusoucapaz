@@ -21,8 +21,6 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
   const [activeTab, setActiveTab] = useState<'graph' | 'list'>('graph');
   const [selectedDay, setSelectedDay] = useState<any | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-
   const handleUploadPhotoFile = (activity: Activity, e: React.ChangeEvent<HTMLInputElement>) => {
     if (!currentUserId || activity.userId !== currentUserId) {
       alert('Você não tem permissão para adicionar fotos a este treino.');
@@ -692,43 +690,16 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
                       {hasDeletableActivity && (
                         <td className="px-4 py-2.5 text-center whitespace-nowrap notranslate" translate="no">
                           {isDeletable ? (
-                            confirmDeleteId === act.id ? (
-                              <div className="flex items-center justify-center gap-1.5">
-                                <span className="text-[9px] text-red-400 font-bold">Excluir?</span>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onDeleteActivity?.(act.id);
-                                    setConfirmDeleteId(null);
-                                  }}
-                                  className="px-1.5 py-0.5 bg-red-600 hover:bg-red-500 text-slate-100 text-[9px] font-bold rounded transition-colors cursor-pointer"
-                                  title="Confirmar exclusão"
-                                >
-                                  Sim
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setConfirmDeleteId(null);
-                                  }}
-                                  className="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[9px] font-bold rounded transition-colors cursor-pointer"
-                                  title="Cancelar"
-                                >
-                                  Não
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setConfirmDeleteId(act.id);
-                                }}
-                                className="p-1 hover:bg-red-950/40 rounded-md text-slate-500 hover:text-red-400 transition-colors cursor-pointer"
-                                title="Excluir Registro"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            )
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteWithConfirm(act.id);
+                              }}
+                              className="p-1.5 hover:bg-red-950/40 rounded-lg text-slate-500 hover:text-red-400 transition-all cursor-pointer flex items-center justify-center mx-auto border border-transparent hover:border-red-900/20"
+                              title="Excluir Registro"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500/80 hover:text-red-400" />
+                            </button>
                           ) : (
                             <span className="text-slate-700 text-[10px] font-mono">Fictício</span>
                           )}
