@@ -1790,48 +1790,48 @@ export default function App() {
         {activeGroupId && activeGroupId !== 'EMPTY-PRIVATE' ? (
           <>
              {/* Athletic App Tab Selector */}
-            <div className="border-b border-slate-850/40 sticky top-0 bg-slate-950/95 backdrop-blur-md z-40 py-3 -mx-4 px-4 sm:mx-0 sm:px-0 mb-5">
-              <div className="grid grid-cols-3 max-w-xl mx-auto sm:mx-0 p-1 bg-slate-900/90 border border-slate-850/80 rounded-xl gap-1 shadow-inner" id="app-challenge-navigation-tabs">
+            <div className="border-b border-slate-900/60 sticky top-0 bg-slate-950/95 backdrop-blur-md z-40 py-1.5 sm:py-2.5 mb-4">
+              <div className="grid grid-cols-3 max-w-[380px] w-full mx-auto p-0.5 bg-slate-900/90 border border-slate-850/75 rounded-lg gap-0.5 shadow-md shadow-slate-950/50" id="app-challenge-navigation-tabs">
                 <button
                   type="button"
                   onClick={() => setActiveTab('painel')}
-                  className={`py-2 px-1 font-sans text-[10px] min-[380px]:text-[11px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 notranslate ${
+                  className={`py-1 px-0.5 font-sans text-[7.5px] min-[330px]:text-[8px] min-[350px]:text-[9px] min-[380px]:text-[10px] sm:text-[11px] font-black uppercase tracking-tighter min-[350px]:tracking-tight sm:tracking-wider rounded-md transition-all cursor-pointer flex items-center justify-center gap-0.5 sm:gap-1.5 notranslate select-none ${
                     activeTab === 'painel' 
-                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-md shadow-orange-500/10 font-black' 
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850/50'
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-md shadow-orange-500/20 scale-100 hover:scale-[1.01]' 
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850/40'
                   }`}
                   translate="no"
                 >
-                  <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                  <span className="truncate">Desafio</span>
+                  <Flame className={`w-3 h-3 min-[340px]:w-3.5 min-[340px]:h-3.5 sm:w-4 sm:h-4 shrink-0 ${activeTab === 'painel' ? 'text-slate-950 animate-pulse' : 'text-orange-550'}`} />
+                  <span className="whitespace-nowrap">DESAFIO</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setActiveTab('registrar')}
-                  className={`py-2 px-1 font-sans text-[10px] min-[380px]:text-[11px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 notranslate ${
+                  className={`py-1 px-0.5 font-sans text-[7.5px] min-[330px]:text-[8px] min-[350px]:text-[9px] min-[380px]:text-[10px] sm:text-[11px] font-black uppercase tracking-tighter min-[350px]:tracking-tight sm:tracking-wider rounded-md transition-all cursor-pointer flex items-center justify-center gap-0.5 sm:gap-1.5 notranslate select-none ${
                     activeTab === 'registrar' 
-                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-md shadow-orange-500/10 font-black' 
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-850/50'
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-md shadow-orange-500/20 scale-100 hover:scale-[1.01]' 
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850/40'
                   }`}
                   translate="no"
                 >
-                  <CheckSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                  <span className="truncate">Atividade</span>
+                  <CheckSquare className={`w-3 h-3 min-[340px]:w-3.5 min-[340px]:h-3.5 sm:w-4 sm:h-4 shrink-0 ${activeTab === 'registrar' ? 'text-slate-950' : 'text-emerald-500'}`} />
+                  <span className="whitespace-nowrap">ATIVIDADE</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setActiveTab('classificacao')}
-                  className={`py-2 px-1 font-sans text-[10px] min-[380px]:text-[11px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 sm:gap-1.5 notranslate ${
+                  className={`py-1 px-0.5 font-sans text-[7.5px] min-[330px]:text-[8px] min-[350px]:text-[9px] min-[380px]:text-[10px] sm:text-[11px] font-black uppercase tracking-tighter min-[350px]:tracking-tight sm:tracking-wider rounded-md transition-all cursor-pointer flex items-center justify-center gap-0.5 sm:gap-1.5 notranslate select-none ${
                     activeTab === 'classificacao' 
-                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-md shadow-orange-500/10 font-black' 
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850/50'
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-md shadow-orange-500/20 scale-100 hover:scale-[1.01]' 
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850/40'
                   }`}
                   translate="no"
                 >
-                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                  <span className="truncate">Classificação</span>
+                  <Trophy className={`w-3 h-3 min-[340px]:w-3.5 min-[340px]:h-3.5 sm:w-4 sm:h-4 shrink-0 ${activeTab === 'classificacao' ? 'text-slate-950' : 'text-amber-500'}`} />
+                  <span className="whitespace-nowrap">CLASSIFICAÇÃO</span>
                 </button>
               </div>
             </div>

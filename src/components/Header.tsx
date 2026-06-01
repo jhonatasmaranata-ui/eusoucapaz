@@ -344,10 +344,10 @@ export function Header({
         </div>
 
         {/* Flat Bottom Integration Status Row (Highly Minimalist & Structured) */}
-        <div className="flex items-center gap-2 mt-5 pt-3.5 border-t border-zinc-900 text-[10px] text-zinc-500 tracking-wider font-mono">
-          <span className="font-bold text-zinc-400 uppercase tracking-widest text-[9px]">Status do Sistema:</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          <span>Sincronização Integrada em Tempo Real</span>
+        <div className="flex items-center gap-1.5 mt-3.5 pt-2.5 border-t border-zinc-900/80 text-[8px] sm:text-[9px] text-zinc-500 font-mono tracking-wider select-none">
+          <span className="font-semibold text-zinc-500 uppercase">Status do Sistema:</span>
+          <span className="w-1 h-1 rounded-full bg-emerald-500/80 shrink-0" />
+          <span className="text-zinc-500 whitespace-nowrap">Sincronização ativa em tempo real</span>
         </div>
 
       </div>
