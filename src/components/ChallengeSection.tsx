@@ -441,7 +441,7 @@ export function ChallengeSection({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4" id="challenges-section-block">
+      <div className="max-w-2xl mx-auto w-full" id="challenges-section-block">
         
         {/* PART 1: MY OWN CHALLENGE PROGRESS / ONBOARDING */}
         <div className="bg-slate-900 border border-slate-850 rounded-2xl p-5 flex flex-col justify-between">
@@ -737,46 +737,6 @@ export function ChallengeSection({
                   Escolher Meu Desafio Mensal 🚀
                 </button>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* PART 2: ACTIVE SELECTED ATHLETE CHALLENGE STATUS */}
-        <div className="bg-slate-900 border border-slate-850 rounded-2xl p-5" id="peer-challenge-status">
-          <div className="mb-4">
-            <span className="text-[10px] font-mono tracking-widest text-indigo-400 uppercase font-semibold">Painel Colaborativo</span>
-            <h3 className="text-sm font-bold text-slate-200 font-sans mt-1">Status de Desafios de Outros Atletas</h3>
-          </div>
-
-          {activeParticipantScore ? (
-            activeChallenge ? (
-              activeParticipantScore.name === athleteName ? (
-                <div className="flex flex-col items-center justify-center p-6 bg-slate-950 rounded-xl border border-slate-850 text-center h-[170px]">
-                  <Compass className="w-8 h-8 text-emerald-400 mb-2 animate-pulse" />
-                  <p className="text-xs text-emerald-450 font-bold font-mono uppercase">Seu Próprio Desafio</p>
-                  <p className="text-[11px] text-slate-500 mt-1 max-w-xs font-sans">
-                    Você selecionou a si mesmo na tabela de classificação. Suas métricas de consistência estão ativas e sendo monitoradas no card à esquerda!
-                  </p>
-                </div>
-              ) : (
-                renderProgressCard(activeParticipantScore, activeChallenge, false)
-              )
-            ) : (
-              <div className="flex flex-col items-center justify-center p-6 bg-slate-950 rounded-xl border border-slate-850 text-center text-slate-400 h-[170px]">
-                <Settings className="w-8 h-8 text-slate-700 mb-2" />
-                <h4 className="text-xs font-bold font-mono">Sem Desafio Configurado</h4>
-                <p className="text-[10px] text-slate-500 mt-2 max-w-[240px] font-sans">
-                  O atleta selecionado <strong className="text-slate-350 notranslate" translate="no">"{activeParticipantScore.name}"</strong> ainda não iniciou ou configurou um Desafio Mensal para o período letivo ativo de consistência.
-                </p>
-              </div>
-            )
-          ) : (
-            <div className="flex flex-col items-center justify-center p-6 bg-slate-950 rounded-xl border border-slate-850 text-center text-slate-400 h-[170px]">
-              <Compass className="w-8 h-8 text-slate-700 mb-2" />
-              <h4 className="text-xs font-bold font-mono">Selecione um Atleta</h4>
-              <p className="text-[10px] text-slate-500 mt-1.5 max-w-[240px] font-sans">
-                Clique sobre qualquer atleta na Classificação do Desafio para carregar o progresso do seu respectivo Desafio Mensal.
-              </p>
             </div>
           )}
         </div>

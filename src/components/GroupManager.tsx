@@ -195,8 +195,8 @@ export function GroupManager({
         </div>
 
         {/* Dynamic Selector Dropdown */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-805 border-slate-800 shrink-0">
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto lg:justify-end">
+          <div className="flex flex-col sm:flex-row bg-slate-950 p-1 rounded-xl border border-slate-805 border-slate-800 shrink-0 w-full sm:w-auto gap-1">
             <button
               type="button"
               onClick={() => {
@@ -204,7 +204,7 @@ export function GroupManager({
                 setActiveTab('public');
                 setStatusMsg(null);
               }}
-              className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer w-full sm:w-auto ${
                 isDemo
                   ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md font-extrabold'
                   : 'text-slate-400 hover:text-slate-200'
@@ -224,7 +224,7 @@ export function GroupManager({
                 setActiveTab('private');
                 setStatusMsg(null);
               }}
-              className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer w-full sm:w-auto ${
                 !isDemo
                   ? 'bg-indigo-600 text-slate-100 shadow-md font-extrabold'
                   : 'text-slate-400 hover:text-slate-200'
