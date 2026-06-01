@@ -235,11 +235,9 @@ export function ChallengeSection({
               </span>
             </div>
             <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-850">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${gymPercent}%` }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-                className={`h-full rounded-full ${
+              <div 
+                style={{ width: `${gymPercent}%` }}
+                className={`h-full rounded-full transition-all duration-500 ease-out ${
                   progress.gymCompleted ? 'bg-gradient-to-r from-red-600 to-red-400' : 'bg-red-500'
                 }`}
               />
@@ -258,11 +256,9 @@ export function ChallengeSection({
               </span>
             </div>
             <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-850">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min(100, Math.round(((progress.cardioDaysProgress || 0) / (progress.cardioDaysTarget || 1)) * 100))}%` }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-                className={`h-full rounded-full ${
+              <div 
+                style={{ width: `${Math.min(100, Math.round(((progress.cardioDaysProgress || 0) / (progress.cardioDaysTarget || 1)) * 100))}%` }}
+                className={`h-full rounded-full transition-all duration-500 ease-out ${
                   progress.activityCompleted ? 'bg-gradient-to-r from-indigo-500 to-sky-500' : 'bg-indigo-500'
                 }`}
               />
@@ -287,11 +283,9 @@ export function ChallengeSection({
                 </span>
               </div>
               <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-850">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(100, Math.round(((progress.secondCardioDaysProgress || 0) / (progress.secondCardioDaysTarget || 1)) * 100))}%` }}
-                  transition={{ duration: 0.8, ease: 'easeOut' }}
-                  className={`h-full rounded-full ${
+                <div 
+                  style={{ width: `${Math.min(100, Math.round(((progress.secondCardioDaysProgress || 0) / (progress.secondCardioDaysTarget || 1)) * 100))}%` }}
+                  className={`h-full rounded-full transition-all duration-500 ease-out ${
                     progress.secondCardioCompleted ? 'bg-gradient-to-r from-teal-500 to-emerald-400' : 'bg-teal-500'
                   }`}
                 />

@@ -690,13 +690,14 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
                         })()}
                       </td>
                       {hasDeletableActivity && (
-                        <td className="px-4 py-2.5 text-center whitespace-nowrap">
+                        <td className="px-4 py-2.5 text-center whitespace-nowrap notranslate" translate="no">
                           {isDeletable ? (
                             confirmDeleteId === act.id ? (
                               <div className="flex items-center justify-center gap-1.5">
                                 <span className="text-[9px] text-red-400 font-bold">Excluir?</span>
                                 <button
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     onDeleteActivity?.(act.id);
                                     setConfirmDeleteId(null);
                                   }}
@@ -706,7 +707,10 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
                                   Sim
                                 </button>
                                 <button
-                                  onClick={() => setConfirmDeleteId(null)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setConfirmDeleteId(null);
+                                  }}
                                   className="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[9px] font-bold rounded transition-colors cursor-pointer"
                                   title="Cancelar"
                                 >
@@ -715,7 +719,10 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
                               </div>
                             ) : (
                               <button
-                                onClick={() => setConfirmDeleteId(act.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setConfirmDeleteId(act.id);
+                                }}
                                 className="p-1 hover:bg-red-950/40 rounded-md text-slate-500 hover:text-red-400 transition-colors cursor-pointer"
                                 title="Excluir Registro"
                               >

@@ -59,7 +59,7 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
       {/* Table Headers and Actions */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-850 pb-4 mb-5">
         <div>
-          <h3 className="text-lg font-bold text-slate-100 font-sans flex items-center gap-2">
+          <h3 className="text-lg font-bold text-slate-100 font-sans flex items-center gap-2 notranslate" translate="no">
             <Star className="w-5 h-5 text-amber-400 fill-amber-400/10" />
             Classificação do Desafio
           </h3>
