@@ -1,0 +1,9 @@
+COMO USAR SUA FOTO REAL NO LOGO DO APLICATIVO (PASSO A PASSO):
+
+Para que o aplicativo mostre exatamente a sua foto de alta resolução:
+1. Baixe a imagem que você deseja usar para o seu computador.
+2. Nomeie o arquivo exatamente como: logo.png (ou logo.jpg ou logo.jpeg).
+3. Arraste e solte o arquivo da imagem diretamente dentro desta pasta ("/public") ou use o botão de Upload no Painel de Controle de Arquivos (à esquerda da tela no AI Studio).
+
+Quando você fizer isso, o aplicativo irá detectar automaticamente e substituirá o desenho vetorial pela sua incrível foto em alta definição!
+Se quiser voltar para o desenho, é só apagar o arquivo.

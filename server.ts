@@ -13,6 +13,49 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Special debugging route to find the uploaded image and its exact filename
+  app.get("/api/debug-files", (req, res) => {
+    try {
+      const getFiles = (dir: string): string[] => {
+        let results: string[] = [];
+        if (!fs.existsSync(dir)) return results;
+        const list = fs.readdirSync(dir);
+        list.forEach((file) => {
+          const filePath = path.join(dir, file);
+          const stat = fs.statSync(filePath);
+          if (stat && stat.isDirectory()) {
+            // skip node_modules and .git
+            if (file !== "node_modules" && file !== ".git") {
+              results = results.concat(getFiles(filePath));
+            }
+          } else {
+            results.push(path.relative(process.cwd(), filePath));
+          }
+        });
+        return results;
+      };
+      
+      const files = getFiles(process.cwd());
+      res.json({ files });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Support logo uploads in the root structure (since dragging into workspace root directory is easiest for the user)
+  app.get(["/logo.png", "/logo.jpg", "/logo.jpeg", "/logo.webp"], (req, res, next) => {
+    const filename = path.basename(req.path);
+    const rootPath = path.join(process.cwd(), filename);
+    const publicPath = path.join(process.cwd(), "public", filename);
+    
+    if (fs.existsSync(rootPath)) {
+      return res.sendFile(rootPath);
+    } else if (fs.existsSync(publicPath)) {
+      return res.sendFile(publicPath);
+    }
+    next();
+  });
+
   // API Route: Build Strava OAuth authorization URL
   app.get("/api/strava/auth-url", (req, res) => {
     try {
