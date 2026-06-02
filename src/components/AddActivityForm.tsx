@@ -851,12 +851,12 @@ export function AddActivityForm({
           )}
         </div>
 
-        {/* Photo Upload Area (Optional) */}
+        {/* Photo Upload Area */}
         <div className="bg-slate-950 border border-slate-850 rounded-xl p-4 space-y-3">
           <label className="block text-slate-400 font-semibold text-xs flex items-center justify-between gap-1.5">
             <span className="flex items-center gap-1.5">
               <Camera className="w-3.5 h-3.5 text-emerald-400" />
-              Fotos do Treino e do Aeróbico (Opcional - Até 4 fotos):
+              Fotos do Treino e do Aeróbico:
             </span>
             <span className="text-[10px] font-mono font-bold text-slate-500">
               {photos.length}/4
