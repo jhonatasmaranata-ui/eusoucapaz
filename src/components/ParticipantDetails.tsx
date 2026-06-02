@@ -384,8 +384,8 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
       {activeTab === 'graph' && (
         <div className="space-y-4">
           <div className="bg-slate-950 border border-slate-850 rounded-xl p-5">
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-1.5 font-mono">
-              <Calendar className="w-4 h-4 text-emerald-400" />
+            <h4 className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-1.5 font-mono">
+              <Calendar className="w-4 h-4 text-emerald-400 shrink-0" />
               Gráfico de Frequência ({daysGrid.length} {daysGrid.length === 1 ? 'Dia' : 'Dias'} do Desafio)
             </h4>
 
