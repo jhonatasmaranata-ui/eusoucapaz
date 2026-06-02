@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Definitions for gradients and drop shadows -->
+  <defs>
+    <!-- Background rich glow gradient -->
+    <radialGradient id="bgGlow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#1e1b4b" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#09090b" stop-opacity="1"/>
+    </radialGradient>
+    
+    <!-- Neon orange to pink mountain sunset/sunrise gradient -->
+    <linearGradient id="neonGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f97316"/> <!-- vibrant orange -->
+      <stop offset="50%" stop-color="#ec4899"/> <!-- hot pink -->
+      <stop offset="100%" stop-color="#8b5cf6"/> <!-- violet -->
+    </linearGradient>
+
+    <!-- Subtle mountain shadings -->
+    <linearGradient id="mountainShadow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.8"/>
+    </linearGradient>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="15" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Smooth rounded square base matching iOS/Android maskable icons -->
+  <rect x="0" y="0" width="512" height="512" rx="128" fill="url(#bgGlow)"/>
+
+  <!-- Starry Background Elements -->
+  <g opacity="0.6">
+    <circle cx="100" cy="120" r="2" fill="#fff" opacity="0.8"/>
+    <circle cx="150" cy="80" r="1.5" fill="#fff" opacity="0.5"/>
+    <circle cx="220" cy="160" r="3" fill="#ffedd5" opacity="0.9" filter="url(#glow)"/>
+    <circle cx="380" cy="100" r="2" fill="#fff" opacity="0.7"/>
+    <circle cx="420" cy="180" r="1.5" fill="#fff" opacity="0.4"/>
+    <circle cx="320" cy="60" r="2" fill="#fff" opacity="0.6"/>
+  </g>
+
+  <!-- Ambient Glow behind the mountain -->
+  <circle cx="256" cy="300" r="160" fill="#f97316" opacity="0.15" filter="url(#glow)"/>
+  <circle cx="256" cy="270" r="100" fill="#8b5cf6" opacity="0.1" filter="url(#glow)"/>
+
+  <!-- Background Mountain Range Silhouette -->
+  <polygon points="40,420 180,260 280,380 430,210 480,420" fill="#1e293b" opacity="0.5" />
+
+  <!-- Main Triumphant Mountain Peak -->
+  <!-- Left side (lighted with Neon Gradient) -->
+  <polygon points="256,120 256,450 60,450" fill="url(#neonGradient)"/>
+  
+  <!-- Right side (shaded side) -->
+  <polygon points="256,120 452,450 256,450" fill="url(#mountainShadow)"/>
+
+  <!-- Glowing North Star at the Summit -->
+  <g transform="translate(256, 110)">
+    <circle cx="0" cy="0" r="12" fill="#fff" filter="url(#glow)"/>
+    <!-- Star Rays -->
+    <path d="M 0,-25 L 0,25 M -25,0 L 25,0" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    <path d="M -12,-12 L 12,12 M -12,12 L 12,-12" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Silhouette of the Climber standing details -->
+  <!-- Located at the peak crest (slightly to the right or left of the summit star) -->
+  <g transform="translate(240, 115) scale(0.08)">
+    <circle cx="100" cy="0" r="15" fill="#ffffff" /> <!-- Head -->
+    <path d="M 100,15 L 100,60 M 100,25 L 75,45 L 60,40 M 100,25 L 130,-10 L 140,-25" stroke="#ffffff" stroke-width="8" stroke-linecap="round" fill="none" /> <!-- Body & Raising victorious arm pointing up -->
+    <path d="M 100,60 L 85,110 M 100,60 L 115,110" stroke="#ffffff" stroke-width="8" stroke-linecap="round" fill="none" /> <!-- Legs standing triumphant -->
+  </g>
+
+  <!-- Glowing border line for high end polish -->
+  <rect x="12" y="12" width="488" height="488" rx="116" fill="none" stroke="url(#neonGradient)" stroke-width="4" stroke-opacity="0.3"/>
+</svg>

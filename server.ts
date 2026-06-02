@@ -43,7 +43,7 @@ async function startServer() {
   });
 
   // Support logo uploads in the root structure (since dragging into workspace root directory is easiest for the user)
-  app.get(["/logo.png", "/logo.jpg", "/logo.jpeg", "/logo.webp"], (req, res, next) => {
+  app.get(["/logo.png", "/logo.jpg", "/logo.jpeg", "/logo.webp", "/logo.svg"], (req, res, next) => {
     const filename = path.basename(req.path);
     const rootPath = path.join(process.cwd(), filename);
     const publicPath = path.join(process.cwd(), "public", filename);

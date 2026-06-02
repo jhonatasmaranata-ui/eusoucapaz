@@ -203,12 +203,28 @@ export function PWAInstallPrompt() {
               // Other browsers / Unsupported automatic install (e.g., standard Safari on Mac, Firefox without triggers)
               <div className="space-y-3">
                 <p className="text-xs text-zinc-300 leading-relaxed font-sans font-medium">
-                  Você pode usar o aplicativo no seu navegador atual ou baixá-lo adicionando-o à tela inicial do seu celular usando as opções do seu navegador de internet móvel (Chrome, Edge ou Safari).
+                  Se o botão automático não aparecer, você pode instalar facilmente de forma manual:
                 </p>
-                <div className="flex gap-2 pt-1">
+                
+                <ol className="text-xs text-zinc-400 space-y-2 pl-1 font-sans font-medium">
+                  <li className="flex items-start gap-2">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-800 text-amber-500 text-[10px] font-bold shrink-0 mt-0.5">1</span>
+                    <span>No canto superior direito, toque no menu de <strong>Três Pontinhos (⋮)</strong> do Chrome.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-800 text-amber-500 text-[10px] font-bold shrink-0 mt-0.5">2</span>
+                    <span>Toque na opção de <strong>Instalar Aplicativo</strong> ou <strong>Adicionar à Tela Inicial</strong>.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-800 text-amber-500 text-[10px] font-bold shrink-0 mt-0.5">3</span>
+                    <span>Confirme em <b>Adicionar</b>. Pronto! O app aparecerá lindo na sua tela de apps.</span>
+                  </li>
+                </ol>
+
+                <div className="flex gap-2 pt-2">
                   <button
                     onClick={() => setIsVisible(false)}
-                    className="flex-1 bg-zinc-805 hover:bg-zinc-800 text-zinc-200 font-black py-2 rounded-xl text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                    className="flex-1 bg-gradient-to-r from-orange-500/20 to-amber-500/20 hover:from-orange-500/30 hover:to-amber-500/30 text-amber-400 border border-amber-500/20 font-black py-2 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer"
                   >
                     OK, Entendido!
                   </button>
