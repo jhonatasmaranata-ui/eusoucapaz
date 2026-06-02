@@ -726,7 +726,7 @@ export function ChallengeSection({
             /* GETTING STARTED ONBOARDING INTERFACE (No challenge configured yet) */
             <div className="py-2 flex flex-col justify-between h-full">
               <div>
-                <span className="text-[10px] font-mono tracking-widest text-emerald-400 uppercase font-semibold">Desafio Mensal do Frade</span>
+                <span className="text-[10px] font-mono tracking-widest text-emerald-400 uppercase font-semibold">Desafio Mensal Eu Sou Capaz</span>
                 <h3 className="text-base font-bold text-slate-100 mt-1">Inicie Seu Desafio de Consistência!</h3>
                 <p className="text-xs text-slate-400 mt-2 font-sans leading-relaxed">
                   Defina um objetivo focado em sua rotina técnica e outdoor. Escolha uma das 4 metas padrões ou customize de acordo com suas possibilidades e ganhe homenagem oficial ao completar!
