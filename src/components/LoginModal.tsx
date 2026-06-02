@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Mail, 
@@ -47,6 +47,43 @@ export function LoginModal({ onClose, onSuccess, onSelectLocal }: LoginModalProp
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    const checkInstalled = async () => {
+      const isStandaloneMode = 
+        window.matchMedia("(display-mode: standalone)").matches ||
+        (window.navigator as any).standalone === true ||
+        localStorage.getItem("es_capaz_pwa_installed") === "true";
+      
+      if (isStandaloneMode) {
+        setIsInstalled(true);
+        return;
+      }
+
+      if ('getInstalledRelatedApps' in navigator) {
+        try {
+          const relatedApps = await (navigator as any).getInstalledRelatedApps();
+          if (relatedApps && relatedApps.length > 0) {
+            setIsInstalled(true);
+            localStorage.setItem("es_capaz_pwa_installed", "true");
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+
+    checkInstalled();
+
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      localStorage.setItem("es_capaz_pwa_installed", "true");
+    };
+
+    window.addEventListener("appinstalled", handleAppInstalled);
+    return () => window.removeEventListener("appinstalled", handleAppInstalled);
+  }, []);
 
   const handleForgotPassword = async () => {
     if (!email.trim()) {
@@ -338,23 +375,25 @@ export function LoginModal({ onClose, onSuccess, onSelectLocal }: LoginModalProp
           </div>
 
           {/* Install Shortcut within Login Section */}
-          <div className="mt-4 pt-3.5 border-t border-slate-800/80 space-y-2">
-            <div className="flex items-center gap-1.5 text-amber-500 justify-center">
-              <Smartphone className="w-3.5 h-3.5 text-amber-500" />
-              <span className="text-[10px] font-bold font-mono uppercase tracking-wider">Usar no Celular</span>
+          {!isInstalled && (
+            <div className="mt-4 pt-3.5 border-t border-slate-800/80 space-y-2">
+              <div className="flex items-center gap-1.5 text-amber-500 justify-center">
+                <Smartphone className="w-3.5 h-3.5 text-amber-500" />
+                <span className="text-[10px] font-bold font-mono uppercase tracking-wider">Usar no Celular</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('pwa-open-prompt-force'))}
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500/15 to-amber-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-amber-500/30 text-amber-405 text-amber-400 font-extrabold py-2 px-4 rounded-xl text-[11px] uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                <Smartphone className="w-3.5 h-3.5 text-orange-400" />
+                Instalar Aplicativo (PWA)
+              </button>
+              <p className="text-[9.5px] text-slate-500 text-center leading-normal">
+                Adicione o painel direto na sua tela de início sem ocupar memória!
+              </p>
             </div>
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent('pwa-open-prompt-force'))}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500/15 to-amber-500/15 hover:from-orange-500/25 hover:to-amber-500/25 border border-amber-500/30 text-amber-405 text-amber-400 font-extrabold py-2 px-4 rounded-xl text-[11px] uppercase tracking-wider transition-colors cursor-pointer"
-            >
-              <Smartphone className="w-3.5 h-3.5 text-orange-400" />
-              Instalar Aplicativo (PWA)
-            </button>
-            <p className="text-[9.5px] text-slate-500 text-center leading-normal">
-              Adicione o painel direto na sua tela de início sem ocupar memória!
-            </p>
-          </div>
+          )}
         </div>
 
       </div>

@@ -1,11 +1,8 @@
 // Service Worker for Eu Sou Capaz PWA installation compatibility
-const CACHE_NAME = 'eu-sou-capaz-v1';
+const CACHE_NAME = 'eu-sou-capaz-v2';
 const ASSETS_TO_CACHE = [
   '/',
-  '/index.html',
-  '/manifest.json',
-  '/logo.png',
-  '/logo.svg'
+  '/index.html'
 ];
 
 self.addEventListener('install', (event) => {
@@ -37,29 +34,33 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-  // Only cache GET requests and skip chrome-extension / API requests
+  // Ignore non-GET requests and APIs/external extensions
   if (req.method !== 'GET' || !req.url.startsWith(self.location.origin)) {
     return;
   }
 
+  // Optimize for real-time app: Network-First strategy to ensure latest CSS/JS/Manifest version is online
   event.respondWith(
-    caches.match(req).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(req).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+    fetch(req)
+      .then((networkResponse) => {
+        // Only cache successful standard responses
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(req, responseToCache);
+          });
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(req, responseToCache);
-        });
         return networkResponse;
-      }).catch(() => {
-        // Offline fallback if cache misses
-        return caches.match('/');
-      });
-    })
+      })
+      .catch(() => {
+        // If offline or network fails, fallback to cache
+        return caches.match(req).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          // If offline and cache missed, fallback to root index
+          return caches.match('/');
+        });
+      })
   );
 });

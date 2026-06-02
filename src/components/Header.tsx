@@ -309,6 +309,44 @@ export function Header({
   onEditName,
   onSignInLocal
 }: HeaderProps) {
+  const [isInstalled, setIsInstalled] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkInstalled = async () => {
+      const isStandaloneMode = 
+        window.matchMedia("(display-mode: standalone)").matches ||
+        (window.navigator as any).standalone === true ||
+        localStorage.getItem("es_capaz_pwa_installed") === "true";
+      
+      if (isStandaloneMode) {
+        setIsInstalled(true);
+        return;
+      }
+
+      if ('getInstalledRelatedApps' in navigator) {
+        try {
+          const relatedApps = await (navigator as any).getInstalledRelatedApps();
+          if (relatedApps && relatedApps.length > 0) {
+            setIsInstalled(true);
+            localStorage.setItem("es_capaz_pwa_installed", "true");
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+
+    checkInstalled();
+
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      localStorage.setItem("es_capaz_pwa_installed", "true");
+    };
+
+    window.addEventListener("appinstalled", handleAppInstalled);
+    return () => window.removeEventListener("appinstalled", handleAppInstalled);
+  }, []);
+
   // Format start date beautifully (from YYYY-MM-DD to DD/MM/YYYY)
   const formatDate = (dateStr: string) => {
     const parts = dateStr.split('-');
@@ -366,14 +404,16 @@ export function Header({
           <div className="flex flex-col sm:flex-row items-center lg:items-end gap-3 shrink-0 self-center lg:self-center">
             
             {/* Direct PWA Install trigger shortcut */}
-            <button
-              onClick={() => window.dispatchEvent(new CustomEvent('pwa-open-prompt-force'))}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500/10 to-amber-500/10 hover:from-orange-500/20 hover:to-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-wide cursor-pointer transition-all hover:scale-[1.01]"
-              title="Instalar este aplicativo no seu celular!"
-            >
-              <Smartphone className="w-3.5 h-3.5 text-amber-500 stroke-[2.5]" />
-              Instalar App
-            </button>
+            {!isInstalled && (
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('pwa-open-prompt-force'))}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500/10 to-amber-500/10 hover:from-orange-500/20 hover:to-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-wide cursor-pointer transition-all hover:scale-[1.01]"
+                title="Instalar este aplicativo no seu celular!"
+              >
+                <Smartphone className="w-3.5 h-3.5 text-amber-500 stroke-[2.5]" />
+                Instalar App
+              </button>
+            )}
 
             {/* Connection Status Indicator pill */}
             {user && user.uid.startsWith('local_') ? (

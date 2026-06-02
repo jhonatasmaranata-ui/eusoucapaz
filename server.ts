@@ -94,21 +94,39 @@ async function startServer() {
         ? [
             {
               src: "/logo.svg",
-              sizes: "any",
+              sizes: "192x192",
               type: "image/svg+xml",
-              purpose: "any maskable"
+              purpose: "any"
+            },
+            {
+              src: "/logo.svg",
+              sizes: "512x512",
+              type: "image/svg+xml",
+              purpose: "any"
             },
             {
               src: "/logo.png",
               sizes: "192x192",
               type: "image/png",
-              purpose: "any maskable"
+              purpose: "any"
+            },
+            {
+              src: "/logo.png",
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "maskable"
             },
             {
               src: "/logo.png",
               sizes: "512x512",
               type: "image/png",
-              purpose: "any maskable"
+              purpose: "any"
+            },
+            {
+              src: "/logo.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "maskable"
             }
           ]
         : [
@@ -116,19 +134,31 @@ async function startServer() {
               src: activeLogo,
               sizes: "192x192",
               type: type,
-              purpose: "any maskable"
+              purpose: "any"
+            },
+            {
+              src: activeLogo,
+              sizes: "192x192",
+              type: type,
+              purpose: "maskable"
             },
             {
               src: activeLogo,
               sizes: "512x512",
               type: type,
-              purpose: "any maskable"
+              purpose: "any"
+            },
+            {
+              src: activeLogo,
+              sizes: "512x512",
+              type: type,
+              purpose: "maskable"
             },
             {
               src: activeLogo,
               sizes: "180x180",
               type: type,
-              purpose: "any maskable"
+              purpose: "any"
             }
           ]
     };
