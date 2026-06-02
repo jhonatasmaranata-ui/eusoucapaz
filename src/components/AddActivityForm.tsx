@@ -64,6 +64,7 @@ export function AddActivityForm({
   const [stravaIntegration, setStravaIntegration] = useState<any>(null);
   const [isStravaLoading, setIsStravaLoading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [hasAutoSynced, setHasAutoSynced] = useState(false);
 
   useEffect(() => {
     const fetchStravaIntegration = async () => {
@@ -284,6 +285,17 @@ export function AddActivityForm({
       setIsSyncing(false);
     }
   };
+
+  // Sincronização automática do Strava ao carregar o aplicativo
+  useEffect(() => {
+    if (stravaIntegration && athleteName && !hasAutoSynced && !isSyncing) {
+      setHasAutoSynced(true);
+      const timer = setTimeout(() => {
+        handleSyncStrava();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [stravaIntegration, athleteName, hasAutoSynced]);
 
   const handleGpxFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
