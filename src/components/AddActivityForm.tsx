@@ -4,8 +4,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Dumbbell, Route, Calendar, ArrowRight, Compass, CheckCircle, Lock, UserPlus, LogIn, Sparkles, Waves, Flame, Camera, UploadCloud, Trash2, Image, ChevronDown, ChevronUp } from 'lucide-react';
+import { PlusCircle, Dumbbell, Route, Calendar, ArrowRight, Compass, CheckCircle, Lock, UserPlus, LogIn, Sparkles, Waves, Flame, Camera, UploadCloud, Trash2, Image, ChevronDown, ChevronUp, RefreshCw, Unlink, Link } from 'lucide-react';
 import { Activity } from '../types';
+import { auth, db } from '../firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 interface AddActivityFormProps {
   existingNames: string[];
@@ -56,6 +58,398 @@ export function AddActivityForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showRecentRoll, setShowRecentRoll] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [showGpxImporter, setShowGpxImporter] = useState(false);
+
+  // Strava Automation Sync States
+  const [stravaIntegration, setStravaIntegration] = useState<any>(null);
+  const [isStravaLoading, setIsStravaLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    const fetchStravaIntegration = async () => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        try {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            if (data?.stravaIntegration) {
+              setStravaIntegration(data.stravaIntegration);
+            } else {
+              setStravaIntegration(null);
+            }
+          }
+        } catch (err) {
+          console.error("Error loading Strava integration info:", err);
+        }
+      } else {
+        setStravaIntegration(null);
+      }
+    };
+
+    fetchStravaIntegration();
+
+    const handleMessage = async (event: MessageEvent) => {
+      const origin = event.origin;
+      if (!origin.endsWith('.run.app') && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
+        return;
+      }
+      
+      if (event.data?.type === 'STRAVA_AUTH_SUCCESS') {
+        const currentUser = auth.currentUser;
+        if (currentUser && currentUser.uid === event.data.userId) {
+          try {
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            await updateDoc(userDocRef, {
+              stravaIntegration: event.data.stravaData
+            });
+            setStravaIntegration(event.data.stravaData);
+            setSuccessInfo(`Strava conectado com sucesso! Atleta: ${event.data.stravaData.athlete?.firstname || 'Strava'}`);
+            setErrorInfo(null);
+          } catch (dbErr: any) {
+            console.error("Failed to update user doc with Strava data:", dbErr);
+            setErrorInfo("Erro ao salvar dados do Strava no banco de dados.");
+          }
+        }
+      }
+    };
+    
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  const handleConnectStrava = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      setErrorInfo("Você precisa estar logado para conectar com o Strava.");
+      return;
+    }
+    
+    setIsStravaLoading(true);
+    try {
+      const response = await fetch(`/api/strava/auth-url?userId=${currentUser.uid}`);
+      if (!response.ok) {
+        throw new Error("Falha ao se comunicar com o servidor.");
+      }
+      const data = await response.json();
+      
+      if (data.url === "DEMO_MODE") {
+        const demoData = {
+          access_token: "demo_access_token",
+          refresh_token: "demo_refresh_token",
+          expires_at: Math.floor(Date.now() / 1000) + 3600,
+          athlete: {
+            firstname: "Atleta",
+            lastname: "Demo (Strava Simulado)",
+            id: "123456"
+          },
+          connectedAt: new Date().toISOString(),
+          isDemo: true
+        };
+        
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userDocRef, {
+          stravaIntegration: demoData
+        });
+        setStravaIntegration(demoData);
+        setSuccessInfo("Modo Simulação Strava ativado! Clique em 'Sincronizar Treinos' para carregar corridas simuladas.");
+        setErrorInfo(null);
+      } else {
+        const width = 600;
+        const height = 700;
+        const left = window.screenX + (window.outerWidth - width) / 2;
+        const top = window.screenY + (window.outerHeight - height) / 2;
+        
+        const popup = window.open(
+          data.url,
+          'strava_oauth_popup',
+          `width=${width},height=${height},left=${left},top=${top},status=no,resizable=yes`
+        );
+        
+        if (!popup) {
+          setErrorInfo("O bloqueador de popups impediu a janela do Strava de abrir. Por favor, permita popups para este site.");
+        }
+      }
+    } catch (err: any) {
+      console.error("Connect strava failed:", err);
+      setErrorInfo(`Erro ao conectar com o Strava: ${err.message}`);
+    } finally {
+      setIsStravaLoading(false);
+    }
+  };
+
+  const handleDisconnectStrava = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+    
+    if (confirm("Deseja realmente desconectar sua conta do Strava?")) {
+      try {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userDocRef, {
+          stravaIntegration: null
+        });
+        setStravaIntegration(null);
+        setSuccessInfo("Strava desconectado com sucesso.");
+        setErrorInfo(null);
+      } catch (err: any) {
+        console.error("Disconnect error:", err);
+        setErrorInfo("Erro ao desconectar Strava no banco de dados.");
+      }
+    }
+  };
+
+  const handleSyncStrava = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser || !stravaIntegration) return;
+    
+    setIsSyncing(true);
+    setSuccessInfo(null);
+    setErrorInfo(null);
+    
+    try {
+      const response = await fetch("/api/strava/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stravaIntegration: stravaIntegration,
+          lastSyncDate: todayStr
+        })
+      });
+      
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.error || "Erro na resposta do Strava.");
+      }
+      
+      const resData = await response.json();
+      
+      if (resData.newTokens) {
+        const updatedInt = {
+          ...stravaIntegration,
+          ...resData.newTokens
+        };
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        await updateDoc(userDocRef, {
+          stravaIntegration: updatedInt
+        });
+        setStravaIntegration(updatedInt);
+      }
+      
+      const stravaActs = resData.activities || [];
+      if (stravaActs.length === 0) {
+        setSuccessInfo("Nenhuma atividade recente encontrada no seu Strava.");
+        return;
+      }
+      
+      const currentGroupActivities = activities || [];
+      const newActs = stravaActs.filter((item: any) => {
+        const alreadyRegistered = currentGroupActivities.some((act: Activity) => {
+          if (act.checkInCode && act.checkInCode.includes(item.id.replace("strava_", ""))) {
+            return true;
+          }
+          return act.date === item.date && 
+                 act.type === item.type && 
+                 Math.abs(act.distance - item.distance) < 0.02;
+        });
+        return !alreadyRegistered;
+      });
+      
+      if (newActs.length === 0) {
+        setSuccessInfo(`Sincronizado! Seus treinos recentes do Strava já estão todos registrados no Desafio.`);
+        return;
+      }
+      
+      let addedCount = 0;
+      for (const act of newActs) {
+        await onAddActivity({
+          name: athleteName || 'Atleta',
+          type: act.type,
+          distance: act.distance,
+          date: act.date,
+          checkInCode: act.checkInCode,
+          isGymWorkout: false,
+          userId: currentUser.uid,
+          timestamp: new Date().toISOString()
+        });
+        addedCount++;
+      }
+      
+      setSuccessInfo(`Sucesso! Importamos e registramos automaticamente ${addedCount} novos treinos do Strava.`);
+      setErrorInfo(null);
+    } catch (err: any) {
+      console.error("Sync error:", err);
+      setErrorInfo(`Falha na sincronização automatizada: ${err.message}`);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleGpxFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    if (fileExtension !== 'gpx' && fileExtension !== 'tcx') {
+      setErrorInfo('Por favor, faça upload de um arquivo com formato .gpx ou .tcx');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, 'application/xml');
+
+        if (xml.getElementsByTagName('parsererror').length > 0) {
+          throw new Error('Falha ao decodificar a estrutura XML do arquivo.');
+        }
+
+        let extractedDate = '';
+        let extractedDistKm = 0;
+        let extractedType = '';
+
+        if (fileExtension === 'gpx') {
+          // --- GPX Parsing ---
+          const timeElements = xml.getElementsByTagName("time");
+          if (timeElements.length > 0) {
+            const firstTime = timeElements[0].textContent;
+            if (firstTime) {
+              extractedDate = firstTime.split('T')[0];
+            }
+          }
+
+          const typeElements = xml.getElementsByTagName("type");
+          if (typeElements.length > 0) {
+            const rawType = typeElements[0].textContent?.toLowerCase() || '';
+            if (rawType.includes('bike') || rawType.includes('ride') || rawType.includes('cycling') || rawType.includes('bici') || rawType.includes('pedal')) {
+              extractedType = 'Pedalada';
+            } else if (rawType.includes('walk') || rawType.includes('hike') || rawType.includes('caminh')) {
+              extractedType = 'Caminhada';
+            } else if (rawType.includes('swim') || rawType.includes('natac')) {
+              extractedType = 'Natação';
+            } else {
+              extractedType = 'Corrida';
+            }
+          } else {
+            extractedType = 'Corrida';
+          }
+
+          const trkpts = xml.getElementsByTagName("trkpt");
+          if (trkpts.length > 0) {
+            let totalDist = 0;
+            const toRad = (x: number) => (x * Math.PI) / 180;
+            const R = 6371; // Earth KM
+            
+            let prevLat: number | null = null;
+            let prevLon: number | null = null;
+            
+            for (let i = 0; i < trkpts.length; i++) {
+              const latAttr = trkpts[i].getAttribute("lat");
+              const lonAttr = trkpts[i].getAttribute("lon");
+              if (latAttr && lonAttr) {
+                const lat = parseFloat(latAttr);
+                const lon = parseFloat(lonAttr);
+                if (prevLat !== null && prevLon !== null) {
+                  const dLat = toRad(lat - prevLat);
+                  const dLon = toRad(lon - prevLon);
+                  const a = 
+                    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(toRad(prevLat)) * Math.cos(toRad(lat)) * 
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                  const d = R * c;
+                  totalDist += d;
+                }
+                prevLat = lat;
+                prevLon = lon;
+              }
+            }
+            extractedDistKm = totalDist;
+          }
+        } else {
+          // --- TCX Parsing ---
+          const idElements = xml.getElementsByTagName("Id");
+          if (idElements.length > 0) {
+            const rawId = idElements[0].textContent;
+            if (rawId) {
+              extractedDate = rawId.split('T')[0];
+            }
+          }
+          if (!extractedDate) {
+            const timeElements = xml.getElementsByTagName("Time");
+            if (timeElements.length > 0) {
+              const firstTime = timeElements[0].textContent;
+              if (firstTime) {
+                extractedDate = firstTime.split('T')[0];
+              }
+            }
+          }
+
+          const activityElements = xml.getElementsByTagName("Activity");
+          if (activityElements.length > 0) {
+            const sport = activityElements[0].getAttribute("Sport")?.toLowerCase() || '';
+            if (sport.includes('bike') || sport.includes('cycling') || sport.includes('pedal')) {
+              extractedType = 'Pedalada';
+            } else if (sport.includes('walk') || sport.includes('hike') || sport.includes('caminh')) {
+              extractedType = 'Caminhada';
+            } else if (sport.includes('swim') || sport.includes('natac')) {
+              extractedType = 'Natação';
+            } else {
+              extractedType = 'Corrida';
+            }
+          } else {
+            extractedType = 'Corrida';
+          }
+
+          const distElements = xml.getElementsByTagName("DistanceMeters");
+          if (distElements.length > 0) {
+            let maxDistMeters = 0;
+            for (let i = 0; i < distElements.length; i++) {
+              const val = parseFloat(distElements[i].textContent || '0');
+              if (val > maxDistMeters) {
+                maxDistMeters = val;
+              }
+            }
+            extractedDistKm = maxDistMeters / 1000;
+          }
+        }
+
+        if (extractedDistKm === 0) {
+          setErrorInfo('Nenhum dado de percurso ou distância foi encontrado no arquivo de corrida.');
+          return;
+        }
+
+        setActivityType(extractedType);
+        
+        if (extractedType === 'Natação') {
+          setDistance(Math.round(extractedDistKm * 1000).toString());
+        } else {
+          setDistance(extractedDistKm.toFixed(2));
+        }
+
+        if (extractedDate) {
+          setDate(extractedDate);
+          if (extractedDate === todayStr) {
+            setDateChoice('hoje');
+          } else if (extractedDate === yesterdayStr) {
+            setDateChoice('ontem');
+          } else {
+            setDateChoice('outra');
+          }
+        }
+
+        setSuccessInfo(`Sucesso ao importar arquivo .${fileExtension.toUpperCase()}! ${extractedType === 'Natação' ? `${Math.round(extractedDistKm * 1000)}m` : `${extractedDistKm.toFixed(2)} km`} em ${extractedDate ? extractedDate.split('-').reverse().join('/') : 'data desconhecida'}.`);
+        setErrorInfo(null);
+      } catch (err) {
+        console.error("Error parsing race file:", err);
+        setErrorInfo('Erro ao ler ou processar o arquivo. Verifique se é um arquivo GPX/TCX válido.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -372,6 +766,154 @@ export function AddActivityForm({
               );
             })}
           </div>
+        </div>
+
+        {/* Strava Automatic Sync Card */}
+        <div className="bg-slate-950/40 border border-orange-500/20 hover:border-orange-500/30 rounded-xl p-3.5 space-y-2.5 transition-all">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-900 pb-1.5">
+            <span className="flex items-center gap-1.5 font-mono font-bold text-[10px] sm:text-xs text-orange-400 uppercase">
+              <Flame className="w-4 h-4 text-orange-500 animate-bounce" />
+              Sincronização Direta do Strava
+            </span>
+            {stravaIntegration && (
+              <span className="text-[8px] bg-orange-500/10 text-orange-400 border border-orange-500/25 px-1.5 py-0.5 rounded-full font-mono font-bold">
+                {stravaIntegration.isDemo ? "Playground/Demo" : "Ativo"}
+              </span>
+            )}
+          </div>
+
+          {!auth.currentUser ? (
+            <div className="text-center py-2 space-y-1.5">
+              <p className="text-[10px] text-slate-400 font-sans leading-normal">
+                Faça login para vincular seu Strava e sincronizar suas atividades automaticamente.
+              </p>
+              <button
+                type="button"
+                onClick={onSignIn}
+                className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 font-mono"
+              >
+                <LogIn className="w-3.5 h-3.5" /> Fazer Login no Aplicativo
+              </button>
+            </div>
+          ) : !stravaIntegration ? (
+            <div className="space-y-2">
+              <p className="text-[10px] text-slate-400 font-sans leading-normal">
+                Terminou sua corrida ou pedalada no Strava? Vincule sua conta com apenas um clique para importar sua quilometragem automaticamente, sem precisar de arquivos!
+              </p>
+              <button
+                type="button"
+                disabled={isStravaLoading}
+                onClick={handleConnectStrava}
+                className="w-full bg-orange-600 hover:bg-orange-500 disabled:bg-orange-900/40 text-white font-sans font-bold text-[11px] py-2 px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all border border-orange-500/20 active:translate-y-0.5"
+              >
+                {isStravaLoading ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    Obtendo autorização...
+                  </>
+                ) : (
+                  <>
+                    <Link className="w-3.5 h-3.5" />
+                    Conectar com o Strava 🏃⚡
+                  </>
+                )}
+              </button>
+              <span className="text-[8px] text-slate-500 text-center block font-sans">
+                Seu aplicativo usa conexões OAuth seguras com a API oficial do Strava.
+              </span>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between text-[10px] bg-slate-900/50 p-2 rounded-lg border border-slate-900">
+                <div className="space-y-0.5 select-none font-sans">
+                  <span className="text-slate-500 block text-[8px] uppercase font-mono">Conta vinculada:</span>
+                  <span className="text-slate-300 font-bold">
+                    {stravaIntegration.athlete?.firstname} {stravaIntegration.athlete?.lastname || "Atleta Strava"}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleDisconnectStrava}
+                  className="text-red-400 hover:text-red-300 transition-colors text-[9px] font-bold font-mono py-1 px-2 hover:bg-red-500/10 rounded flex items-center gap-1 cursor-pointer"
+                  title="Desconectar conta do Strava"
+                >
+                  <Unlink className="w-3 h-3" /> Desconectar
+                </button>
+              </div>
+
+              <button
+                type="button"
+                disabled={isSyncing}
+                onClick={handleSyncStrava}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-950/50 text-white font-sans font-bold text-[11px] py-2 px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all border border-emerald-500/20 active:translate-y-0.5"
+              >
+                {isSyncing ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    Buscando e sincronizando treinos...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 hover:rotate-180 transition-transform duration-500 animate-pulse" />
+                    Sincronizar Meus Treinos Recentes
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* GPX/TCX File Importer Accordion */}
+        <div className="bg-slate-950/40 border border-slate-850 rounded-xl p-3">
+          <button
+            type="button"
+            onClick={() => setShowGpxImporter(!showGpxImporter)}
+            className="w-full flex items-center justify-between text-left cursor-pointer text-slate-400 hover:text-emerald-400 gap-2 font-mono font-bold text-[10px] sm:text-xs uppercase"
+          >
+            <span className="flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+              Sincronizar Arquivo (Strava, Nike+, Garmin...)
+            </span>
+            <span className="flex items-center gap-1 text-slate-500 text-[9px] lowercase font-normal">
+              {showGpxImporter ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </span>
+          </button>
+
+          {showGpxImporter && (
+            <div className="mt-2.5 pt-2.5 border-t border-slate-900 space-y-3 animate-fadeIn">
+              <p className="text-[10px] text-slate-400 font-sans leading-normal">
+                Faça o download do arquivo <strong>.GPX</strong> ou <strong>.TCX</strong> da atividade esportiva no seu app de corrida favorito e selecione-o abaixo para preencher os dados automaticamente.
+              </p>
+
+              {/* GPX/TCX Dropzone */}
+              <div className="relative border border-dashed border-slate-800 hover:border-emerald-500/50 bg-slate-900/60 rounded-lg p-3 flex flex-col items-center justify-center text-center transition-all min-h-[90px]">
+                <input
+                  type="file"
+                  accept=".gpx,.tcx"
+                  onChange={handleGpxFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  title="Selecione um arquivo de corrida"
+                />
+                <Route className="w-5 h-5 text-emerald-400 mb-1" />
+                <span className="text-[10px] text-slate-300 font-semibold font-sans">
+                  Carregar arquivo .GPX ou .TCX
+                </span>
+                <span className="text-[8px] text-slate-500 mt-0.5 font-sans">
+                  Arraste ou clique para selecionar
+                </span>
+              </div>
+
+              {/* Instructions Panel */}
+              <div className="bg-slate-900/50 rounded-lg p-2.5 border border-slate-900 font-sans text-[9px] text-slate-400 space-y-1.5">
+                <span className="font-bold text-slate-300 block font-mono">COMO EXPORTAR DO SEU APLICATIVO:</span>
+                <ul className="list-disc pl-3.5 space-y-1">
+                  <li><strong>Strava:</strong> Abra o treino no computador ou navegador, clique nos <strong className="text-slate-300">"..."</strong> à esquerda e escolha <strong className="text-slate-300">"Exportar GPX/TCX"</strong>.</li>
+                  <li><strong>Nike Run Club:</strong> Abra o treino no site do Nike Run ou use ferramentas de conversão gratuitas para salvar suas corridas em GPX.</li>
+                  <li><strong>Garmin Connect / Coros:</strong> Acesse os detalhes do treino e selecione <strong className="text-slate-300">"Exportar original"</strong> ou arquivo de dados.</li>
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Conditional Fields: Distance vs Check-in Code */}

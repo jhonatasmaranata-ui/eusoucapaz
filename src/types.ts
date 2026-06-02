@@ -90,4 +90,13 @@ export interface UserProfile {
       joinedAt: string;
     };
   };
+  stravaIntegration?: {
+    access_token: string;
+    refresh_token: string;
+    expires_at: number;
+    athleteId?: string;
+    athleteName?: string;
+    connectedAt: string;
+    isDemo?: boolean;
+  };
 }
