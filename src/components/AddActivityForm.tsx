@@ -295,16 +295,7 @@ export function AddActivityForm({
     }
   };
 
-  // Sincronização automática do Strava ao carregar o aplicativo
-  useEffect(() => {
-    if (stravaIntegration && athleteName && !hasAutoSynced && !isSyncing) {
-      setHasAutoSynced(true);
-      const timer = setTimeout(() => {
-        handleSyncStrava();
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [stravaIntegration, athleteName, hasAutoSynced]);
+
 
 
 
@@ -625,100 +616,7 @@ export function AddActivityForm({
           </div>
         </div>
 
-        {/* Strava Automatic Sync Card */}
-        <div className="bg-slate-950/40 border border-orange-500/20 hover:border-orange-500/30 rounded-xl p-3.5 space-y-2.5 transition-all">
-          <div className="flex items-center justify-between gap-2 border-b border-slate-900 pb-1.5">
-            <span className="flex items-center gap-1.5 font-mono font-bold text-[10px] sm:text-xs text-orange-400 uppercase">
-              <Flame className="w-4 h-4 text-orange-500 animate-bounce" />
-              Sincronização Direta do Strava
-            </span>
-            {stravaIntegration && (
-              <span className="text-[8px] bg-orange-500/10 text-orange-400 border border-orange-500/25 px-1.5 py-0.5 rounded-full font-mono font-bold">
-                {stravaIntegration.isDemo ? "Playground/Demo" : "Ativo"}
-              </span>
-            )}
-          </div>
 
-          {!auth.currentUser ? (
-            <div className="text-center py-2 space-y-1.5">
-              <p className="text-[10px] text-slate-400 font-sans leading-normal">
-                Faça login para vincular seu Strava e sincronizar suas atividades automaticamente.
-              </p>
-              <button
-                type="button"
-                onClick={onSignIn}
-                className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 hover:text-emerald-300 font-mono"
-              >
-                <LogIn className="w-3.5 h-3.5" /> Fazer Login no Aplicativo
-              </button>
-            </div>
-          ) : !stravaIntegration ? (
-            <div className="space-y-2">
-              <p className="text-[10px] text-slate-400 font-sans leading-normal">
-                Terminou sua corrida ou pedalada no Strava? Vincule sua conta com apenas um clique para importar sua quilometragem automaticamente, sem precisar de arquivos!
-              </p>
-              <button
-                type="button"
-                disabled={isStravaLoading}
-                onClick={handleConnectStrava}
-                className="w-full bg-orange-600 hover:bg-orange-500 disabled:bg-orange-900/40 text-white font-sans font-bold text-[11px] py-2 px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all border border-orange-500/20 active:translate-y-0.5"
-              >
-                {isStravaLoading ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    Obtendo autorização...
-                  </>
-                ) : (
-                  <>
-                    <Link className="w-3.5 h-3.5" />
-                    Conectar com o Strava 🏃⚡
-                  </>
-                )}
-              </button>
-              <span className="text-[8px] text-slate-500 text-center block font-sans">
-                Seu aplicativo usa conexões OAuth seguras com a API oficial do Strava.
-              </span>
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between text-[10px] bg-slate-900/50 p-2 rounded-lg border border-slate-900">
-                <div className="space-y-0.5 select-none font-sans">
-                  <span className="text-slate-500 block text-[8px] uppercase font-mono">Conta vinculada:</span>
-                  <span className="text-slate-300 font-bold">
-                    {stravaIntegration.athlete?.firstname} {stravaIntegration.athlete?.lastname || "Atleta Strava"}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleDisconnectStrava}
-                  className="text-red-400 hover:text-red-300 transition-colors text-[9px] font-bold font-mono py-1 px-2 hover:bg-red-500/10 rounded flex items-center gap-1 cursor-pointer"
-                  title="Desconectar conta do Strava"
-                >
-                  <Unlink className="w-3 h-3" /> Desconectar
-                </button>
-              </div>
-
-              <button
-                type="button"
-                disabled={isSyncing}
-                onClick={handleSyncStrava}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-950/50 text-white font-sans font-bold text-[11px] py-2 px-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer transition-all border border-emerald-500/20 active:translate-y-0.5"
-              >
-                {isSyncing ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    Buscando e sincronizando treinos...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 hover:rotate-180 transition-transform duration-500 animate-pulse" />
-                    Sincronizar Meus Treinos Recentes
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-        </div>
 
 
 
