@@ -9,7 +9,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', (event) => {
-  (event as any).waitUntil(
+  event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE).catch(() => {
         // Fallback for some assets if they are not immediately reachable during build/dev
@@ -17,11 +17,11 @@ self.addEventListener('install', (event) => {
       });
     })
   );
-  (self as any).skipWaiting();
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  (event as any).waitUntil(
+  event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
@@ -32,17 +32,17 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
-  (self as any).clients.claim();
+  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  const req = (event as any).request;
+  const req = event.request;
   // Only cache GET requests and skip chrome-extension / API requests
   if (req.method !== 'GET' || !req.url.startsWith(self.location.origin)) {
     return;
   }
 
-  (event as any).respondWith(
+  event.respondWith(
     caches.match(req).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;

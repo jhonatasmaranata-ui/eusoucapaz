@@ -59,9 +59,25 @@ export function PWAInstallPrompt() {
       setIsInstalled(false);
     };
 
-    const handleForceOpen = () => {
+    const handleForceOpen = async () => {
       setIsVisible(true);
-      setShowGuide(true);
+      const currentPrompt = deferredPrompt || (window as any).deferredPWAInstallPrompt;
+      if (currentPrompt) {
+        setDeferredPrompt(currentPrompt);
+        try {
+          await currentPrompt.prompt();
+          const choice = await currentPrompt.userChoice;
+          if (choice.outcome === "accepted") {
+            sessionStorage.setItem("es_capaz_pwa_dismissed_v2", "true");
+            setIsVisible(false);
+          }
+        } catch (err) {
+          console.error("Install prompt error", err);
+          setShowGuide(true);
+        }
+      } else {
+        setShowGuide(true);
+      }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
