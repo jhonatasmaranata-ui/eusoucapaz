@@ -56,6 +56,86 @@ async function startServer() {
     next();
   });
 
+  // Dynamic manifest.json to only serve the logo matching the user's custom photo (hiding standard SVG if photo is present)
+  app.get("/manifest.json", (req, res) => {
+    const possibleLogos = ["logo.png", "logo.jpg", "logo.jpeg", "logo.webp"];
+    let activeLogo = "/logo.svg";
+    let type = "image/svg+xml";
+
+    for (const logo of possibleLogos) {
+      const rootPath = path.join(process.cwd(), logo);
+      const publicPath = path.join(process.cwd(), "public", logo);
+      
+      const fileExists = (p: string) => {
+        try {
+          return fs.existsSync(p) && fs.statSync(p).size > 250;
+        } catch {
+          return false;
+        }
+      };
+
+      if (fileExists(rootPath) || fileExists(publicPath)) {
+        activeLogo = `/${logo}`;
+        type = `image/${logo.split(".").pop() === "jpg" ? "jpeg" : logo.split(".").pop()}`;
+        break;
+      }
+    }
+
+    const manifest = {
+      name: "Eu Sou Capaz",
+      short_name: "Eu Sou Capaz",
+      description: "Painel de Consistência e Desafio de Hábitos",
+      start_url: "/",
+      display: "standalone",
+      background_color: "#09090b",
+      theme_color: "#09090b",
+      orientation: "portrait",
+      icons: activeLogo.endsWith(".svg")
+        ? [
+            {
+              src: "/logo.svg",
+              sizes: "any",
+              type: "image/svg+xml",
+              purpose: "any maskable"
+            },
+            {
+              src: "/logo.png",
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "any maskable"
+            },
+            {
+              src: "/logo.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any maskable"
+            }
+          ]
+        : [
+            {
+              src: activeLogo,
+              sizes: "192x192",
+              type: type,
+              purpose: "any maskable"
+            },
+            {
+              src: activeLogo,
+              sizes: "512x512",
+              type: type,
+              purpose: "any maskable"
+            },
+            {
+              src: activeLogo,
+              sizes: "180x180",
+              type: type,
+              purpose: "any maskable"
+            }
+          ]
+    };
+
+    res.json(manifest);
+  });
+
   // API Route: Build Strava OAuth authorization URL
   app.get("/api/strava/auth-url", (req, res) => {
     try {
