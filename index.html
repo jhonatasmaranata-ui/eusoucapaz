@@ -17,6 +17,16 @@
     <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json" />
     
+    <!-- Capture PWA install prompt early to prevent race conditions with React load -->
+    <script>
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        window.deferredPWAInstallPrompt = e;
+        console.log('beforeinstallprompt captured globally!');
+        window.dispatchEvent(new CustomEvent('pwa-prompt-available', { detail: e }));
+      });
+    </script>
+    
     <!-- Mobile Status Bar Styling -->
     <meta name="theme-color" content="#09090b" />
     <meta name="apple-mobile-web-app-capable" content="yes" />

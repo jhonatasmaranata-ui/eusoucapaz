@@ -12,7 +12,8 @@ import {
   Target, 
   Brain, 
   Footprints,
-  Sparkle
+  Sparkle,
+  Smartphone
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 
@@ -364,6 +365,16 @@ export function Header({
           {/* User Profile Area or Authenticated Actions Grouped cleanly */}
           <div className="flex flex-col sm:flex-row items-center lg:items-end gap-3 shrink-0 self-center lg:self-center">
             
+            {/* Direct PWA Install trigger shortcut */}
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('pwa-open-prompt-force'))}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500/10 to-amber-500/10 hover:from-orange-500/20 hover:to-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-wide cursor-pointer transition-all hover:scale-[1.01]"
+              title="Instalar este aplicativo no seu celular!"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-amber-500 stroke-[2.5]" />
+              Instalar App
+            </button>
+
             {/* Connection Status Indicator pill */}
             {user && user.uid.startsWith('local_') ? (
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/[0.04] border border-amber-500/20 text-amber-405 text-amber-400 text-[10px] font-bold font-mono uppercase tracking-wide" title="Você está logado no Modo Offline Local!">
