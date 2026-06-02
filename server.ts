@@ -15,40 +15,45 @@ async function startServer() {
 
   // API Route: Build Strava OAuth authorization URL
   app.get("/api/strava/auth-url", (req, res) => {
-    const { userId } = req.query;
+    try {
+      const { userId } = req.query;
 
-    if (!userId) {
-      return res.status(400).json({ error: "Parâmetro userId é obrigatório." });
-    }
+      if (!userId) {
+        return res.status(400).json({ error: "Parâmetro userId é obrigatório." });
+      }
 
-    const clientId = process.env.STRAVA_CLIENT_ID;
-    
-    // Fallback if environment credentials are not present
-    if (!clientId) {
-      // Return a demo configuration mode flag
-      return res.json({ 
-        url: "DEMO_MODE", 
-        message: "Chaves do Strava não configuradas. Usando modo de simulação/playground." 
+      const clientId = process.env.STRAVA_CLIENT_ID;
+      
+      // Fallback if environment credentials are not present
+      if (!clientId) {
+        // Return a demo configuration mode flag
+        return res.json({ 
+          url: "DEMO_MODE", 
+          message: "Chaves do Strava não configuradas. Usando modo de simulação/playground." 
+        });
+      }
+
+      // Dynamic redirect URI depending on incoming request headers or fallback to runtime URLs
+      // By standard guidelines, we can use req.headers.host but since we are behind proxy, 
+      // let's construct using the current host of request
+      const protocol = req.headers["x-forwarded-proto"] || "https";
+      const host = req.headers.host || "localhost:3000";
+      const redirectUri = `${protocol}://${host}/auth/callback`;
+
+      const params = new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: "code",
+        scope: "activity:read_all,read",
+        state: String(userId),
       });
+
+      const authUrl = `https://www.strava.com/oauth/authorize?${params.toString()}`;
+      res.json({ url: authUrl });
+    } catch (e: any) {
+      console.error("Error creating Strava auth url:", e);
+      res.status(500).json({ error: e.message || "Erro interno ao gerar URL do Strava." });
     }
-
-    // Dynamic redirect URI depending on incoming request headers or fallback to runtime URLs
-    // By standard guidelines, we can use req.headers.host but since we are behind proxy, 
-    // let's construct using the current host of request
-    const protocol = req.headers["x-forwarded-proto"] || "https";
-    const host = req.headers.host || "localhost:3000";
-    const redirectUri = `${protocol}://${host}/auth/callback`;
-
-    const params = new URLSearchParams({
-      client_id: clientId,
-      redirect_uri: redirectUri,
-      response_type: "code",
-      scope: "activity:read_all,read",
-      state: String(userId),
-    });
-
-    const authUrl = `https://www.strava.com/oauth/authorize?${params.toString()}`;
-    res.json({ url: authUrl });
   });
 
   // API/OAuth Route: Strava redirect callback page

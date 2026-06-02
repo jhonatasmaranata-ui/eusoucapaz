@@ -58,7 +58,6 @@ export function AddActivityForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showRecentRoll, setShowRecentRoll] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [showGpxImporter, setShowGpxImporter] = useState(false);
 
   // Strava Automation Sync States
   const [stravaIntegration, setStravaIntegration] = useState<any>(null);
@@ -131,7 +130,17 @@ export function AddActivityForm({
     try {
       const response = await fetch(`/api/strava/auth-url?userId=${currentUser.uid}`);
       if (!response.ok) {
-        throw new Error("Falha ao se comunicar com o servidor.");
+        const errorText = await response.text();
+        let errorMsg = "Falha ao se comunicar com o servidor.";
+        try {
+          const parsed = JSON.parse(errorText);
+          if (parsed && parsed.error) {
+            errorMsg = parsed.error;
+          }
+        } catch (_) {
+          if (errorText) errorMsg = errorText;
+        }
+        throw new Error(errorMsg);
       }
       const data = await response.json();
       
@@ -297,171 +306,7 @@ export function AddActivityForm({
     }
   }, [stravaIntegration, athleteName, hasAutoSynced]);
 
-  const handleGpxFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    const fileExtension = file.name.split('.').pop()?.toLowerCase();
-    if (fileExtension !== 'gpx' && fileExtension !== 'tcx') {
-      setErrorInfo('Por favor, faça upload de um arquivo com formato .gpx ou .tcx');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const text = event.target?.result as string;
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, 'application/xml');
-
-        if (xml.getElementsByTagName('parsererror').length > 0) {
-          throw new Error('Falha ao decodificar a estrutura XML do arquivo.');
-        }
-
-        let extractedDate = '';
-        let extractedDistKm = 0;
-        let extractedType = '';
-
-        if (fileExtension === 'gpx') {
-          // --- GPX Parsing ---
-          const timeElements = xml.getElementsByTagName("time");
-          if (timeElements.length > 0) {
-            const firstTime = timeElements[0].textContent;
-            if (firstTime) {
-              extractedDate = firstTime.split('T')[0];
-            }
-          }
-
-          const typeElements = xml.getElementsByTagName("type");
-          if (typeElements.length > 0) {
-            const rawType = typeElements[0].textContent?.toLowerCase() || '';
-            if (rawType.includes('bike') || rawType.includes('ride') || rawType.includes('cycling') || rawType.includes('bici') || rawType.includes('pedal')) {
-              extractedType = 'Pedalada';
-            } else if (rawType.includes('walk') || rawType.includes('hike') || rawType.includes('caminh')) {
-              extractedType = 'Caminhada';
-            } else if (rawType.includes('swim') || rawType.includes('natac')) {
-              extractedType = 'Natação';
-            } else {
-              extractedType = 'Corrida';
-            }
-          } else {
-            extractedType = 'Corrida';
-          }
-
-          const trkpts = xml.getElementsByTagName("trkpt");
-          if (trkpts.length > 0) {
-            let totalDist = 0;
-            const toRad = (x: number) => (x * Math.PI) / 180;
-            const R = 6371; // Earth KM
-            
-            let prevLat: number | null = null;
-            let prevLon: number | null = null;
-            
-            for (let i = 0; i < trkpts.length; i++) {
-              const latAttr = trkpts[i].getAttribute("lat");
-              const lonAttr = trkpts[i].getAttribute("lon");
-              if (latAttr && lonAttr) {
-                const lat = parseFloat(latAttr);
-                const lon = parseFloat(lonAttr);
-                if (prevLat !== null && prevLon !== null) {
-                  const dLat = toRad(lat - prevLat);
-                  const dLon = toRad(lon - prevLon);
-                  const a = 
-                    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(toRad(prevLat)) * Math.cos(toRad(lat)) * 
-                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-                  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                  const d = R * c;
-                  totalDist += d;
-                }
-                prevLat = lat;
-                prevLon = lon;
-              }
-            }
-            extractedDistKm = totalDist;
-          }
-        } else {
-          // --- TCX Parsing ---
-          const idElements = xml.getElementsByTagName("Id");
-          if (idElements.length > 0) {
-            const rawId = idElements[0].textContent;
-            if (rawId) {
-              extractedDate = rawId.split('T')[0];
-            }
-          }
-          if (!extractedDate) {
-            const timeElements = xml.getElementsByTagName("Time");
-            if (timeElements.length > 0) {
-              const firstTime = timeElements[0].textContent;
-              if (firstTime) {
-                extractedDate = firstTime.split('T')[0];
-              }
-            }
-          }
-
-          const activityElements = xml.getElementsByTagName("Activity");
-          if (activityElements.length > 0) {
-            const sport = activityElements[0].getAttribute("Sport")?.toLowerCase() || '';
-            if (sport.includes('bike') || sport.includes('cycling') || sport.includes('pedal')) {
-              extractedType = 'Pedalada';
-            } else if (sport.includes('walk') || sport.includes('hike') || sport.includes('caminh')) {
-              extractedType = 'Caminhada';
-            } else if (sport.includes('swim') || sport.includes('natac')) {
-              extractedType = 'Natação';
-            } else {
-              extractedType = 'Corrida';
-            }
-          } else {
-            extractedType = 'Corrida';
-          }
-
-          const distElements = xml.getElementsByTagName("DistanceMeters");
-          if (distElements.length > 0) {
-            let maxDistMeters = 0;
-            for (let i = 0; i < distElements.length; i++) {
-              const val = parseFloat(distElements[i].textContent || '0');
-              if (val > maxDistMeters) {
-                maxDistMeters = val;
-              }
-            }
-            extractedDistKm = maxDistMeters / 1000;
-          }
-        }
-
-        if (extractedDistKm === 0) {
-          setErrorInfo('Nenhum dado de percurso ou distância foi encontrado no arquivo de corrida.');
-          return;
-        }
-
-        setActivityType(extractedType);
-        
-        if (extractedType === 'Natação') {
-          setDistance(Math.round(extractedDistKm * 1000).toString());
-        } else {
-          setDistance(extractedDistKm.toFixed(2));
-        }
-
-        if (extractedDate) {
-          setDate(extractedDate);
-          if (extractedDate === todayStr) {
-            setDateChoice('hoje');
-          } else if (extractedDate === yesterdayStr) {
-            setDateChoice('ontem');
-          } else {
-            setDateChoice('outra');
-          }
-        }
-
-        setSuccessInfo(`Sucesso ao importar arquivo .${fileExtension.toUpperCase()}! ${extractedType === 'Natação' ? `${Math.round(extractedDistKm * 1000)}m` : `${extractedDistKm.toFixed(2)} km`} em ${extractedDate ? extractedDate.split('-').reverse().join('/') : 'data desconhecida'}.`);
-        setErrorInfo(null);
-      } catch (err) {
-        console.error("Error parsing race file:", err);
-        setErrorInfo('Erro ao ler ou processar o arquivo. Verifique se é um arquivo GPX/TCX válido.');
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -875,58 +720,7 @@ export function AddActivityForm({
           )}
         </div>
 
-        {/* GPX/TCX File Importer Accordion */}
-        <div className="bg-slate-950/40 border border-slate-850 rounded-xl p-3">
-          <button
-            type="button"
-            onClick={() => setShowGpxImporter(!showGpxImporter)}
-            className="w-full flex items-center justify-between text-left cursor-pointer text-slate-400 hover:text-emerald-400 gap-2 font-mono font-bold text-[10px] sm:text-xs uppercase"
-          >
-            <span className="flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
-              Sincronizar Arquivo (Strava, Nike+, Garmin...)
-            </span>
-            <span className="flex items-center gap-1 text-slate-500 text-[9px] lowercase font-normal">
-              {showGpxImporter ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            </span>
-          </button>
 
-          {showGpxImporter && (
-            <div className="mt-2.5 pt-2.5 border-t border-slate-900 space-y-3 animate-fadeIn">
-              <p className="text-[10px] text-slate-400 font-sans leading-normal">
-                Faça o download do arquivo <strong>.GPX</strong> ou <strong>.TCX</strong> da atividade esportiva no seu app de corrida favorito e selecione-o abaixo para preencher os dados automaticamente.
-              </p>
-
-              {/* GPX/TCX Dropzone */}
-              <div className="relative border border-dashed border-slate-800 hover:border-emerald-500/50 bg-slate-900/60 rounded-lg p-3 flex flex-col items-center justify-center text-center transition-all min-h-[90px]">
-                <input
-                  type="file"
-                  accept=".gpx,.tcx"
-                  onChange={handleGpxFileChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  title="Selecione um arquivo de corrida"
-                />
-                <Route className="w-5 h-5 text-emerald-400 mb-1" />
-                <span className="text-[10px] text-slate-300 font-semibold font-sans">
-                  Carregar arquivo .GPX ou .TCX
-                </span>
-                <span className="text-[8px] text-slate-500 mt-0.5 font-sans">
-                  Arraste ou clique para selecionar
-                </span>
-              </div>
-
-              {/* Instructions Panel */}
-              <div className="bg-slate-900/50 rounded-lg p-2.5 border border-slate-900 font-sans text-[9px] text-slate-400 space-y-1.5">
-                <span className="font-bold text-slate-300 block font-mono">COMO EXPORTAR DO SEU APLICATIVO:</span>
-                <ul className="list-disc pl-3.5 space-y-1">
-                  <li><strong>Strava:</strong> Abra o treino no computador ou navegador, clique nos <strong className="text-slate-300">"..."</strong> à esquerda e escolha <strong className="text-slate-300">"Exportar GPX/TCX"</strong>.</li>
-                  <li><strong>Nike Run Club:</strong> Abra o treino no site do Nike Run ou use ferramentas de conversão gratuitas para salvar suas corridas em GPX.</li>
-                  <li><strong>Garmin Connect / Coros:</strong> Acesse os detalhes do treino e selecione <strong className="text-slate-300">"Exportar original"</strong> ou arquivo de dados.</li>
-                </ul>
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Conditional Fields: Distance vs Check-in Code */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-1">
