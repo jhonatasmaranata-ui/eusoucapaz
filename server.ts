@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import dns from "dns";
 
@@ -309,7 +310,11 @@ async function startServer() {
 
 
   // Connect Vite as middleware in development, and serve index.html in production
-  if (process.env.NODE_ENV !== "production") {
+  const isProd = process.env.NODE_ENV === "production" || 
+                 process.env.NODE_ENV === "prod" || 
+                 (!fs.existsSync(path.join(process.cwd(), "server.ts")) && fs.existsSync(path.join(process.cwd(), "dist/index.html")));
+
+  if (!isProd) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
