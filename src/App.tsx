@@ -17,6 +17,7 @@ import { GroupManager } from './components/GroupManager';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import { Challenge, Activity, RuleConfig, GroupChallenge, GroupMember, UserProfile } from './types';
 import { calculateScores, INITIAL_MOCK_ACTIVITIES, DEFAULT_RULES, getGlobalChallengeRules, isSameAthlete, extractGroupCode } from './utils';
+import { parseFradeActivities, FRADE_MEMBERS } from './data/fradeChallenge';
 import { 
   auth, 
   db, 
@@ -590,7 +591,29 @@ export default function App() {
           return updated;
         });
       } else {
-        if (offlineGroup) {
+        if (activeGroupId === '99H0DP') {
+          const defaultFradeGroup: GroupChallenge = {
+            id: '99H0DP',
+            name: 'DESAFIO DO FRADE',
+            description: 'Desafio ativo do Frade com ranking e pontuação dos atletas.',
+            creatorId: 'local_proxy',
+            inviteCode: '99H0DP',
+            rules: {
+              startDate: '2026-05-11',
+              endDate: '2026-06-11',
+              gymPointsPerCheckIn: 5,
+              distanceMultiplier: 1.0,
+              comboPointsPerDay: 10,
+            },
+            createdAt: new Date().toISOString()
+          };
+          setGroupDetails(defaultFradeGroup);
+          setRules(defaultFradeGroup.rules);
+          if (user && !user.uid.startsWith('local_')) {
+            setDoc(doc(db, 'groups', '99H0DP'), defaultFradeGroup)
+              .catch(e => console.warn("Self-healing group setup deferred:", e));
+          }
+        } else if (offlineGroup) {
           // Self-healing: If we are logged in and this group doesn't exist on Firestore yet, upload it!
           if (user && !user.uid.startsWith('local_')) {
             console.log("Self-healing: Uploading offline group registry to Cloud:", activeGroupId);
@@ -603,6 +626,7 @@ export default function App() {
           setActiveGroupId('demo-group');
         }
       }
+
     }, (error) => {
       console.warn("Could not load group custom configuration in real-time:", error);
     });
@@ -684,8 +708,11 @@ export default function App() {
         })();
         if (cachedRoster.length > 0) {
           setGroupMembers(cachedRoster);
+        } else if (activeGroupId === '99H0DP') {
+          setGroupMembers(FRADE_MEMBERS);
         }
       }
+
 
       // SELF-HEALING SYSTEM: If online, make sure our current logged user is registered in the cloud group roster
       // BUT ONLY if the group is still active in their profile/local list (they didn't voluntarily leave/unsubscribe)
@@ -730,7 +757,7 @@ export default function App() {
 
     const q = query(collection(db, 'groups', activeGroupId, 'activities'), orderBy('timestamp', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const liveActivities: Activity[] = [];
+      let liveActivities: Activity[] = [];
       snapshot.forEach((snapDoc) => {
         liveActivities.push({
           id: snapDoc.id,
@@ -738,9 +765,14 @@ export default function App() {
         } as Activity);
       });
 
+      if (liveActivities.length === 0 && activeGroupId === '99H0DP') {
+        liveActivities = parseFradeActivities();
+      }
+
       if (liveActivities.length > 0) {
         setIsUsingCustomData(true);
       }
+
 
       setActivities(() => {
         // Load custom local backup to preserve offline entries
@@ -999,6 +1031,60 @@ export default function App() {
     return groupId;
   };
 
+  // Sync Desafio do Frade local spreadsheet data to Cloud Firestore
+  const handleSyncFradeChallenge = async () => {
+    if (!user || user.uid.startsWith('local_')) {
+      throw new Error("Por favor, faça login com o Google para poder sincronizar dados na Nuvem.");
+    }
+
+    try {
+      // 1. Ensure group metadata is uploaded
+      const defaultFradeGroup: GroupChallenge = {
+        id: '99H0DP',
+        name: 'DESAFIO DO FRADE',
+        description: 'Desafio ativo do Frade com ranking e pontuação dos atletas.',
+        creatorId: user.uid,
+        inviteCode: '99H0DP',
+        rules: {
+          startDate: '2026-05-11',
+          endDate: '2026-06-11',
+          gymPointsPerCheckIn: 5,
+          distanceMultiplier: 1.0,
+          comboPointsPerDay: 10,
+        },
+        createdAt: new Date().toISOString()
+      };
+
+      const groupDocRef = doc(db, 'groups', '99H0DP');
+      await setDoc(groupDocRef, defaultFradeGroup);
+
+      // 2. Upload all 8 members of FRADE_MEMBERS
+      for (const m of FRADE_MEMBERS) {
+        const memberRef = doc(db, 'groups', '99H0DP', 'members', m.userId);
+        await setDoc(memberRef, m);
+      }
+
+      // 3. Upload all 83 activities
+      const fradeActivities = parseFradeActivities();
+      for (const act of fradeActivities) {
+        const actRef = doc(db, 'groups', '99H0DP', 'activities', act.id);
+        const { id, ...payload } = act;
+        await setDoc(actRef, payload);
+      }
+
+      // Enrich localGroups
+      setLocalGroups(prev => ({
+        ...prev,
+        '99H0DP': defaultFradeGroup
+      }));
+
+      console.log("Successfully sync'd Desafio do Frade online.");
+    } catch (e: any) {
+      console.error("Failed to sync Desafio do Frade online:", e);
+      throw e;
+    }
+  };
+
   // Join existing challenge group using inviteCode
   const handleJoinGroup = async (inviteCode: string) => {
     if (!user || !athleteName) throw new Error('É necessário login para participar de grupos.');
@@ -1037,10 +1123,32 @@ export default function App() {
       );
 
       if (!groupSnap.exists()) {
-        throw new Error('Grupo não encontrado. Digite o código de convite de 6 caracteres corretamente!');
+        if (cleanCode === '99H0DP') {
+          groupData = {
+            id: '99H0DP',
+            name: 'DESAFIO DO FRADE',
+            description: 'Desafio ativo do Frade com ranking e pontuação dos atletas.',
+            creatorId: 'local_proxy',
+            inviteCode: '99H0DP',
+            rules: {
+              startDate: '2026-05-11',
+              endDate: '2026-06-11',
+              gymPointsPerCheckIn: 5,
+              distanceMultiplier: 1.0,
+              comboPointsPerDay: 10,
+            },
+            createdAt: new Date().toISOString()
+          };
+          try {
+            await setDoc(groupDocRef, groupData);
+          } catch (_) {}
+        } else {
+          throw new Error('Grupo não encontrado. Digite o código de convite de 6 caracteres corretamente!');
+        }
+      } else {
+        groupData = groupSnap.data() as GroupChallenge;
       }
 
-      groupData = groupSnap.data() as GroupChallenge;
     } catch (err: any) {
       if (err.message && err.message.toLowerCase().includes('não encontrado')) {
         throw err;
@@ -1854,6 +1962,7 @@ export default function App() {
                   onJoinGroup={handleJoinGroup}
                   onUpdateGroupRules={handleUpdateGroupRules}
                   onLeaveGroup={handleLeaveGroup}
+                  onSyncFradeChallenge={handleSyncFradeChallenge}
                 />
 
                 {/* Goals / Targets Display Block */}
@@ -1929,6 +2038,7 @@ export default function App() {
               onJoinGroup={handleJoinGroup}
               onUpdateGroupRules={handleUpdateGroupRules}
               onLeaveGroup={handleLeaveGroup}
+              onSyncFradeChallenge={handleSyncFradeChallenge}
             />
 
             <div className="bg-slate-900/20 border border-slate-855 border-slate-850/60 rounded-2xl p-8 text-center space-y-4 shadow-xl max-w-2xl mx-auto" id="private-challenges-empty-state-placeholder">
