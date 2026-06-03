@@ -34,8 +34,8 @@ interface HeaderProps {
 function LogoBadge() {
   const [logoSrcId, setLogoSrcId] = React.useState(0);
   const possiblePaths = [
-    '/logo.svg',
     '/logo.png',
+    '/logo.svg',
     '/logo.jpg',
     '/logo.jpeg',
     '/logo.webp',
