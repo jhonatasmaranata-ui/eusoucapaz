@@ -38,7 +38,6 @@ interface GroupManagerProps {
   onJoinGroup: (inviteCode: string) => Promise<boolean>;
   onUpdateGroupRules: (rules: RuleConfig) => Promise<void>;
   onLeaveGroup?: (groupId: string) => void;
-  onSyncFradeChallenge?: () => Promise<void>;
 }
 
 export function GroupManager({
@@ -51,14 +50,11 @@ export function GroupManager({
   onCreateGroup,
   onJoinGroup,
   onUpdateGroupRules,
-  onLeaveGroup,
-  onSyncFradeChallenge
+  onLeaveGroup
 }: GroupManagerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<'create' | 'join' | 'view'>('create');
   const [copied, setCopied] = useState(false);
-  const [isSyncingFradeStatus, setIsSyncingFradeStatus] = useState(false);
-  const [syncSuccess, setSyncSuccess] = useState(false);
 
 
   // Form states
@@ -667,68 +663,6 @@ export function GroupManager({
                 </div>
               </div>
             </div>
-
-            {activeGroup.id === '99H0DP' && (
-              <div className="mt-4 p-4 bg-slate-950 border border-slate-850 rounded-xl space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-amber-950 border border-amber-500/20 text-amber-500 rounded-lg shrink-0">
-                    <Sliders className="w-4 h-4" />
-                  </div>
-                  <div className="space-y-1">
-                    <h4 className="text-xs font-bold text-amber-500 font-mono uppercase tracking-wider">
-                      Planilha do Desafio do Frade
-                    </h4>
-                    <p className="text-[10.5px] text-slate-400 font-sans leading-relaxed">
-                      Os 83 treinos/cárdios reais dos atletas foram importados com sucesso! Eles já estão ativos localmente no seu navegador para recalcular as pontuações e o ranking do grupo.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-900">
-                  <div className="text-[10px] text-slate-500 font-mono">
-                    {syncSuccess ? (
-                      <span className="text-emerald-400 font-bold flex items-center gap-1">
-                        ✓ Todos os 83 treinos sincronizados na Nuvem!
-                      </span>
-                    ) : (
-                      "Status: Carregado localmente (Pendente sincronização de rede)"
-                    )}
-                  </div>
-                  {user ? (
-                    <button
-                      type="button"
-                      disabled={isSyncingFradeStatus || syncSuccess}
-                      onClick={async () => {
-                        if (onSyncFradeChallenge) {
-                          setIsSyncingFradeStatus(true);
-                          try {
-                            await onSyncFradeChallenge();
-                            setSyncSuccess(true);
-                          } catch (err: any) {
-                            alert(err.message || "Erro ao sincronizar dados.");
-                          } finally {
-                            setIsSyncingFradeStatus(false);
-                          }
-                        }
-                      }}
-                      className="w-full sm:w-auto px-4 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:scale-[1.02] text-slate-950 font-black rounded-lg text-xs cursor-pointer flex items-center justify-center gap-1 transition"
-                    >
-                      {isSyncingFradeStatus ? (
-                        <span className="animate-pulse">Sincronizando...</span>
-                      ) : syncSuccess ? (
-                        "Sincronizado na Nuvem!"
-                      ) : (
-                        "Publicar planilha no Google Firebase"
-                      )}
-                    </button>
-                  ) : (
-                    <p className="text-[10px] text-amber-400 font-mono italic">
-                      Faça login para salvar esta planilha permanentemente online.
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         )
       )}

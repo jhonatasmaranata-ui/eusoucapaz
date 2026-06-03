@@ -1962,7 +1962,6 @@ export default function App() {
                   onJoinGroup={handleJoinGroup}
                   onUpdateGroupRules={handleUpdateGroupRules}
                   onLeaveGroup={handleLeaveGroup}
-                  onSyncFradeChallenge={handleSyncFradeChallenge}
                 />
 
                 {/* Goals / Targets Display Block */}
@@ -2038,7 +2037,6 @@ export default function App() {
               onJoinGroup={handleJoinGroup}
               onUpdateGroupRules={handleUpdateGroupRules}
               onLeaveGroup={handleLeaveGroup}
-              onSyncFradeChallenge={handleSyncFradeChallenge}
             />
 
             <div className="bg-slate-900/20 border border-slate-855 border-slate-850/60 rounded-2xl p-8 text-center space-y-4 shadow-xl max-w-2xl mx-auto" id="private-challenges-empty-state-placeholder">
