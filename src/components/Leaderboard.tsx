@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { Search, Info, Dumbbell, Route, HelpCircle, Flame, Star } from 'lucide-react';
 import { ParticipantScore, Challenge, GroupMember } from '../types';
 import { calculateChallengeProgress, isAerobicoActivity, isTreinoActivity, isSameAthlete } from '../utils';
-import { getMilitaryRankInfo } from './MilitaryRankBadge';
+import { getMilitaryRankInfo, getMiniInsignia } from './MilitaryRankBadge';
 
 interface LeaderboardProps {
   scores: ParticipantScore[];
@@ -233,9 +233,12 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                         <span className="truncate max-w-[90px] sm:max-w-[180px] block">
                           {row.name}
                         </span>
-                        <span className="text-[6.5px] sm:text-[7.5px] font-mono font-extrabold px-1 py-[0.5px] bg-slate-950 border border-slate-800 rounded uppercase tracking-tighter shrink-0 select-none text-slate-400" title={`Patente organizada pelo Ranking atual`}>
-                          {getMilitaryRankInfo(row.rank).name}
-                        </span>
+                        <div 
+                          className="flex items-center justify-center px-1.5 py-0.5 rounded bg-slate-950/80 border border-slate-850 shadow-inner shrink-0 select-none cursor-help transition-all group-hover:border-slate-700 max-h-[18px] sm:max-h-[22px]" 
+                          title={`${getMilitaryRankInfo(row.rank).name}`}
+                        >
+                          {getMiniInsignia(row.rank, 11)}
+                        </div>
                         {isChallengeCompleted && (
                           <span className="inline-flex px-0.5 py-0.2 sm:px-1 sm:py-0.5 bg-amber-500/15 border border-amber-500/30 text-[7px] sm:text-[8px] font-bold text-amber-400 rounded font-mono animate-pulse shrink-0" title="Concluiu o Desafio Mensal!">
                             🏆

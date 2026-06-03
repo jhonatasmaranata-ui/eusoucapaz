@@ -327,3 +327,20 @@ export const getMilitaryRankInfo = (rank: number): MilitaryRankInfo => {
     bgClass: "from-slate-950 to-slate-900 border-slate-850"
   };
 };
+
+export const getMiniInsignia = (rank: number, size: number = 13) => {
+  if (rank === 1) return <RankStarsRow stars={[true, true, true]} size={size} />;
+  if (rank === 2) return <RankStarsRow stars={[true, true, false]} size={size} />;
+  if (rank === 3) return <RankStarsRow stars={[true, false, false]} size={size} />;
+  if (rank === 4) return <RankStarsRow stars={[false, false, false]} size={size} />;
+  if (rank === 5) return <RankStarsRow stars={[false, false]} size={size} />;
+  if (rank === 6) return <RankStarsRow stars={[false]} size={size} />;
+  if (rank === 7) return <SubtenenteBadge size={size + 3} />;
+  if (rank === 8) return <MilitaryChevronBadge count={5} width={size + 5} height={size + 9} />;
+  if (rank === 9) return <MilitaryChevronBadge count={4} width={size + 5} height={size + 9} />;
+  if (rank === 10) return <MilitaryChevronBadge count={3} width={size + 5} height={size + 9} />;
+  if (rank === 11) return <MilitaryChevronBadge count={2} width={size + 5} height={size + 9} />;
+  if (rank === 12) return <MilitaryChevronBadge count={1} width={size + 5} height={size + 9} />;
+  return <RecrutaBadge width={size + 5} height={size + 9} />;
+};
+
