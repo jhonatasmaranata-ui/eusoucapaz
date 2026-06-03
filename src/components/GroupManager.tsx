@@ -38,6 +38,7 @@ interface GroupManagerProps {
   onJoinGroup: (inviteCode: string) => Promise<boolean>;
   onUpdateGroupRules: (rules: RuleConfig) => Promise<void>;
   onLeaveGroup?: (groupId: string) => void;
+  onRemoveMember?: (userId: string) => Promise<void>;
 }
 
 export function GroupManager({
@@ -50,11 +51,14 @@ export function GroupManager({
   onCreateGroup,
   onJoinGroup,
   onUpdateGroupRules,
-  onLeaveGroup
+  onLeaveGroup,
+  onRemoveMember
 }: GroupManagerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<'create' | 'join' | 'view'>('create');
   const [copied, setCopied] = useState(false);
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
+  const [confirmKickId, setConfirmKickId] = useState<string | null>(null);
 
 
   // Form states
@@ -526,143 +530,246 @@ export function GroupManager({
         </div>
       ) : (
         activeGroup && (
-          <div className="bg-slate-950/40 border border-slate-850/50 rounded-2xl p-5 space-y-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 bg-indigo-505/10 bg-indigo-950 border border-indigo-500/20 text-indigo-300 font-mono text-[9px] font-extrabold rounded uppercase tracking-wider">
-                    Desafio Privado
-                  </span>
-                  <span className="text-slate-500 text-xs font-mono">•</span>
-                  <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
-                    ID: <strong className="text-slate-100 uppercase">{activeGroup.id}</strong>
-                  </span>
+          <div className="space-y-3">
+            {/* Collapsible toggle bar */}
+            <button
+              type="button"
+              id="toggle-group-details-bar"
+              onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
+              className="w-full flex items-center justify-between p-4 bg-slate-950/45 hover:bg-slate-950/70 border border-slate-850/60 rounded-xl transition cursor-pointer select-none text-left"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-950/80 border border-indigo-500/20 text-indigo-400 rounded-lg shrink-0">
+                  <Layers className="w-4 h-4" />
                 </div>
-                <h3 className="font-black text-lg text-slate-50 font-display notranslate" translate="no">
-                  {activeGroup.name}
-                </h3>
-                {activeGroup.description && (
-                  <p className="text-xs text-slate-400 leading-normal notranslate font-sans max-w-2xl" translate="no">
-                    {activeGroup.description}
-                  </p>
-                )}
-              </div>
-
-              {/* Share / Invite code badge */}
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="bg-slate-900 border border-slate-800 text-slate-200 py-1.5 pl-3 pr-2.5 rounded-xl flex items-center gap-2 shadow-inner font-mono text-xs">
-                  <span className="text-slate-500 font-bold uppercase text-[9px]">Código:</span>
-                  <strong className="text-amber-400 uppercase font-black font-mono tracking-widest text-sm">{activeGroup.id}</strong>
-                  <button
-                    onClick={handleCopyLink}
-                    className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition cursor-pointer"
-                    title="Copiar Link de Convite"
-                  >
-                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-
-                <button
-                  onClick={handleCopyLink}
-                  className="px-3.5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-bold font-sans rounded-xl text-xs cursor-pointer flex items-center gap-1.5 shadow-md active:translate-y-px shrink-0"
-                >
-                  <Share2 className="w-3.5 h-3.5 shrink-0" />
-                  Convidar Atletas
-                </button>
-
-                {user && onLeaveGroup && (
-                  confirmLeaveId === activeGroup.id ? (
-                    <div className="flex items-center gap-1.5 shrink-0 bg-slate-900 border border-red-900/30 p-1 rounded-xl transition animate-pulse">
-                      <span className="text-[10px] text-red-400 font-extrabold px-1.5 font-mono">Tem certeza?</span>
-                      <button
-                        onClick={handleConfirmLeave}
-                        className="px-2.5 py-1.5 bg-red-600 hover:bg-red-500 text-white font-extrabold font-sans rounded-lg text-[10px] cursor-pointer transition shadow"
-                      >
-                        Sim, Sair
-                      </button>
-                      <button
-                        onClick={() => setConfirmLeaveId(null)}
-                        className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-350 font-bold font-sans rounded-lg text-[10px] cursor-pointer transition"
-                      >
-                        Não
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setConfirmLeaveId(activeGroup.id)}
-                      className="px-3.5 py-2 bg-red-950/40 hover:bg-red-900/40 border border-red-900/30 text-red-500 hover:text-red-400 font-bold font-sans rounded-xl text-xs cursor-pointer flex items-center gap-1.5 shadow-md active:translate-y-px shrink-0 transition"
-                      title="Sair deste grupo de desafio"
-                    >
-                      <LogOut className="w-3.5 h-3.5 shrink-0" />
-                      Sair do Desafio
-                    </button>
-                  )
-                )}
-              </div>
-            </div>
-
-            {/* Members summary */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-900 pt-4">
-              <div className="bg-slate-900/40 p-3.5 border border-slate-850/60 rounded-xl space-y-2.5 flex flex-col justify-between">
                 <div>
-                  <span className="text-slate-500 uppercase tracking-widest text-[9px] font-mono font-bold block mb-1">Atletas Participantes</span>
-                  <button
-                    type="button"
-                    onClick={() => setShowMemberList(!showMemberList)}
-                    className="w-full text-left flex items-center justify-between p-2 rounded-lg bg-slate-950 border border-slate-850 hover:bg-slate-900/40 hover:border-slate-800 transition cursor-pointer select-none"
-                    title="Clique para ver os participantes"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-emerald-400" />
-                      <span className="text-xs text-slate-200">
-                        Há <strong className="text-emerald-400 font-extrabold">{groupMembers.length}</strong> atletas ativos participando.
-                      </span>
-                    </div>
-                    {showMemberList ? (
-                      <ChevronUp className="w-4 h-4 text-slate-400" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 text-slate-400 animate-pulse" />
-                    )}
-                  </button>
+                  <h4 className="text-xs font-bold text-slate-100 uppercase tracking-wider font-mono select-none notranslate" translate="no">
+                    {activeGroup.name}
+                  </h4>
+                  <p className="text-[10px] text-slate-400 font-sans mt-0.5">
+                    {isDetailsExpanded ? "Clique para ocultar as opções e informações do desafio" : "Clique para exibir informações, código de convite e participantes"}
+                  </p>
                 </div>
-                
-                {showMemberList && (
-                  <div className="mt-1 max-h-40 overflow-y-auto bg-slate-950 border border-slate-850/80 rounded-lg p-2.5 space-y-1.5 custom-scrollbar animate-fadeIn">
-                    {groupMembers.length === 0 ? (
-                      <p className="text-[10px] text-slate-500 font-mono italic text-center">Nenhum participante ainda</p>
-                    ) : (
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {groupMembers.map((mem, i) => (
-                          <div 
-                            key={mem.userId || i} 
-                            className="flex items-center gap-1.5 px-2 py-1 bg-slate-900/50 rounded-md border border-slate-850/30 font-sans text-[11px] text-slate-300 notranslate truncate"
-                            translate="no"
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 animate-ping-once" />
-                            <span className="truncate font-medium" title={mem.athleteName}>{mem.athleteName}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {!isDetailsExpanded && (
+                  <span className="px-2 py-0.5 bg-indigo-950/60 border border-indigo-500/15 text-indigo-300 font-mono text-[9px] font-extrabold rounded uppercase tracking-wider">
+                    {groupMembers.length} Atletas
+                  </span>
+                )}
+                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isDetailsExpanded ? 'rotate-180' : ''}`} />
+              </div>
+            </button>
+
+            {isDetailsExpanded && (
+              <div className="bg-slate-950/40 border border-slate-850/50 rounded-2xl p-5 space-y-4 animate-fadeIn">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 bg-indigo-505/10 bg-indigo-950 border border-indigo-500/20 text-indigo-300 font-mono text-[9px] font-extrabold rounded uppercase tracking-wider">
+                        Desafio Privado
+                      </span>
+                      {(() => {
+                        const isUserCreatorOfThisGroup = !user || !activeGroup || activeGroup.id === 'demo-group' ? false : (user.email === 'jhonatasmaranata@gmail.com' || activeGroup.creatorId === user.uid || activeGroup.creatorId === 'local_proxy');
+                        return isUserCreatorOfThisGroup && (
+                          <>
+                            <span className="text-slate-500 text-xs font-mono">•</span>
+                            <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                              ID: <strong className="text-slate-100 uppercase">{activeGroup.id}</strong>
+                            </span>
+                          </>
+                        );
+                      })()}
+                    </div>
+                    <h3 className="font-black text-lg text-slate-50 font-display notranslate" translate="no">
+                      {activeGroup.name}
+                    </h3>
+                    {activeGroup.description && (
+                      <p className="text-xs text-slate-400 leading-normal notranslate font-sans max-w-2xl" translate="no">
+                        {activeGroup.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Share / Invite code badge */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {(() => {
+                      const isUserCreatorOfThisGroup = !user || !activeGroup || activeGroup.id === 'demo-group' ? false : (user.email === 'jhonatasmaranata@gmail.com' || activeGroup.creatorId === user.uid || activeGroup.creatorId === 'local_proxy');
+                      return isUserCreatorOfThisGroup && (
+                        <>
+                          <div className="bg-slate-900 border border-slate-800 text-slate-200 py-1.5 pl-3 pr-2.5 rounded-xl flex items-center gap-2 shadow-inner font-mono text-xs">
+                            <span className="text-slate-500 font-bold uppercase text-[9px]">Código:</span>
+                            <strong className="text-amber-400 uppercase font-black font-mono tracking-widest text-sm">{activeGroup.id}</strong>
+                            <button
+                              onClick={handleCopyLink}
+                              className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition cursor-pointer"
+                              title="Copiar Link de Convite"
+                            >
+                              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                            </button>
                           </div>
-                        ))}
+
+                          <button
+                            onClick={handleCopyLink}
+                            className="px-3.5 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-bold font-sans rounded-xl text-xs cursor-pointer flex items-center gap-1.5 shadow-md active:translate-y-px shrink-0"
+                          >
+                            <Share2 className="w-3.5 h-3.5 shrink-0" />
+                            Convidar Atletas
+                          </button>
+                        </>
+                      );
+                    })()}
+
+                    {user && onLeaveGroup && (
+                      confirmLeaveId === activeGroup.id ? (
+                        <div className="flex items-center gap-1.5 shrink-0 bg-slate-900 border border-red-900/30 p-1 rounded-xl transition animate-pulse">
+                          <span className="text-[10px] text-red-400 font-extrabold px-1.5 font-mono">Tem certeza?</span>
+                          <button
+                            onClick={handleConfirmLeave}
+                            className="px-2.5 py-1.5 bg-red-600 hover:bg-red-500 text-white font-extrabold font-sans rounded-lg text-[10px] cursor-pointer transition shadow"
+                          >
+                            Sim, Sair
+                          </button>
+                          <button
+                            onClick={() => setConfirmLeaveId(null)}
+                            className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-350 font-bold font-sans rounded-lg text-[10px] cursor-pointer transition"
+                          >
+                            Não
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmLeaveId(activeGroup.id)}
+                          className="px-3.5 py-2 bg-red-950/40 hover:bg-red-900/40 border border-red-900/30 text-red-500 hover:text-red-400 font-bold font-sans rounded-xl text-xs cursor-pointer flex items-center gap-1.5 shadow-md active:translate-y-px shrink-0 transition"
+                          title="Sair deste grupo de desafio"
+                        >
+                          <LogOut className="w-3.5 h-3.5 shrink-0" />
+                          Sair do Desafio
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Members summary */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-900 pt-4">
+                  <div className="bg-slate-900/40 p-3.5 border border-slate-850/60 rounded-xl space-y-2.5 flex flex-col justify-between">
+                    <div>
+                      <span className="text-slate-500 uppercase tracking-widest text-[9px] font-mono font-bold block mb-1">Atletas Participantes</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowMemberList(!showMemberList)}
+                        className="w-full text-left flex items-center justify-between p-2 rounded-lg bg-slate-950 border border-slate-850 hover:bg-slate-900/40 hover:border-slate-800 transition cursor-pointer select-none"
+                        title="Clique para ver os participantes"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4 text-emerald-400" />
+                          <span className="text-xs text-slate-200">
+                            Há <strong className="text-emerald-400 font-extrabold">{groupMembers.length}</strong> atletas ativos participando.
+                          </span>
+                        </div>
+                        {showMemberList ? (
+                          <ChevronUp className="w-4 h-4 text-slate-400" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 text-slate-400 animate-pulse" />
+                        )}
+                      </button>
+                    </div>
+                    
+                    {showMemberList && (
+                      <div className="mt-1 max-h-40 overflow-y-auto bg-slate-950 border border-slate-850/80 rounded-lg p-2.5 space-y-1.5 custom-scrollbar animate-fadeIn">
+                        {groupMembers.length === 0 ? (
+                          <p className="text-[10px] text-slate-500 font-mono italic text-center">Nenhum participante ainda</p>
+                        ) : (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                            {groupMembers.map((mem, i) => {
+                              const isSelf = user && mem.userId === user.uid;
+                              const isConfirming = confirmKickId === mem.userId;
+                              const isUserCreatorOfThisGroup = !user || !activeGroup || activeGroup.id === 'demo-group' ? false : (user.email === 'jhonatasmaranata@gmail.com' || activeGroup.creatorId === user.uid || activeGroup.creatorId === 'local_proxy');
+                              
+                              return (
+                                <div 
+                                  key={mem.userId || i} 
+                                  className="flex items-center justify-between gap-1.5 px-2.5 py-1.5 bg-slate-900/50 rounded-md border border-slate-850/30 font-sans text-[11px] text-slate-300 notranslate"
+                                  translate="no"
+                                >
+                                  {!isConfirming ? (
+                                    <>
+                                      <div className="flex items-center gap-1.5 min-w-0 truncate">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 animate-ping-once" />
+                                        <span className="truncate font-medium" title={mem.athleteName}>
+                                          {mem.athleteName} {isSelf && <span className="text-[9px] text-indigo-400 font-mono font-bold">(Você)</span>}
+                                        </span>
+                                      </div>
+                                      
+                                      {isUserCreatorOfThisGroup && !isSelf && onRemoveMember && (
+                                        <button
+                                          type="button"
+                                          onClick={() => setConfirmKickId(mem.userId)}
+                                          className="px-2 py-0.5 hover:bg-red-950 hover:text-red-400 text-red-500 border border-red-950/20 rounded transition text-[9px] font-bold font-mono cursor-pointer shrink-0"
+                                          title={`Excluir ${mem.athleteName} do desafio`}
+                                        >
+                                          Excluir
+                                        </button>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <div className="flex items-center justify-between w-full gap-1">
+                                      <span className="text-[9px] text-red-400 font-bold shrink-0">Deseja excluir?</span>
+                                      <div className="flex items-center gap-1 shrink-0">
+                                        <button
+                                          type="button"
+                                          onClick={async () => {
+                                            if (onRemoveMember) {
+                                              try {
+                                                await onRemoveMember(mem.userId);
+                                              } catch (err: any) {
+                                                alert(err.message || "Erro ao excluir participante.");
+                                              } finally {
+                                                setConfirmKickId(null);
+                                              }
+                                            }
+                                          }}
+                                          className="px-1.5 py-0.5 bg-red-600 hover:bg-red-500 text-white font-extrabold rounded text-[9px] cursor-pointer"
+                                        >
+                                          Sim
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => setConfirmKickId(null)}
+                                          className="px-1.5 py-0.5 bg-slate-850 hover:bg-slate-755 text-slate-200 font-bold rounded text-[9px] cursor-pointer"
+                                        >
+                                          Não
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
 
-              {/* Dynamic Group-Active Rules Checklist */}
-              <div className="bg-slate-900/40 p-3.5 border border-slate-850/60 rounded-xl space-y-2">
-                <span className="text-slate-500 uppercase tracking-widest text-[9px] font-mono font-bold block mb-1">Vigência do Desafio</span>
-                <div className="grid grid-cols-1 min-[340px]:grid-cols-2 gap-2 text-[10px] font-mono text-slate-300">
-                  <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1.5 border border-slate-900 rounded-lg">
-                    <Calendar className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                    <span className="text-[10.5px]">Início: <strong>{activeGroup.rules.startDate.split('-').reverse().join('/')}</strong></span>
-                  </div>
-                  <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1.5 border border-slate-900 rounded-lg">
-                    <Calendar className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                    <span className="text-[10.5px]">Término: <strong>{activeGroup.rules.endDate ? activeGroup.rules.endDate.split('-').reverse().join('/') : 'Sem limite'}</strong></span>
+                  {/* Dynamic Group-Active Rules Checklist */}
+                  <div className="bg-slate-900/40 p-3.5 border border-slate-850/60 rounded-xl space-y-2">
+                    <span className="text-slate-500 uppercase tracking-widest text-[9px] font-mono font-bold block mb-1">Vigência do Desafio</span>
+                    <div className="grid grid-cols-1 min-[340px]:grid-cols-2 gap-2 text-[10px] font-mono text-slate-300">
+                      <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1.5 border border-slate-900 rounded-lg">
+                        <Calendar className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                        <span className="text-[10.5px]">Início: <strong>{activeGroup.rules.startDate.split('-').reverse().join('/')}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1.5 border border-slate-900 rounded-lg">
+                        <Calendar className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                        <span className="text-[10.5px]">Término: <strong>{activeGroup.rules.endDate ? activeGroup.rules.endDate.split('-').reverse().join('/') : 'Sem limite'}</strong></span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )
       )}

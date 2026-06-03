@@ -1389,6 +1389,54 @@ export default function App() {
     }
   };
 
+  // Kick / Exclude a member from a private group challenge (Creator only)
+  const handleKickMember = async (groupId: string, memberUserId: string) => {
+    if (!user) return;
+    
+    // Check if the current user is authorized as admin/creator
+    const isUserAuthorized = user.email === 'jhonatasmaranata@gmail.com' || (groupDetails && (groupDetails.creatorId === user.uid || groupDetails.creatorId === 'local_proxy'));
+    if (!isUserAuthorized) {
+      throw new Error("Apenas o criador do desafio pode excluir participantes.");
+    }
+
+    try {
+      if (memberUserId && !memberUserId.startsWith('local_')) {
+        // 1. Delete membership document inside Firestore subcollection
+        const memberRef = doc(db, 'groups', groupId, 'members', memberUserId);
+        await deleteDoc(memberRef);
+        console.log(`Deleted member ${memberUserId} from cloud subcollection for group ${groupId}`);
+
+        // 2. Remove group entry from the kicked user's registry under users/{memberUserId}/joinedGroups
+        const userDocRef = doc(db, 'users', memberUserId);
+        try {
+          await updateDoc(userDocRef, {
+            [`joinedGroups.${groupId}`]: deleteField()
+          });
+        } catch (e) {
+          console.warn("Could not remove group from kicked user's registry:", e);
+        }
+      }
+
+      // 3. Clear from local state registries for instant UI response
+      setLocalMembers(prev => {
+        const currentList = prev[groupId] || [];
+        const updatedList = currentList.filter(m => m.userId !== memberUserId);
+        const updated = { ...prev, [groupId]: updatedList };
+        localStorage.setItem('local_groups_members', JSON.stringify(updated));
+        return updated;
+      });
+
+      // Update active group members list state if this is the active group
+      if (activeGroupId === groupId) {
+        setGroupMembers(prev => prev.filter(m => m.userId !== memberUserId));
+      }
+
+    } catch (err: any) {
+      console.error("Failed to exclude member:", err);
+      throw err;
+    }
+  };
+
   // Update dynamic Group rules (admin creators only)
   const handleUpdateGroupRules = async (updatedRules: RuleConfig) => {
     if (isChallengeLocked) {
@@ -1962,6 +2010,7 @@ export default function App() {
                   onJoinGroup={handleJoinGroup}
                   onUpdateGroupRules={handleUpdateGroupRules}
                   onLeaveGroup={handleLeaveGroup}
+                  onRemoveMember={(userId) => handleKickMember(activeGroupId, userId)}
                 />
 
                 {/* Goals / Targets Display Block */}
@@ -2037,6 +2086,7 @@ export default function App() {
               onJoinGroup={handleJoinGroup}
               onUpdateGroupRules={handleUpdateGroupRules}
               onLeaveGroup={handleLeaveGroup}
+              onRemoveMember={(userId) => handleKickMember(activeGroupId, userId)}
             />
 
             <div className="bg-slate-900/20 border border-slate-855 border-slate-850/60 rounded-2xl p-8 text-center space-y-4 shadow-xl max-w-2xl mx-auto" id="private-challenges-empty-state-placeholder">
