@@ -313,54 +313,43 @@ export function AddActivityForm({
       return;
     }
 
-    // Compress using standard canvas if image is large, or warn/resize
-    if (file.size > 1.5 * 1024 * 1024) {
-      // Simple canvas compression
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new window.Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          
-          // Max dimension 800px for storage optimization
-          const maxDim = 800;
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
+    // Always compress using standard canvas to keep base64 sizes extremely optimized (< 50KB)
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Max dimension 800px for storage optimization
+        const maxDim = 800;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
           }
-          
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-          
-          // Compress quality to 0.7
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-          setPhotos(prev => [...prev, dataUrl].slice(0, 4));
-          setErrorInfo(null);
-        };
-        img.src = event.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-    } else {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setPhotos(prev => [...prev, base64String].slice(0, 4));
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // Compress quality to 0.6 for perfect balance of sharpness and tiny payload size
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        setPhotos(prev => [...prev, dataUrl].slice(0, 4));
         setErrorInfo(null);
       };
-      reader.onerror = () => {
+      img.onerror = () => {
         setErrorInfo('Ocorreu um erro ao carregar o arquivo da imagem.');
       };
-      reader.readAsDataURL(file);
-    }
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
 
     // Reset the field so same file can be clicked again
     e.target.value = '';

@@ -69,7 +69,7 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
         
         const updatedPhotos = [...currentPhotos, dataUrl].slice(0, 4);
 
