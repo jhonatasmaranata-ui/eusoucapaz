@@ -55,7 +55,9 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
-        const maxDim = 800;
+        
+        // Highly optimized compression with fallback constraints to prevent Firestore 1MB limits
+        let maxDim = 500; // Perfect for mobile view and tiny data footprint
         if (width > maxDim || height > maxDim) {
           if (width > height) {
             height = Math.round((height * maxDim) / width);
@@ -65,11 +67,36 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
             height = maxDim;
           }
         }
+        
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx?.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        
+        let quality = 0.4;
+        let dataUrl = canvas.toDataURL('image/jpeg', quality);
+        
+        // If the base64 output size is still too large (> 80KB), recursively shrink it!
+        while (dataUrl.length > 110000 && maxDim > 150) {
+          maxDim = Math.round(maxDim * 0.8);
+          quality = Math.max(0.15, quality - 0.05);
+          
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          ctx?.drawImage(img, 0, 0, w, h);
+          dataUrl = canvas.toDataURL('image/jpeg', quality);
+        }
         
         const updatedPhotos = [...currentPhotos, dataUrl].slice(0, 4);
 
