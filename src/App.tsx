@@ -1895,6 +1895,7 @@ export default function App() {
                       selectedParticipant={activeParticipantScore?.name || null}
                       onSelectParticipant={(name) => setSelectedParticipantName(name)}
                       challenges={challenges}
+                      groupMembers={groupMembers}
                     />
                   </div>
 

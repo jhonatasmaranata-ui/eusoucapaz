@@ -5,8 +5,8 @@
 
 import React, { useState } from 'react';
 import { Search, Info, Dumbbell, Route, HelpCircle, Flame, Star } from 'lucide-react';
-import { ParticipantScore, Challenge } from '../types';
-import { calculateChallengeProgress, isAerobicoActivity, isTreinoActivity } from '../utils';
+import { ParticipantScore, Challenge, GroupMember } from '../types';
+import { calculateChallengeProgress, isAerobicoActivity, isTreinoActivity, isSameAthlete } from '../utils';
 import { getMilitaryRankInfo } from './MilitaryRankBadge';
 
 interface LeaderboardProps {
@@ -14,9 +14,10 @@ interface LeaderboardProps {
   selectedParticipant: string | null;
   onSelectParticipant: (name: string) => void;
   challenges?: Challenge[];
+  groupMembers?: GroupMember[];
 }
 
-export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, challenges = [] }: LeaderboardProps) {
+export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, challenges = [], groupMembers = [] }: LeaderboardProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFormulaInfo, setShowFormulaInfo] = useState(false);
 
@@ -25,34 +26,74 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
     s.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Return trophy or badge for the top athletes
-  const getRankBadge = (rank: number) => {
-    switch(rank) {
-      case 1:
-        return (
-          <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 text-sm sm:text-base select-none" title="1º Lugar - Ouro">
-            🥇
-          </span>
-        );
-      case 2:
-        return (
-          <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 text-sm sm:text-base select-none" title="2º Lugar - Prata">
-            🥈
-          </span>
-        );
-      case 3:
-        return (
-          <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 text-sm sm:text-base select-none" title="3º Lugar - Bronze">
-            🥉
-          </span>
-        );
-      default:
-        return (
-          <span className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-800 text-slate-400 font-mono text-[8.5px] sm:text-[10px] font-semibold">
-            {rank}
-          </span>
-        );
+  // Return custom avatar/badge with gold, silver, bronze circle borders for the top athletes
+  const getRankBadgeWithAvatar = (rank: number, name: string) => {
+    const member = groupMembers.find(m => isSameAthlete(m.athleteName, name));
+    const photo = member?.photoURL;
+    const initial = name ? name.trim().charAt(0).toUpperCase() : '?';
+
+    let ringClass = '';
+    let badgeColor = '';
+    
+    if (rank === 1) {
+      ringClass = 'ring-2 ring-amber-400 bg-amber-500/10 shadow-[0_0_8px_rgba(251,191,36,0.5)]';
+      badgeColor = 'bg-amber-400 text-slate-950 font-black';
+    } else if (rank === 2) {
+      ringClass = 'ring-2 ring-slate-300 bg-slate-300/10 shadow-[0_0_8px_rgba(203,213,225,0.4)]';
+      badgeColor = 'bg-slate-300 text-slate-950 font-black';
+    } else if (rank === 3) {
+      ringClass = 'ring-2 ring-amber-600 bg-amber-700/10 shadow-[0_0_8px_rgba(217,119,6,0.3)]';
+      badgeColor = 'bg-amber-600 text-white font-black';
+    } else {
+      ringClass = 'ring-1 ring-slate-800 bg-slate-800/40';
+      badgeColor = 'bg-slate-800 text-slate-400';
     }
+
+    const getDeterministicBg = (n: string) => {
+      const colors = [
+        'bg-indigo-600 text-white',
+        'bg-emerald-600 text-white',
+        'bg-rose-600 text-white',
+        'bg-cyan-600 text-white',
+        'bg-fuchsia-600 text-white',
+        'bg-orange-600 text-white',
+        'bg-teal-600 text-white',
+        'bg-pink-600 text-white',
+        'bg-violet-600 text-white'
+      ];
+      let sum = 0;
+      for (let i = 0; i < n.length; i++) {
+        sum += n.charCodeAt(i);
+      }
+      return colors[sum % colors.length];
+    };
+
+    const bgClass = photo ? '' : getDeterministicBg(name);
+
+    return (
+      <div className="relative inline-block shrink-0 notranslate" translate="no">
+        <div 
+          className={`w-7 h-7 sm:w-8.5 sm:h-8.5 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm select-none transition-all ${ringClass} ${bgClass}`}
+          title={`${rank}º Lugar - ${name}`}
+        >
+          {photo ? (
+            <img 
+              src={photo} 
+              alt={name} 
+              className="w-full h-full rounded-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span>{initial}</span>
+          )}
+        </div>
+        
+        {/* Tiny rank status badge in the corner */}
+        <span className={`absolute -bottom-1 -right-1 flex items-center justify-center w-3 sm:w-4 h-3 sm:h-4 text-[7px] sm:text-[8px] rounded-full ring-1 ring-slate-900 font-mono ${badgeColor}`}>
+          {rank}
+        </span>
+      </div>
+    );
   };
 
   return (
@@ -128,7 +169,7 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
         <table className="min-w-full divide-y divide-slate-850 table-fixed sm:table-auto">
           <thead className="bg-slate-950">
             <tr>
-              <th scope="col" className="w-[38px] sm:w-[48px] px-0.5 sm:px-1.5 py-1.5 text-center text-[8px] sm:text-[8.5px] font-bold text-slate-400 uppercase tracking-tight font-mono whitespace-nowrap">Pos.</th>
+              <th scope="col" className="w-[48px] sm:w-[60px] px-0.5 sm:px-1.5 py-1.5 text-center text-[8px] sm:text-[8.5px] font-bold text-slate-400 uppercase tracking-tight font-mono whitespace-nowrap">Pos.</th>
               <th scope="col" className="px-1 sm:px-1.5 py-1.5 text-left text-[8px] sm:text-[8.5px] font-bold text-slate-400 uppercase tracking-tight font-mono whitespace-nowrap">Atleta</th>
               <th scope="col" className="w-[50px] min-[350px]:w-[58px] sm:w-auto px-0.5 sm:px-1.5 py-1.5 text-center text-[8px] sm:text-[8.5px] font-bold text-slate-400 uppercase tracking-tight font-mono whitespace-nowrap">
                 <span className="hidden min-[350px]:inline">Pontos</span>
@@ -180,9 +221,9 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                     }`}
                   >
                     {/* Rank */}
-                    <td className="w-[38px] sm:w-[48px] px-0.5 sm:px-1.5 py-1 sm:py-1.5 whitespace-nowrap align-middle text-center">
+                    <td className="w-[48px] sm:w-[60px] px-0.5 sm:px-1.5 py-1 sm:py-1.5 whitespace-nowrap align-middle text-center">
                       <div className="flex items-center justify-center">
-                        {getRankBadge(row.rank)}
+                        {getRankBadgeWithAvatar(row.rank, row.name)}
                       </div>
                     </td>
 
