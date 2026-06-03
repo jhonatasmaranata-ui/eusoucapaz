@@ -21,6 +21,7 @@ import {
   Copy,
   ChevronRight,
   ChevronDown,
+  ChevronUp,
   LogOut
 } from 'lucide-react';
 import { GroupChallenge, RuleConfig, GroupMember } from '../types';
@@ -69,6 +70,7 @@ export function GroupManager({
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmLeaveId, setConfirmLeaveId] = useState<string | null>(null);
+  const [showMemberList, setShowMemberList] = useState(false);
 
   const handleConfirmLeave = () => {
     if (activeGroup && onLeaveGroup) {
@@ -600,43 +602,49 @@ export function GroupManager({
 
             {/* Members summary */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-900 pt-4">
-              <div className="bg-slate-900/40 p-3.5 border border-slate-850/60 rounded-xl space-y-2 flex flex-col justify-between">
+              <div className="bg-slate-900/40 p-3.5 border border-slate-850/60 rounded-xl space-y-2.5 flex flex-col justify-between">
                 <div>
                   <span className="text-slate-500 uppercase tracking-widest text-[9px] font-mono font-bold block mb-1">Atletas Participantes</span>
-                  <div className="flex items-center gap-1.5">
-                    <Users className="w-4 h-4 text-emerald-400" />
-                    <span className="text-xs text-slate-200">
-                      Há <strong>{groupMembers.length}</strong> atletas ativos participando.
-                    </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowMemberList(!showMemberList)}
+                    className="w-full text-left flex items-center justify-between p-2 rounded-lg bg-slate-950 border border-slate-850 hover:bg-slate-900/40 hover:border-slate-800 transition cursor-pointer select-none"
+                    title="Clique para ver os participantes"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-emerald-400" />
+                      <span className="text-xs text-slate-200">
+                        Há <strong className="text-emerald-400 font-extrabold">{groupMembers.length}</strong> atletas ativos participando.
+                      </span>
+                    </div>
+                    {showMemberList ? (
+                      <ChevronUp className="w-4 h-4 text-slate-400" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-slate-400 animate-pulse" />
+                    )}
+                  </button>
+                </div>
+                
+                {showMemberList && (
+                  <div className="mt-1 max-h-40 overflow-y-auto bg-slate-950 border border-slate-850/80 rounded-lg p-2.5 space-y-1.5 custom-scrollbar animate-fadeIn">
+                    {groupMembers.length === 0 ? (
+                      <p className="text-[10px] text-slate-500 font-mono italic text-center">Nenhum participante ainda</p>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {groupMembers.map((mem, i) => (
+                          <div 
+                            key={mem.userId || i} 
+                            className="flex items-center gap-1.5 px-2 py-1 bg-slate-900/50 rounded-md border border-slate-850/30 font-sans text-[11px] text-slate-300 notranslate truncate"
+                            translate="no"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 animate-ping-once" />
+                            <span className="truncate font-medium" title={mem.athleteName}>{mem.athleteName}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-                {/* Micro avatar pile */}
-                <div className="flex -space-x-1.5 overflow-hidden pt-1.5">
-                  {groupMembers.slice(0, 8).map((mem, i) => (
-                    <div 
-                      key={mem.userId || i} 
-                      className="inline-block h-6 w-6 rounded-full ring-2 ring-slate-900 bg-amber-500 text-neutral-950 text-[9px] font-black font-mono flex items-center justify-center uppercase notranslate shrink-0"
-                      title={mem.athleteName}
-                      translate="no"
-                    >
-                      {mem.photoURL ? (
-                        <img 
-                          src={mem.photoURL} 
-                          alt="avatar" 
-                          className="h-full w-full rounded-full object-cover" 
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        mem.athleteName.substring(0, 1)
-                      )}
-                    </div>
-                  ))}
-                  {groupMembers.length > 8 && (
-                    <div className="inline-block h-6 w-6 rounded-full ring-2 ring-slate-900 bg-stone-800 text-[9px] font-bold text-slate-400 flex items-center justify-center font-mono shrink-0">
-                      +{groupMembers.length - 8}
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
 
               {/* Dynamic Group-Active Rules Checklist */}
