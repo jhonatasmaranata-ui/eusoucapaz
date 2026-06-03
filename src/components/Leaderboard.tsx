@@ -231,7 +231,7 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
                     <td className="px-1 sm:px-1.5 py-1 sm:py-1.5 whitespace-nowrap align-middle font-medium">
                       <div className="text-[10px] sm:text-xs font-semibold text-slate-100 group-hover:text-emerald-400 transition-colors notranslate flex flex-wrap items-center gap-1" translate="no">
                         <span className="truncate max-w-[90px] sm:max-w-[180px] block">
-                          {row.name}
+                          {row.name ? row.name.trim().split(/\s+/)[0] : ''}
                         </span>
                         <div 
                           className="flex items-center justify-center px-1.5 py-0.5 rounded bg-slate-950/80 border border-slate-850 shadow-inner shrink-0 select-none cursor-help transition-all group-hover:border-slate-700 max-h-[18px] sm:max-h-[22px]" 
