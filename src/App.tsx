@@ -765,11 +765,27 @@ export default function App() {
         } as Activity);
       });
 
-      if (liveActivities.length === 0 && activeGroupId === '99H0DP') {
-        liveActivities = parseFradeActivities();
+      // Maintain baseline Frade spreadsheet activities even after new live workouts are posted to Firestore
+      let mergedActivities: Activity[] = [];
+      if (activeGroupId === '99H0DP') {
+        const fradeBaseline = parseFradeActivities();
+        const activityMap = new Map<string, Activity>();
+        
+        fradeBaseline.forEach(act => {
+          activityMap.set(act.id, act);
+        });
+        
+        // Let live online workouts from Firestore overwrite or append to the baseline list by unique activity ID
+        liveActivities.forEach(liveAct => {
+          activityMap.set(liveAct.id, liveAct);
+        });
+        
+        mergedActivities = Array.from(activityMap.values());
+      } else {
+        mergedActivities = liveActivities;
       }
 
-      if (liveActivities.length > 0) {
+      if (mergedActivities.length > 0) {
         setIsUsingCustomData(true);
       }
 
@@ -788,16 +804,16 @@ export default function App() {
           } catch (_) {}
         }
 
-        const liveIds = new Set(liveActivities.map(a => a.id));
+        const mergedIds = new Set(mergedActivities.map(a => a.id));
         let needsClearing = false;
 
         const unsyncedLocals = localCustoms.filter(localAct => {
-          if (liveIds.has(localAct.id)) {
+          if (mergedIds.has(localAct.id)) {
             needsClearing = true;
             return false;
           }
           
-          const hasCloudMatch = liveActivities.some(liveAct => 
+          const hasCloudMatch = mergedActivities.some(liveAct => 
             liveAct.name === localAct.name &&
             liveAct.type === localAct.type &&
             liveAct.date === localAct.date &&
@@ -856,7 +872,7 @@ export default function App() {
           });
         }
 
-        return [...liveActivities, ...unsyncedLocals];
+        return [...mergedActivities, ...unsyncedLocals];
       });
     }, (error) => {
       console.warn("Could not retrieve activities list in real-time, loading local fallback:", error);
