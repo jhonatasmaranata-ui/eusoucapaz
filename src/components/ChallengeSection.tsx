@@ -64,18 +64,18 @@ export function ChallengeSection({
   const [selectedType, setSelectedType] = useState<'option1' | 'option2' | 'option3' | 'option4' | 'custom'>('option1');
   
   // Custom values fields
-  const [customGymDays, setCustomGymDays] = useState(10);
+  const [customGymDays, setCustomGymDays] = useState<number | ''>(10);
   const [customActivityType, setCustomActivityType] = useState('Corrida');
-  const [customValue, setCustomValue] = useState(10);
+  const [customValue, setCustomValue] = useState<number | ''>(10);
   const [customMetric, setCustomMetric] = useState<'km' | 'days'>('days');
-  const [customActivityDays, setCustomActivityDays] = useState(10);
-  const [customActivityKm, setCustomActivityKm] = useState(0);
+  const [customActivityDays, setCustomActivityDays] = useState<number | ''>(10);
+  const [customActivityKm, setCustomActivityKm] = useState<number | ''>(0);
 
   // Adicionais para o 2º Cardio Opcional (Terceiro Exercício)
   const [hasSecondCardio, setHasSecondCardio] = useState(false);
   const [secondCardioType, setSecondCardioType] = useState('Pedalada');
-  const [secondCardioDays, setSecondCardioDays] = useState(10);
-  const [secondCardioKm, setSecondCardioKm] = useState(0);
+  const [secondCardioDays, setSecondCardioDays] = useState<number | ''>(10);
+  const [secondCardioKm, setSecondCardioKm] = useState<number | ''>(0);
 
   // Saving state
   const [isSaving, setIsSaving] = useState(false);
@@ -147,19 +147,25 @@ export function ChallengeSection({
     setSaveError(null);
     setIsSaving(true);
     try {
+      const gDays = Number(customGymDays) || 0;
+      const actDays = Number(customActivityDays) || 0;
+      const actKm = Number(customActivityKm) || 0;
+      const secDays = hasSecondCardio ? (Number(secondCardioDays) || 0) : 0;
+      const secKm = hasSecondCardio ? (Number(secondCardioKm) || 0) : 0;
+
       const data = {
         type: selectedType,
-        targetGymDays: customGymDays,
+        targetGymDays: gDays,
         targetActivityType: customActivityType,
-        targetActivityValue: customActivityDays,
+        targetActivityValue: actDays,
         targetActivityMetric: 'days' as const,
-        targetActivityDays: customActivityDays,
-        targetActivityKm: customActivityKm,
+        targetActivityDays: actDays,
+        targetActivityKm: actKm,
         athleteName: athleteName || '',
         hasSecondCardio: hasSecondCardio,
         secondCardioType: hasSecondCardio ? secondCardioType : '',
-        secondCardioDays: hasSecondCardio ? secondCardioDays : 0,
-        secondCardioKm: hasSecondCardio ? secondCardioKm : 0,
+        secondCardioDays: secDays,
+        secondCardioKm: secKm,
       };
       await onSaveChallenge(data);
       setIsEditing(false);
@@ -550,7 +556,10 @@ export function ChallengeSection({
                     min={1}
                     max={31}
                     value={customGymDays}
-                    onChange={(e) => setCustomGymDays(Math.max(1, parseInt(e.target.value) || 0))}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setCustomGymDays(val === '' ? '' : parseInt(val) || 0);
+                    }}
                     className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 text-center py-1.5 font-bold font-mono focus:outline-none focus:border-indigo-500 text-slate-250"
                   />
                 </div>
@@ -585,7 +594,10 @@ export function ChallengeSection({
                         min={1}
                         max={31}
                         value={customActivityDays}
-                        onChange={(e) => setCustomActivityDays(Math.max(1, parseInt(e.target.value) || 1))}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setCustomActivityDays(val === '' ? '' : parseInt(val) || 0);
+                        }}
                         className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 focus:outline-none font-bold font-mono text-center text-slate-200"
                       />
                     </div>
@@ -598,7 +610,10 @@ export function ChallengeSection({
                         step="0.1"
                         min="0"
                         value={customActivityKm}
-                        onChange={(e) => setCustomActivityKm(Math.max(0, parseFloat(e.target.value) || 0))}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setCustomActivityKm(val === '' ? '' : parseFloat(val) || 0);
+                        }}
                         className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 focus:outline-none font-bold font-mono text-center text-slate-200"
                       />
                     </div>
@@ -652,7 +667,10 @@ export function ChallengeSection({
                             min={1}
                             max={31}
                             value={secondCardioDays}
-                            onChange={(e) => setSecondCardioDays(Math.max(1, parseInt(e.target.value) || 1))}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setSecondCardioDays(val === '' ? '' : parseInt(val) || 0);
+                            }}
                             className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 focus:outline-none font-bold font-mono text-center text-slate-200"
                           />
                         </div>
@@ -665,7 +683,10 @@ export function ChallengeSection({
                             step="0.1"
                             min="0"
                             value={secondCardioKm}
-                            onChange={(e) => setSecondCardioKm(Math.max(0, parseFloat(e.target.value) || 0))}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setSecondCardioKm(val === '' ? '' : parseFloat(val) || 0);
+                            }}
                             className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 focus:outline-none font-bold font-mono text-center text-slate-200"
                           />
                         </div>

@@ -367,6 +367,16 @@ export function isSameAthlete(a: string, b: string): boolean {
   const norm = (s: string) => s.replace(/lh/g, 'l').replace(/ll/g, 'l');
   if (norm(cleanA) === norm(cleanB)) return true;
   
+  // Extract first names/first words
+  const firstWordA = cleanA.split(/\s+/)[0] || '';
+  const firstWordB = cleanB.split(/\s+/)[0] || '';
+  
+  // If both have multiple words or substantial first words and they are different, they are different athletes
+  if (firstWordA && firstWordB && norm(firstWordA) !== norm(firstWordB)) {
+    // Ensure we don't treat them as the same person
+    return false;
+  }
+  
   // If one contains the other (e.g. "Jhonatas Quintanillha" contains "Quintanilha" or vice versa)
   if (cleanA.includes(cleanB) || cleanB.includes(cleanA)) return true;
   if (norm(cleanA).includes(norm(cleanB)) || norm(cleanB).includes(norm(cleanA))) return true;
