@@ -721,21 +721,25 @@ export default function App() {
       // SELF-HEALING SYSTEM: If online, make sure our current logged user is registered in the cloud group roster
       // BUT ONLY if the group is still active in their profile/local list (they didn't voluntarily leave/unsubscribe)
       if (user && athleteName && !user.uid.startsWith('local_')) {
-        const isUserInCloudRoster = rosterList.some(m => m.userId === user.uid);
+        const existingMember = rosterList.find(m => m.userId === user.uid);
         const hasJoinedInProfile = isStillInGroupLocalStorage;
-        if (!isUserInCloudRoster && hasJoinedInProfile) {
-          console.log("Self-healing: Uploading cached local membership to cloud for group:", activeGroupId);
+        
+        const needsSync = !existingMember && hasJoinedInProfile;
+        const needsPhotoUpdate = existingMember && user.photoURL && existingMember.photoURL !== user.photoURL;
+
+        if ((needsSync || needsPhotoUpdate) && hasJoinedInProfile) {
+          console.log("Self-healing: Synchronizing membership metadata and photoURL to cloud for group:", activeGroupId);
           const memberPayload: GroupMember = {
             userId: user.uid,
             athleteName,
             email: user.email || '',
-            photoURL: user.photoURL || '',
-            role: 'member',
-            joinedAt: new Date().toISOString()
+            photoURL: user.photoURL || (existingMember?.photoURL || ''),
+            role: existingMember?.role || 'member',
+            joinedAt: existingMember?.joinedAt || new Date().toISOString()
           };
           const memberDocRef = doc(db, 'groups', activeGroupId, 'members', user.uid);
           setDoc(memberDocRef, memberPayload)
-            .then(() => console.log("Self-healing: Local status synced to the cloud."))
+            .then(() => console.log("Self-healing: Local status and photoURL synced to the cloud."))
             .catch(err => console.warn("Self-healing: Sync blocked or delayed:", err));
         }
       }
@@ -2074,6 +2078,8 @@ export default function App() {
                       onSelectParticipant={(name) => setSelectedParticipantName(name)}
                       challenges={challenges}
                       groupMembers={groupMembers}
+                      currentUserPhotoURL={user?.photoURL || ''}
+                      currentUserAthleteName={athleteName}
                     />
                   </div>
 

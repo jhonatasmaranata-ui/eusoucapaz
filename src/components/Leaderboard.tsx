@@ -15,9 +15,19 @@ interface LeaderboardProps {
   onSelectParticipant: (name: string) => void;
   challenges?: Challenge[];
   groupMembers?: GroupMember[];
+  currentUserPhotoURL?: string;
+  currentUserAthleteName?: string;
 }
 
-export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, challenges = [], groupMembers = [] }: LeaderboardProps) {
+export function Leaderboard({ 
+  scores, 
+  selectedParticipant, 
+  onSelectParticipant, 
+  challenges = [], 
+  groupMembers = [],
+  currentUserPhotoURL = '',
+  currentUserAthleteName = ''
+}: LeaderboardProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFormulaInfo, setShowFormulaInfo] = useState(false);
 
@@ -29,7 +39,13 @@ export function Leaderboard({ scores, selectedParticipant, onSelectParticipant, 
   // Return custom avatar/badge with gold, silver, bronze circle borders for the top athletes
   const getRankBadgeWithAvatar = (rank: number, name: string) => {
     const member = groupMembers.find(m => isSameAthlete(m.athleteName, name));
-    const photo = member?.photoURL;
+    let photo = member?.photoURL;
+    
+    // Local fallback: if this row matches current user and we have user photo from Google Auth
+    if (!photo && currentUserAthleteName && isSameAthlete(currentUserAthleteName, name)) {
+      photo = currentUserPhotoURL;
+    }
+
     const initial = name ? name.trim().charAt(0).toUpperCase() : '?';
 
     let ringClass = '';
