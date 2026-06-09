@@ -6,6 +6,7 @@
 // Última sincronização e atualização de segurança do Firebase: 2026-05-26 12:30 UTC
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Header } from './components/Header';
 import { Leaderboard } from './components/Leaderboard';
 import { ParticipantDetails } from './components/ParticipantDetails';
@@ -56,7 +57,9 @@ import {
   Unlock,
   CalendarDays,
   Trophy,
-  CheckSquare
+  CheckSquare,
+  Compass,
+  X
 } from 'lucide-react';
 
 export default function App() {
@@ -222,6 +225,7 @@ export default function App() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isRegistrationPending, setIsRegistrationPending] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isGroupManagerOpen, setIsGroupManagerOpen] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
   const isSychronizationNotice = useMemo(() => {
@@ -1890,6 +1894,8 @@ export default function App() {
         onSignOut={handleSignOut}
         onEditName={() => setIsRegistrationPending(true)}
         onSignInLocal={handleSignInLocal}
+        onToggleGroupManager={() => setIsGroupManagerOpen(!isGroupManagerOpen)}
+        activeGroup={groupDetails}
       />
 
       {/* Auth Error or Synchronization status Banner info */}
@@ -2011,23 +2017,24 @@ export default function App() {
             {/* TAB CONTENT: Painel de Desafios */}
             {activeTab === 'painel' && (
               <div className="space-y-6 animate-fadeIn">
-                {/* Dynamic Challenges Workspaces Group Selection Panel (Only on first tab) */}
-                <GroupManager 
-                  user={user}
-                  athleteName={athleteName}
-                  activeGroup={groupDetails}
-                  userGroups={userGroups}
-                  groupMembers={groupMembers}
-                  onSelectGroup={(groupId) => {
-                    setActiveGroupId(groupId);
-                    localStorage.setItem('es_capaz_active_group_id', groupId);
-                  }}
-                  onCreateGroup={handleCreateGroup}
-                  onJoinGroup={handleJoinGroup}
-                  onUpdateGroupRules={handleUpdateGroupRules}
-                  onLeaveGroup={handleLeaveGroup}
-                  onRemoveMember={(userId) => handleKickMember(activeGroupId, userId)}
-                />
+                {/* Visual shortcut helper banner telling user we moved the panel to the side drawer */}
+                <div className="bg-slate-900 border border-slate-850 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md shadow-black/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/30 text-amber-500 rounded-xl flex items-center justify-center shrink-0">
+                      <Compass className="w-5 h-5 animate-pulse" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-200 text-xs uppercase tracking-wider font-mono">Gerenciar Seus Desafios</h4>
+                      <p className="text-[11px] text-slate-400">Entre em salas, crie grupos particulares ou mude de desafio a qualquer momento no menu superior lateral.</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsGroupManagerOpen(true)}
+                    className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-650 hover:to-amber-650 text-neutral-950 font-black text-[10px] uppercase tracking-wide rounded-xl cursor-pointer transition shadow-lg shrink-0"
+                  >
+                    Abrir Painel
+                  </button>
+                </div>
 
                 {/* Goals / Targets Display Block */}
                 <ChallengeSection 
@@ -2088,35 +2095,28 @@ export default function App() {
           </>
         ) : (
           <div className="space-y-6">
-            <GroupManager 
-              user={user}
-              athleteName={athleteName}
-              activeGroup={groupDetails}
-              userGroups={userGroups}
-              groupMembers={groupMembers}
-              onSelectGroup={(groupId) => {
-                setActiveGroupId(groupId);
-                localStorage.setItem('es_capaz_active_group_id', groupId);
-              }}
-              onCreateGroup={handleCreateGroup}
-              onJoinGroup={handleJoinGroup}
-              onUpdateGroupRules={handleUpdateGroupRules}
-              onLeaveGroup={handleLeaveGroup}
-              onRemoveMember={(userId) => handleKickMember(activeGroupId, userId)}
-            />
-
-            <div className="bg-slate-900/20 border border-slate-855 border-slate-850/60 rounded-2xl p-8 text-center space-y-4 shadow-xl max-w-2xl mx-auto" id="private-challenges-empty-state-placeholder">
+            <div className="bg-slate-900/20 border border-slate-850/60 rounded-xl p-8 text-center space-y-5 shadow-xl max-w-2xl mx-auto" id="private-challenges-empty-state-placeholder">
               <div className="w-12 h-12 bg-indigo-950/80 border border-indigo-500/30 text-indigo-400 rounded-full flex items-center justify-center mx-auto shadow-inner">
                 <Lock className="w-5 h-5 animate-pulse" />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 animate-fadeIn">
                 <h4 className="font-bold text-slate-100 text-sm">Painel de Atividades Oculto</h4>
                 <p className="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
-                  Você selecionou a aba de <strong>Desafios Particulares</strong>. Crie um novo desafio ou entre em um através do código no painel para habilitar o placar, as metas e postar novos treinos!
+                  Você selecionou a aba de <strong>Desafios Particulares</strong>. Crie uma nova sala ou participe de uma através do painel lateral para habilitar o placar, as metas e postar novos treinos!
                 </p>
                 <p className="text-xs text-slate-500 leading-relaxed max-w-md mx-auto">
-                  Para navegar no torneio geral público, clique no botão <strong>Desafio Público Geral (Mensal)</strong> acima.
+                  Para abrir o painel lateral de gerenciamento, clique em <strong>Desafios</strong> no cabeçalho ou use o botão abaixo:
                 </p>
+              </div>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsGroupManagerOpen(true)}
+                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-550 text-slate-105 font-bold text-xs uppercase tracking-wide rounded-xl cursor-pointer transition shadow-lg flex items-center gap-2 mx-auto"
+                >
+                  <Compass className="w-4 h-4 text-amber-500 animate-pulse" />
+                  Abrir Painel de Desafios
+                </button>
               </div>
             </div>
           </div>
@@ -2128,6 +2128,64 @@ export default function App() {
       <footer className="bg-slate-950 border-t border-slate-850 py-6 text-center text-xs text-slate-500 font-mono mt-12">
         <p className="notranslate" translate="no">© {new Date().getFullYear()} Eu Sou Capaz • Desafio Grupo Fitness • Foco, Consistência e Evolução • Todo Treino Conta!</p>
       </footer>
+
+      {/* Slide-Over Drawer for Group/Challenge Manager */}
+      <AnimatePresence>
+        {isGroupManagerOpen && (
+          <div className="fixed inset-0 z-50 overflow-hidden" id="group-manager-drawer-container">
+            {/* Backdrop with elegant fade-in */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsGroupManagerOpen(false)}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm cursor-pointer"
+            />
+            {/* Sliding Panel coming from the left */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 240 }}
+              className="absolute inset-y-0 left-0 max-w-md w-full bg-slate-950 border-r border-slate-900/60 flex flex-col shadow-2xl h-full z-10"
+            >
+              <div className="p-4 border-b border-slate-900 flex items-center justify-between bg-slate-950/80 backdrop-blur-md shrink-0">
+                <div className="flex items-center gap-2">
+                  <Compass className="w-5 h-5 text-amber-500 animate-pulse" />
+                  <span className="font-extrabold text-slate-100 uppercase tracking-widest font-mono text-xs">Painel de Desafios</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsGroupManagerOpen(false)}
+                  className="p-1 px-2.5 rounded-lg border border-slate-850 hover:border-red-500/30 text-slate-400 hover:text-red-400 hover:bg-red-550/5 text-[10px] font-mono font-black uppercase transition cursor-pointer flex items-center gap-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  Fechar
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4.5 space-y-4 bg-slate-950 custom-scrollbar">
+                <GroupManager 
+                  user={user}
+                  athleteName={athleteName}
+                  activeGroup={groupDetails}
+                  userGroups={userGroups}
+                  groupMembers={groupMembers}
+                  onSelectGroup={(groupId) => {
+                    setActiveGroupId(groupId);
+                    localStorage.setItem('es_capaz_active_group_id', groupId);
+                    setIsGroupManagerOpen(false);
+                  }}
+                  onCreateGroup={handleCreateGroup}
+                  onJoinGroup={handleJoinGroup}
+                  onUpdateGroupRules={handleUpdateGroupRules}
+                  onLeaveGroup={handleLeaveGroup}
+                  onRemoveMember={(userId) => handleKickMember(activeGroupId, userId)}
+                />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* PWA mobile installation option banner */}
       <PWAInstallPrompt />
