@@ -1894,8 +1894,6 @@ export default function App() {
         onSignOut={handleSignOut}
         onEditName={() => setIsRegistrationPending(true)}
         onSignInLocal={handleSignInLocal}
-        onToggleGroupManager={() => setIsGroupManagerOpen(!isGroupManagerOpen)}
-        activeGroup={groupDetails}
       />
 
       {/* Auth Error or Synchronization status Banner info */}

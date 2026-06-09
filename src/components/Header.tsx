@@ -30,7 +30,6 @@ interface HeaderProps {
   onSignOut: () => void;
   onEditName: () => void;
   onSignInLocal: () => void;
-  onToggleGroupManager: () => void;
   activeGroup?: any;
 }
 
@@ -311,7 +310,6 @@ export function Header({
   onSignOut,
   onEditName,
   onSignInLocal,
-  onToggleGroupManager,
   activeGroup
 }: HeaderProps) {
   const [isInstalled, setIsInstalled] = React.useState(false);
@@ -408,19 +406,6 @@ export function Header({
           {/* User Profile Area or Authenticated Actions Grouped cleanly */}
           <div className="flex flex-col sm:flex-row items-center lg:items-end gap-3 shrink-0 self-center lg:self-center">
             
-            {/* Direct Group Manager Drawer trigger shortcut */}
-            <button
-              onClick={onToggleGroupManager}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-850 border border-zinc-850 hover:border-amber-500/45 text-slate-250 text-slate-100 text-[10px] font-black uppercase tracking-wide cursor-pointer transition-all hover:scale-[1.01] shadow-md shadow-black/30"
-              title="Abrir Painel de Desafios"
-            >
-              <Compass className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
-              <span>Desafios</span>
-              {activeGroup && activeGroup.id !== 'EMPTY-PRIVATE' && (
-                <span className="text-[9px] text-amber-500 font-mono font-black select-none">({activeGroup.name || 'Geral'})</span>
-              )}
-            </button>
-
             {/* Direct PWA Install trigger shortcut */}
             {!isInstalled && (
               <button
