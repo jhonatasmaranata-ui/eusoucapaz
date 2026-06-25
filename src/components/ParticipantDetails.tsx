@@ -386,11 +386,15 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
             </div>
             <div>
               <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">TREINO+AERÓBICO</div>
-              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">{rules?.comboPointsPerDay ?? 10} pontos por dia</div>
+              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">
+                {rules?.comboPointsPerDay ?? 10} pontos × {comboDaysCount}
+              </div>
             </div>
           </div>
           <div className="text-right shrink-0">
-            <div className="text-sm font-black text-amber-400 font-mono">{score.comboPoints} {score.comboPoints === 1 ? 'ponto' : 'pontos'}</div>
+            <div className="text-sm font-black text-amber-400 font-mono">
+              {score.comboPoints.toFixed(1).replace(/\.?0+$/, '').replace('.', ',')} {score.comboPoints === 1 ? 'ponto' : 'pontos'}
+            </div>
           </div>
         </div>
 
@@ -462,14 +466,16 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
               <Dumbbell className="w-4.5 h-4.5" />
             </div>
             <div>
-              <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">Dias de Treino</div>
+              <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">TREINO</div>
               <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">
-                {rules?.gymPointsPerCheckIn ?? 5} {(rules?.gymPointsPerCheckIn ?? 5) === 1 ? 'ponto' : 'pontos'} por treino
+                {rules?.gymPointsPerCheckIn ?? 5} pontos × {gymOnlyDaysCount}
               </div>
             </div>
           </div>
           <div className="text-right shrink-0">
-            <div className="text-sm font-black text-red-400 font-mono">{score.totalWorkouts} {score.totalWorkouts === 1 ? 'dia' : 'dias'}</div>
+            <div className="text-sm font-black text-red-400 font-mono">
+              {score.gymPoints.toFixed(1).replace(/\.?0+$/, '').replace('.', ',')} {score.gymPoints === 1 ? 'ponto' : 'pontos'}
+            </div>
           </div>
         </div>
 
