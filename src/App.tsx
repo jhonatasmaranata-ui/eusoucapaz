@@ -1898,6 +1898,7 @@ export default function App() {
         onSignOut={handleSignOut}
         onEditName={() => setIsRegistrationPending(true)}
         onSignInLocal={handleSignInLocal}
+        onOpenDrawer={() => setIsGroupManagerOpen(true)}
       />
 
       {/* Auth Error or Synchronization status Banner info */}

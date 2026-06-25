@@ -31,6 +31,7 @@ interface HeaderProps {
   onEditName: () => void;
   onSignInLocal: () => void;
   activeGroup?: any;
+  onOpenDrawer: () => void;
 }
 
 function LogoBadge() {
@@ -310,7 +311,8 @@ export function Header({
   onSignOut,
   onEditName,
   onSignInLocal,
-  activeGroup
+  activeGroup,
+  onOpenDrawer
 }: HeaderProps) {
   const [isInstalled, setIsInstalled] = React.useState(false);
 
@@ -369,10 +371,25 @@ export function Header({
       <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           
-          {/* Brand/Logo Area & Interactive SVG Spartan Emblem */}
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
-            {/* The Identical Combined Spartan Branding Badge from User's Image */}
-            <LogoBadge />
+          {/* Brand/Logo Area & Interactive SVG Spartan Emblem with Menu Trigger */}
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left w-full sm:w-auto">
+            <div className="flex items-center justify-between sm:justify-start gap-4 w-full sm:w-auto">
+              {/* Custom Menu Trigger Circled in Green */}
+              <button
+                onClick={onOpenDrawer}
+                className="p-3 bg-zinc-900/90 hover:bg-zinc-850 border border-zinc-800 hover:border-amber-500/55 rounded-2xl text-slate-300 hover:text-amber-400 cursor-pointer transition-all duration-200 flex items-center justify-center shrink-0 shadow-lg shadow-black/50 hover:scale-[1.05] active:scale-[0.96]"
+                aria-label="Menu Principal"
+                title="Abrir Painel de Desafios"
+              >
+                <svg className="w-5 h-5 stroke-current" viewBox="0 0 24 24" fill="none" strokeWidth="2.8" strokeLinecap="round">
+                  <line x1="4" y1="8" x2="20" y2="8" />
+                  <line x1="4" y1="16" x2="14" y2="16" />
+                </svg>
+              </button>
+
+              {/* The Identical Combined Spartan Branding Badge from User's Image */}
+              <LogoBadge />
+            </div>
 
             {/* Brand Titles and the 4-Icon Goal Grid in direct alignment */}
             <div className="space-y-2.5 flex-1 select-none">
