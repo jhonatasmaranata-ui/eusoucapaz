@@ -2020,25 +2020,6 @@ export default function App() {
             {/* TAB CONTENT: Painel de Desafios */}
             {activeTab === 'painel' && (
               <div className="space-y-6 animate-fadeIn">
-                {/* Visual shortcut helper banner telling user we moved the panel to the side drawer */}
-                <div className="bg-slate-900 border border-slate-850 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md shadow-black/20">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/30 text-amber-500 rounded-xl flex items-center justify-center shrink-0">
-                      <Compass className="w-5 h-5 animate-pulse" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-slate-200 text-xs uppercase tracking-wider font-mono">Gerenciar Seus Desafios</h4>
-                      <p className="text-[11px] text-slate-400">Entre em salas, crie grupos particulares ou mude de desafio a qualquer momento no menu superior lateral.</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setIsGroupManagerOpen(true)}
-                    className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-650 hover:to-amber-650 text-neutral-950 font-black text-[10px] uppercase tracking-wide rounded-xl cursor-pointer transition shadow-lg shrink-0"
-                  >
-                    Abrir Painel
-                  </button>
-                </div>
-
                 {/* Goals / Targets Display Block */}
                 <ChallengeSection 
                   athleteName={athleteName}
