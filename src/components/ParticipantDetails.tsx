@@ -360,12 +360,12 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
               <Route className="w-4.5 h-4.5" />
             </div>
             <div>
-              <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">Pontos de Cardio</div>
+              <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">AERÓBICO</div>
               <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">{score.totalDistance.toFixed(1)} Km rodados</div>
             </div>
           </div>
           <div className="text-right shrink-0">
-            <div className="text-sm font-black text-indigo-300 font-mono">{score.distancePoints.toFixed(1)} pts</div>
+            <div className="text-sm font-black text-indigo-300 font-mono">{score.distancePoints.toFixed(1)} pontos</div>
           </div>
         </div>
 
