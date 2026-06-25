@@ -285,6 +285,27 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
     }
   });
 
+  let runDistance = 0;
+  let walkDistance = 0;
+  let bikeDistance = 0;
+
+  score.activities.forEach(a => {
+    const typeLower = (a.type || '').toLowerCase();
+    const dist = a.distance || 0;
+    if (typeLower.includes('corrida')) {
+      runDistance += dist;
+    } else if (typeLower.includes('caminhada')) {
+      walkDistance += dist;
+    } else if (typeLower.includes('pedalada') || typeLower.includes('pedal')) {
+      bikeDistance += dist;
+    }
+  });
+
+  const distMult = rules?.distanceMultiplier ?? 1.0;
+  const runFactor = 1.0 * distMult;
+  const walkFactor = 1.0 * distMult;
+  const bikeFactor = distMult / 3.0;
+
   const rankInfo = getMilitaryRankInfo(score.rank);
 
   return (
@@ -354,15 +375,17 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
         </div>
 
         {/* Volume Outdoor Card */}
-        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-850 flex items-center justify-between gap-4 shadow-sm hover:border-indigo-500/25 transition-all">
-          <div className="flex items-center gap-3 text-left">
-            <div className="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-lg border border-indigo-500/20 shrink-0">
+        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-850 flex items-start justify-between gap-4 shadow-sm hover:border-indigo-500/25 transition-all">
+          <div className="flex items-start gap-3 text-left">
+            <div className="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-lg border border-indigo-500/20 shrink-0 mt-0.5">
               <Route className="w-4.5 h-4.5" />
             </div>
             <div>
-              <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">AERÓBICO</div>
-              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">
-                {rules?.distanceMultiplier ?? 1.0} {(rules?.distanceMultiplier ?? 1.0) === 1 ? 'ponto' : 'pontos'} por Km • {score.totalDistance.toFixed(1)} Km rodados
+              <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider mb-1">AERÓBICO</div>
+              <div className="flex flex-col gap-0.5 text-[10px] text-slate-500 font-sans leading-relaxed">
+                <div>Corrida: <span className="text-slate-300 font-medium">{runDistance.toFixed(1)} Km</span> × {runFactor.toFixed(1).replace('.0', '')} {runFactor === 1 ? 'ponto' : 'pontos'}/Km</div>
+                <div>Caminhada: <span className="text-slate-300 font-medium">{walkDistance.toFixed(1)} Km</span> × {walkFactor.toFixed(1).replace('.0', '')} {walkFactor === 1 ? 'ponto' : 'pontos'}/Km</div>
+                <div>Bicicleta: <span className="text-slate-300 font-medium">{bikeDistance.toFixed(1)} Km</span> × {bikeFactor.toFixed(2).replace(/\.?0+$/, '')} {bikeFactor === 1 ? 'ponto' : 'pontos'}/Km</div>
               </div>
             </div>
           </div>
