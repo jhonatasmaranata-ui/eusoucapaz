@@ -58,6 +58,27 @@ export function ChallengeSection({
     return dateStr;
   };
 
+  const getDaysRemaining = (endDateStr?: string) => {
+    if (!endDateStr) return null;
+    const parts = endDateStr.split('-');
+    if (parts.length !== 3) return null;
+    
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+    
+    const target = new Date(year, month, day);
+    const today = new Date();
+    
+    target.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    
+    const diffTime = target.getTime() - today.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  };
+
   // Config state
   const [isEditing, setIsEditing] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -426,9 +447,9 @@ export function ChallengeSection({
   return (
     <>
       {/* Período do Ciclo do Desafio */}
-      <div className="bg-slate-900 border border-slate-850 rounded-2xl p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-slate-350">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+      <div className="bg-slate-900 border border-slate-850 rounded-2xl p-4 mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-slate-350">
+        <div className="flex items-start gap-3">
+          <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0 mt-0.5">
             <Calendar className="w-4 h-4" />
           </div>
           <div>
@@ -438,10 +459,38 @@ export function ChallengeSection({
             <p className="text-[11px] text-zinc-400 mt-0.5 leading-normal">
               O progresso de todos os atletas é contabilizado exclusivamente dentro desta janela de datas.
             </p>
+            {(() => {
+              const diffDays = getDaysRemaining(endDate);
+              if (diffDays === null) return null;
+              
+              let text = '';
+              let badgeColor = '';
+              
+              if (diffDays > 1) {
+                text = `${diffDays} dias para o término do desafio`;
+                badgeColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+              } else if (diffDays === 1) {
+                text = `1 dia para o término do desafio`;
+                badgeColor = 'text-orange-400 bg-orange-500/10 border-orange-500/20 animate-pulse';
+              } else if (diffDays === 0) {
+                text = `Último dia para o término do desafio!`;
+                badgeColor = 'text-red-400 bg-red-500/10 border-red-500/20 animate-pulse font-bold';
+              } else {
+                text = `Desafio finalizado!`;
+                badgeColor = 'text-slate-400 bg-slate-950 border-slate-800';
+              }
+              
+              return (
+                <div className={`mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium font-sans rounded-lg border ${badgeColor}`}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                  <span>{text}</span>
+                </div>
+              );
+            })()}
           </div>
         </div>
         
-        <div className="flex items-center gap-1.5 self-start sm:self-center">
+        <div className="flex items-center gap-1.5 self-start md:self-center shrink-0">
           <span className="text-[10px] font-mono font-bold px-3 py-1 rounded-lg bg-slate-950 border border-slate-850 text-amber-400">
             INÍCIO: {formatDate(startDate)}
           </span>
