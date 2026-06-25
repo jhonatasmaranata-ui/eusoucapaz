@@ -14,7 +14,7 @@ import { AddActivityForm } from './components/AddActivityForm';
 import { RegistrationModal } from './components/RegistrationModal';
 import { LoginModal } from './components/LoginModal';
 import { ChallengeSection } from './components/ChallengeSection';
-import { GroupManager } from './components/GroupManager';
+import { ChallengeSideDrawer } from './components/ChallengeSideDrawer';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import { Challenge, Activity, RuleConfig, GroupChallenge, GroupMember, UserProfile } from './types';
 import { calculateScores, INITIAL_MOCK_ACTIVITIES, DEFAULT_RULES, getGlobalChallengeRules, isSameAthlete, extractGroupCode } from './utils';
@@ -2134,62 +2134,25 @@ export default function App() {
       </footer>
 
       {/* Slide-Over Drawer for Group/Challenge Manager */}
-      <AnimatePresence>
-        {isGroupManagerOpen && (
-          <div className="fixed inset-0 z-50 overflow-hidden" id="group-manager-drawer-container">
-            {/* Backdrop with elegant fade-in */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsGroupManagerOpen(false)}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm cursor-pointer"
-            />
-            {/* Sliding Panel coming from the left */}
-            <motion.div
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 240 }}
-              className="absolute inset-y-0 left-0 max-w-md w-full bg-slate-950 border-r border-slate-900/60 flex flex-col shadow-2xl h-full z-10"
-            >
-              <div className="p-4 border-b border-slate-900 flex items-center justify-between bg-slate-950/80 backdrop-blur-md shrink-0">
-                <div className="flex items-center gap-2">
-                  <Compass className="w-5 h-5 text-amber-500 animate-pulse" />
-                  <span className="font-extrabold text-slate-100 uppercase tracking-widest font-mono text-xs">Painel de Desafios</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsGroupManagerOpen(false)}
-                  className="p-1 px-2.5 rounded-lg border border-slate-850 hover:border-red-500/30 text-slate-400 hover:text-red-400 hover:bg-red-550/5 text-[10px] font-mono font-black uppercase transition cursor-pointer flex items-center gap-1"
-                >
-                  <X className="w-3.5 h-3.5" />
-                  Fechar
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4.5 space-y-4 bg-slate-950 custom-scrollbar">
-                <GroupManager 
-                  user={user}
-                  athleteName={athleteName}
-                  activeGroup={groupDetails}
-                  userGroups={userGroups}
-                  groupMembers={groupMembers}
-                  onSelectGroup={(groupId) => {
-                    setActiveGroupId(groupId);
-                    localStorage.setItem('es_capaz_active_group_id', groupId);
-                    setIsGroupManagerOpen(false);
-                  }}
-                  onCreateGroup={handleCreateGroup}
-                  onJoinGroup={handleJoinGroup}
-                  onUpdateGroupRules={handleUpdateGroupRules}
-                  onLeaveGroup={handleLeaveGroup}
-                  onRemoveMember={(userId) => handleKickMember(activeGroupId, userId)}
-                />
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <ChallengeSideDrawer
+        isOpen={isGroupManagerOpen}
+        onClose={() => setIsGroupManagerOpen(false)}
+        user={user}
+        athleteName={athleteName}
+        activeGroup={groupDetails}
+        userGroups={userGroups}
+        groupMembers={groupMembers}
+        onSelectGroup={(groupId) => {
+          setActiveGroupId(groupId);
+          localStorage.setItem('es_capaz_active_group_id', groupId);
+        }}
+        onCreateGroup={handleCreateGroup}
+        onJoinGroup={handleJoinGroup}
+        onUpdateGroupRules={handleUpdateGroupRules}
+        onLeaveGroup={handleLeaveGroup}
+        onRemoveMember={(userId) => handleKickMember(activeGroupId, userId)}
+        onStartTraining={() => setActiveTab('registrar')}
+      />
 
       {/* PWA mobile installation option banner */}
       <PWAInstallPrompt />
