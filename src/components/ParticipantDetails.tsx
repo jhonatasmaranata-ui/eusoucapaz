@@ -295,7 +295,7 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
   const runFactor = 1.0 * distMult;
   const walkFactor = 1.0 * distMult;
   const bikeFactor = distMult / 3.0;
-  const swimFactor = distMult / 250.0;
+  const swimFactor = 2.0 * distMult;
 
   let runPoints = 0;
   let walkPoints = 0;
@@ -319,7 +319,7 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
       bikePoints += (dist / 3.0) * distMult;
     } else if (typeLower.includes('natação') || typeLower.includes('natacao') || typeLower.includes('swim')) {
       swimDistance += dist;
-      swimPoints += (dist / 250.0) * distMult;
+      swimPoints += (dist / 1000.0) * swimFactor;
     } else {
       otherDistance += dist;
       otherPoints += dist * 1.0 * distMult;
@@ -412,29 +412,35 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
           </div>
 
           <div className="border-t border-slate-850/60 pt-2.5 flex flex-col gap-1.5 pl-11 text-[10px] text-slate-400 font-sans leading-relaxed">
-            <div className="flex justify-between items-center w-full">
-              <span>Corrida:</span>
-              <span className="font-mono text-slate-300 text-right">
-                <span className="font-bold">{runDistance.toFixed(1).replace('.', ',')} Km</span> × {runFactor.toFixed(1).replace(/\.?0+$/, '').replace('.', ',')} = <span className="text-indigo-400 font-bold">{runPoints.toFixed(1).replace('.', ',')} {runPoints === 1 ? 'ponto' : 'pontos'}</span>
-              </span>
-            </div>
-            <div className="flex justify-between items-center w-full">
-              <span>Caminhada:</span>
-              <span className="font-mono text-slate-300 text-right">
-                <span className="font-bold">{walkDistance.toFixed(1).replace('.', ',')} Km</span> × {walkFactor.toFixed(1).replace(/\.?0+$/, '').replace('.', ',')} = <span className="text-indigo-400 font-bold">{walkPoints.toFixed(1).replace('.', ',')} {walkPoints === 1 ? 'ponto' : 'pontos'}</span>
-              </span>
-            </div>
-            <div className="flex justify-between items-center w-full">
-              <span>Bicicleta:</span>
-              <span className="font-mono text-slate-300 text-right">
-                <span className="font-bold">{bikeDistance.toFixed(1).replace('.', ',')} Km</span> × {bikeFactor.toFixed(2).replace(/\.?0+$/, '').replace('.', ',')} = <span className="text-indigo-400 font-bold">{bikePoints.toFixed(1).replace('.', ',')} {bikePoints === 1 ? 'ponto' : 'pontos'}</span>
-              </span>
-            </div>
+            {runDistance > 0 && (
+              <div className="flex justify-between items-center w-full">
+                <span>Corrida:</span>
+                <span className="font-mono text-slate-300 text-right">
+                  <span className="font-bold">{runDistance.toFixed(1).replace('.', ',')} Km</span> × {runFactor.toFixed(1).replace(/\.?0+$/, '').replace('.', ',')} = <span className="text-indigo-400 font-bold">{runPoints.toFixed(1).replace('.', ',')} {runPoints === 1 ? 'ponto' : 'pontos'}</span>
+                </span>
+              </div>
+            )}
+            {walkDistance > 0 && (
+              <div className="flex justify-between items-center w-full">
+                <span>Caminhada:</span>
+                <span className="font-mono text-slate-300 text-right">
+                  <span className="font-bold">{walkDistance.toFixed(1).replace('.', ',')} Km</span> × {walkFactor.toFixed(1).replace(/\.?0+$/, '').replace('.', ',')} = <span className="text-indigo-400 font-bold">{walkPoints.toFixed(1).replace('.', ',')} {walkPoints === 1 ? 'ponto' : 'pontos'}</span>
+                </span>
+              </div>
+            )}
+            {bikeDistance > 0 && (
+              <div className="flex justify-between items-center w-full">
+                <span>Bicicleta:</span>
+                <span className="font-mono text-slate-300 text-right">
+                  <span className="font-bold">{bikeDistance.toFixed(1).replace('.', ',')} Km</span> × {bikeFactor.toFixed(2).replace(/\.?0+$/, '').replace('.', ',')} = <span className="text-indigo-400 font-bold">{bikePoints.toFixed(1).replace('.', ',')} {bikePoints === 1 ? 'ponto' : 'pontos'}</span>
+                </span>
+              </div>
+            )}
             {swimDistance > 0 && (
               <div className="flex justify-between items-center w-full">
                 <span>Natação:</span>
                 <span className="font-mono text-slate-300 text-right">
-                  <span className="font-bold">{swimDistance.toFixed(0)}m</span> × {swimFactor.toFixed(4).replace(/\.?0+$/, '').replace('.', ',')} = <span className="text-indigo-400 font-bold">{swimPoints.toFixed(1).replace('.', ',')} {swimPoints === 1 ? 'ponto' : 'pontos'}</span>
+                  <span className="font-bold">{(swimDistance / 1000.0).toFixed(2).replace(/\.?0+$/, '').replace('.', ',')} Km</span> × {swimFactor.toFixed(1).replace(/\.?0+$/, '').replace('.', ',')} = <span className="text-indigo-400 font-bold">{swimPoints.toFixed(1).replace('.', ',')} {swimPoints === 1 ? 'ponto' : 'pontos'}</span>
                 </span>
               </div>
             )}
