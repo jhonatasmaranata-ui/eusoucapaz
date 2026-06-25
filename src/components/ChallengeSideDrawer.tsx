@@ -70,6 +70,7 @@ export function ChallengeSideDrawer({
   onStartTraining
 }: ChallengeSideDrawerProps) {
   const [viewMode, setViewMode] = useState<DrawerViewMode>('main');
+  const isCreator = activeGroup && (user?.email === 'jhonatasmaranata@gmail.com' || activeGroup.creatorId === user?.uid || activeGroup.creatorId === 'local_proxy');
   const [selectedGroupForDetails, setSelectedGroupForDetails] = useState<GroupChallenge | null>(null);
   const [copied, setCopied] = useState(false);
   const [confirmKickId, setConfirmKickId] = useState<string | null>(null);
@@ -312,7 +313,7 @@ export function ChallengeSideDrawer({
                     className="w-full flex items-center justify-center gap-3 py-4 px-5 bg-[#e03a3a] hover:bg-[#c92f2f] text-white font-extrabold text-sm rounded-full shadow-lg shadow-red-500/20 active:translate-y-px transition-all cursor-pointer"
                   >
                     <Rocket className="w-5 h-5 text-white animate-pulse" />
-                    <span>Começar Treino / Cárdio</span>
+                    <span>Gravar Treino / Aeróbico</span>
                   </button>
 
                   <div className="h-[1px] bg-slate-900 my-2" />
@@ -320,18 +321,6 @@ export function ChallengeSideDrawer({
                   {/* Menu List */}
                   <div className="space-y-1">
                     
-                    {/* OBTER PRO/CONQUISTAS */}
-                    <button
-                      onClick={() => setViewMode('help')}
-                      className="w-full flex items-center justify-between p-3.5 hover:bg-slate-900 rounded-2xl text-left text-slate-300 font-bold text-sm transition cursor-pointer"
-                    >
-                      <div className="flex items-center gap-3.5">
-                        <Star className="w-5 h-5 text-amber-500" />
-                        <span>Regras & Conquistas</span>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-500" />
-                    </button>
-
                     {/* GENERAL GLOBAL CHALLENGE (MENSAL) */}
                     <button
                       onClick={() => {
@@ -432,8 +421,8 @@ export function ChallengeSideDrawer({
                       <span>Desafios concluídos</span>
                     </button>
 
-                    {/* CONFIGURE CURRENT CHALLENGE RULES (creator only) */}
-                    {activeGroup && activeGroup.id !== 'demo-group' && (user?.email === 'jhonatasmaranata@gmail.com' || activeGroup.creatorId === user?.uid || activeGroup.creatorId === 'local_proxy') && (
+                    {/* CONFIGURE CURRENT CHALLENGE RULES */}
+                    {activeGroup && activeGroup.id !== 'demo-group' && (
                       <button
                         onClick={() => {
                           setViewMode('configure');
@@ -782,14 +771,16 @@ export function ChallengeSideDrawer({
                 </div>
               )}
 
-              {/* VIEW: CONFIGURE GROUP RULES (creator only) */}
+              {/* VIEW: CONFIGURE GROUP RULES */}
               {viewMode === 'configure' && (
                 <div className="space-y-4 animate-fadeIn p-2">
                   <div className="flex items-center gap-2 pb-2 border-b border-slate-900">
                     <button onClick={() => setViewMode('main')} className="p-1 hover:bg-slate-900 rounded-full cursor-pointer text-slate-400 hover:text-slate-200 transition">
                       <ArrowLeft className="w-5 h-5" />
                     </button>
-                    <h4 className="font-extrabold text-base text-slate-100">Editar Regras do Desafio</h4>
+                    <h4 className="font-extrabold text-base text-slate-100">
+                      {isCreator ? 'Configurações do Desafio' : 'Regras do Desafio'}
+                    </h4>
                   </div>
 
                   {statusMsg && (
@@ -806,24 +797,28 @@ export function ChallengeSideDrawer({
                         <input
                           type="date"
                           required
+                          disabled={!isCreator}
                           value={editStartDate}
                           onChange={(e) => setEditStartDate(e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-100 text-xs focus:outline-none focus:border-red-500 focus:bg-slate-850 transition"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-100 text-xs focus:outline-none focus:border-red-500 focus:bg-slate-850 transition disabled:opacity-60"
                         />
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">🏁 Término</label>
                         <input
                           type="date"
+                          disabled={!isCreator}
                           value={editEndDate}
                           onChange={(e) => setEditEndDate(e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-100 text-xs focus:outline-none focus:border-red-500 focus:bg-slate-850 transition"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-100 text-xs focus:outline-none focus:border-red-500 focus:bg-slate-850 transition disabled:opacity-60"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-3 p-4 bg-slate-900/60 border border-slate-850 rounded-2xl">
-                      <span className="text-xs font-extrabold text-slate-200 uppercase tracking-wider block pb-1 border-b border-slate-800">Ajustar Pontuações</span>
+                      <span className="text-xs font-extrabold text-slate-200 uppercase tracking-wider block pb-1 border-b border-slate-800">
+                        {isCreator ? 'Ajustar Pontuações' : 'Regras de Pontuação'}
+                      </span>
                       
                       <div className="space-y-3">
                         <div className="flex justify-between items-center gap-2">
@@ -835,9 +830,10 @@ export function ChallengeSideDrawer({
                             type="number"
                             min="1"
                             max="50"
+                            disabled={!isCreator}
                             value={editGymPoints}
                             onChange={(e) => setEditGymPoints(Number(e.target.value) || 5)}
-                            className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-red-500 focus:outline-none focus:border-red-500"
+                            className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-red-500 focus:outline-none focus:border-red-500 disabled:opacity-60"
                           />
                         </div>
 
@@ -851,9 +847,10 @@ export function ChallengeSideDrawer({
                             step="0.1"
                             min="0.1"
                             max="10"
+                            disabled={!isCreator}
                             value={editDistanceMult}
                             onChange={(e) => setEditDistanceMult(Number(e.target.value) || 1)}
-                            className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-indigo-400 focus:outline-none focus:border-indigo-550"
+                            className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-indigo-400 focus:outline-none focus:border-indigo-550 disabled:opacity-60"
                           />
                         </div>
 
@@ -866,21 +863,62 @@ export function ChallengeSideDrawer({
                             type="number"
                             min="1"
                             max="100"
+                            disabled={!isCreator}
                             value={editComboPoints}
                             onChange={(e) => setEditComboPoints(Number(e.target.value) || 10)}
-                            className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-amber-500 focus:outline-none focus:border-amber-500"
+                            className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-amber-500 focus:outline-none focus:border-amber-500 disabled:opacity-60"
                           />
                         </div>
                       </div>
                     </div>
 
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full py-3 bg-[#e03a3a] hover:bg-[#c92f2f] text-white font-extrabold text-xs rounded-full cursor-pointer transition shadow-md uppercase tracking-wider"
-                    >
-                      {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
-                    </button>
+                    {/* DYNAMIC RULE EXPLANATION CARDS (avoiding redundancy, merged inside this view) */}
+                    <div className="space-y-3 pt-2">
+                      <span className="text-xs font-extrabold text-slate-400 uppercase tracking-wider block pb-1">
+                        Resumo de Pontuação Ativa:
+                      </span>
+
+                      <div className="p-3 bg-red-950/20 border border-red-950/50 rounded-xl space-y-1">
+                        <span className="font-extrabold text-red-400 text-xs flex items-center gap-1.5">
+                          🏋️ Academia
+                        </span>
+                        <p className="text-slate-300 text-[11px]">
+                          Cada check-in diário garante <strong>{editGymPoints} pontos</strong>. Limite de 1 por dia.
+                        </p>
+                      </div>
+
+                      <div className="p-3 bg-indigo-950/20 border border-indigo-950/50 rounded-xl space-y-1">
+                        <span className="font-extrabold text-indigo-400 text-xs flex items-center gap-1.5">
+                          🏃 Aeróbico / Cárdio
+                        </span>
+                        <p className="text-slate-300 text-[11px]">
+                          Cada km de corrida/caminhada garante <strong>{editDistanceMult} pontos</strong> (Ex: 5 km = {5 * editDistanceMult} pts).
+                        </p>
+                      </div>
+
+                      <div className="p-3 bg-amber-950/20 border border-amber-950/50 rounded-xl space-y-1">
+                        <span className="font-extrabold text-amber-500 text-xs flex items-center gap-1.5">
+                          🔥 Bônus Combo Diário
+                        </span>
+                        <p className="text-slate-300 text-[11px]">
+                          Fazer check-in e atividade aeróbica no mesmo dia concede <strong>+{editComboPoints} pontos</strong> extras!
+                        </p>
+                      </div>
+                    </div>
+
+                    {isCreator ? (
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full py-3 bg-[#e03a3a] hover:bg-[#c92f2f] text-white font-extrabold text-xs rounded-full cursor-pointer transition shadow-md uppercase tracking-wider mt-4"
+                      >
+                        {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
+                      </button>
+                    ) : (
+                      <div className="p-3.5 bg-slate-900 border border-slate-850 rounded-2xl text-center text-xs text-slate-400 italic">
+                        Apenas o criador do grupo pode alterar estas configurações.
+                      </div>
+                    )}
                   </form>
                 </div>
               )}
