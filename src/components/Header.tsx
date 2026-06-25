@@ -328,7 +328,14 @@ export function Header({
         return;
       }
 
-      if ('getInstalledRelatedApps' in navigator) {
+      let isTopLevel = false;
+      try {
+        isTopLevel = window.self === window.top;
+      } catch (e) {
+        isTopLevel = false;
+      }
+
+      if (isTopLevel && 'getInstalledRelatedApps' in navigator) {
         try {
           const relatedApps = await (navigator as any).getInstalledRelatedApps();
           if (relatedApps && relatedApps.length > 0) {

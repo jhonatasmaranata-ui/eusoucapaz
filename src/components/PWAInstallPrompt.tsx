@@ -34,13 +34,24 @@ export function PWAInstallPrompt() {
     }
 
     // Also check if Chrome already installed this related app
-    if ('getInstalledRelatedApps' in navigator) {
-      (navigator as any).getInstalledRelatedApps().then((relatedApps: any[]) => {
-        if (relatedApps && relatedApps.length > 0) {
-          setIsInstalled(true);
-          localStorage.setItem("es_capaz_pwa_installed", "true");
-        }
-      }).catch((e: any) => console.log("Check related apps skipped", e));
+    let isTopLevel = false;
+    try {
+      isTopLevel = window.self === window.top;
+    } catch (e) {
+      isTopLevel = false;
+    }
+
+    if (isTopLevel && 'getInstalledRelatedApps' in navigator) {
+      try {
+        (navigator as any).getInstalledRelatedApps().then((relatedApps: any[]) => {
+          if (relatedApps && relatedApps.length > 0) {
+            setIsInstalled(true);
+            localStorage.setItem("es_capaz_pwa_installed", "true");
+          }
+        }).catch((e: any) => console.log("Check related apps skipped", e));
+      } catch (e) {
+        console.log("Check related apps skipped synchronously", e);
+      }
     }
 
     const isDismissed = sessionStorage.getItem("es_capaz_pwa_dismissed_v2") === "true";
