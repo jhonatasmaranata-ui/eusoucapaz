@@ -345,11 +345,11 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
             </div>
             <div>
               <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">TREINO+AERÓBICO</div>
-              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">10 pontos por dia</div>
+              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">{rules?.comboPointsPerDay ?? 10} pontos por dia</div>
             </div>
           </div>
           <div className="text-right shrink-0">
-            <div className="text-sm font-black text-amber-400 font-mono">{comboDaysCount} {comboDaysCount === 1 ? 'ponto' : 'pontos'}</div>
+            <div className="text-sm font-black text-amber-400 font-mono">{score.comboPoints} {score.comboPoints === 1 ? 'ponto' : 'pontos'}</div>
           </div>
         </div>
 
