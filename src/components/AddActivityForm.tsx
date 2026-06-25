@@ -728,7 +728,7 @@ export function AddActivityForm({
                 className="w-full bg-slate-950 border border-slate-850 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 text-center font-bold"
                 required
               />
-              <span className="text-[10px] text-slate-500 mt-1.5 block text-center leading-normal">Proporção: 1 km Natação = +2.0 Pontos Adicionais (Ex: 500m = 1.0 Ponto)</span>
+              <span className="text-[10px] text-slate-500 mt-1.5 block text-center leading-normal">Proporção: 1 km Natação = +4.0 Pontos Adicionais (Ex: 250m = 1.0 Ponto)</span>
             </div>
           )}
 

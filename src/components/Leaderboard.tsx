@@ -167,7 +167,7 @@ export function Leaderboard({
               <div className="mt-1.5 pl-3 border-l border-slate-800 space-y-1 text-[11px] text-slate-400 font-mono">
                 <div>• <span className="text-indigo-400 font-bold">Corrida / Caminhada:</span> 1 km = <span className="text-emerald-400 font-semibold">1.0 Ponto</span></div>
                 <div>• <span className="text-amber-500 font-bold">Pedalada (Bike):</span> 3 km = <span className="text-emerald-400 font-semibold">1.0 Ponto</span> (Ex: 9 km = 3 pts)</div>
-                <div>• <span className="text-cyan-400 font-bold">Natação / Hidro:</span> 1 km = <span className="text-emerald-400 font-semibold">2.0 Pontos</span> (Ex: 500m = 1.0 ponto)</div>
+                <div>• <span className="text-cyan-400 font-bold">Natação / Hidro:</span> 1 km = <span className="text-emerald-400 font-semibold">4.0 Pontos</span> (Ex: 250m = 1.0 ponto)</div>
               </div>
             </li>
             <li>

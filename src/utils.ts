@@ -479,7 +479,7 @@ export function calculateScores(activities: Activity[], rules: RuleConfig): Part
           pts = a.distance / 3.0;
           totalDistance += a.distance;
         } else if (typeLower.includes('natação') || typeLower.includes('natacao') || typeLower.includes('swim')) {
-          pts = (a.distance / 1000.0) * 2.0;
+          pts = (a.distance / 1000.0) * 4.0;
           totalDistance += a.distance / 1000.0;
         } else {
           pts = a.distance * 1.0;

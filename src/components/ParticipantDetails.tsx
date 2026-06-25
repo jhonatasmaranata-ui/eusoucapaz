@@ -317,7 +317,7 @@ export function ParticipantDetails({
   const runFactor = 1.0 * distMult;
   const walkFactor = 1.0 * distMult;
   const bikeFactor = distMult / 3.0;
-  const swimFactor = 2.0 * distMult;
+  const swimFactor = 4.0 * distMult;
 
   let runPoints = 0;
   let walkPoints = 0;
