@@ -466,19 +466,19 @@ export function calculateScores(activities: Activity[], rules: RuleConfig): Part
 
       // 2. AERÓBICO = points based on aerobic activities distance/effort
       dayAerobicos.forEach(a => {
-        const typeLower = a.type.toLowerCase();
+        const typeLower = (a.type || '').toLowerCase();
         let pts = 0;
 
-        if (typeLower.includes('corrida')) {
+        if (typeLower.includes('corrida') || typeLower.includes('run')) {
           pts = a.distance * 1.0;
           totalDistance += a.distance;
-        } else if (typeLower.includes('caminhada')) {
+        } else if (typeLower.includes('caminhada') || typeLower.includes('walk')) {
           pts = a.distance * 1.0;
           totalDistance += a.distance;
-        } else if (typeLower.includes('pedalada') || typeLower.includes('pedal')) {
+        } else if (typeLower.includes('pedalada') || typeLower.includes('pedal') || typeLower.includes('bike') || typeLower.includes('bicicleta') || typeLower.includes('cycling') || typeLower.includes('ride')) {
           pts = a.distance / 3.0;
           totalDistance += a.distance;
-        } else if (typeLower.includes('natação') || typeLower.includes('natacao')) {
+        } else if (typeLower.includes('natação') || typeLower.includes('natacao') || typeLower.includes('swim')) {
           pts = a.distance / 250.0;
           totalDistance += a.distance / 1000.0;
         } else {
