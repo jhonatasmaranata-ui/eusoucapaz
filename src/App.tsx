@@ -2031,6 +2031,7 @@ export default function App() {
                   isAdmin={isModerator}
                   startDate={rules.startDate}
                   endDate={rules.endDate || ''}
+                  challengeName={groupDetails?.name}
                 />
               </div>
             )}

@@ -35,6 +35,7 @@ interface ChallengeSectionProps {
   isAdmin?: boolean;
   startDate: string;
   endDate?: string;
+  challengeName?: string;
 }
 
 export function ChallengeSection({
@@ -46,7 +47,8 @@ export function ChallengeSection({
   scores,
   isAdmin = false,
   startDate,
-  endDate
+  endDate,
+  challengeName
 }: ChallengeSectionProps) {
   // Helper to format date
   const formatDate = (dateStr: string) => {
@@ -447,14 +449,14 @@ export function ChallengeSection({
   return (
     <>
       {/* Período do Ciclo do Desafio */}
-      <div className="bg-slate-900 border border-slate-850 rounded-2xl p-4 mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-slate-350">
+      <div className="bg-slate-900 border border-slate-850 rounded-2xl p-4 mb-4 flex flex-col gap-4 text-slate-350">
         <div className="flex items-start gap-3">
           <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0 mt-0.5">
             <Calendar className="w-4 h-4" />
           </div>
           <div>
             <h3 className="text-xs font-bold font-mono tracking-wider text-slate-200 uppercase">
-              Ciclo Desafio Ativo
+              {challengeName || 'Ciclo Desafio Ativo'}
             </h3>
             <p className="text-[11px] text-zinc-400 mt-0.5 leading-normal">
               O progresso de todos os atletas é contabilizado exclusivamente dentro desta janela de datas.
@@ -488,16 +490,6 @@ export function ChallengeSection({
               );
             })()}
           </div>
-        </div>
-        
-        <div className="flex items-center gap-1.5 self-start md:self-center shrink-0">
-          <span className="text-[10px] font-mono font-bold px-3 py-1 rounded-lg bg-slate-950 border border-slate-850 text-amber-400">
-            INÍCIO: {formatDate(startDate)}
-          </span>
-          <div className="w-1.5 h-px bg-slate-700" />
-          <span className="text-[10px] font-mono font-bold px-3 py-1 rounded-lg bg-slate-950 border border-slate-850 text-stone-400">
-            TÉRMINO: {endDate ? formatDate(endDate) : 'EM ANDAMENTO'}
-          </span>
         </div>
       </div>
 
