@@ -2046,6 +2046,7 @@ export default function App() {
                   onSignIn={handleSignIn}
                   activities={activities}
                   onDeleteActivity={handleDeleteActivity}
+                  isCreator={isModerator}
                 />
               </div>
             )}
@@ -2070,6 +2071,8 @@ export default function App() {
                     <ParticipantDetails 
                       score={activeParticipantScore} 
                       currentUserId={user?.uid}
+                      isCreator={isModerator}
+                      athleteName={athleteName}
                       onDeleteActivity={handleDeleteActivity}
                       onUpdateActivityPhoto={handleUpdateActivityPhoto}
                       challenges={challenges}

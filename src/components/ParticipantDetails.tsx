@@ -17,14 +17,29 @@ interface ParticipantDetailsProps {
   onUpdateActivityPhoto?: (activityId: string, photoOrPhotos: string | string[]) => void | Promise<void>;
   challenges?: Challenge[];
   rules?: RuleConfig;
+  isCreator?: boolean;
+  athleteName?: string | null;
 }
 
-export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onUpdateActivityPhoto, challenges = [], rules }: ParticipantDetailsProps) {
+export function ParticipantDetails({ 
+  score, 
+  currentUserId, 
+  onDeleteActivity, 
+  onUpdateActivityPhoto, 
+  challenges = [], 
+  rules,
+  isCreator,
+  athleteName
+}: ParticipantDetailsProps) {
   const [activeTab, setActiveTab] = useState<'graph' | 'list'>('graph');
   const [selectedDay, setSelectedDay] = useState<any | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const handleUploadPhotoFile = (activity: Activity, e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!currentUserId || activity.userId !== currentUserId) {
+    const isOwner = (currentUserId && activity.userId === currentUserId) || 
+                    (athleteName && activity.name && activity.name.toLowerCase().trim() === athleteName.toLowerCase().trim());
+    const canEdit = isCreator || isOwner;
+    
+    if (!canEdit) {
       alert('Você não tem permissão para adicionar fotos a este treino.');
       return;
     }
@@ -128,7 +143,11 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
   };
 
   const handleRemovePhoto = (activity: Activity, indexToRemove: number) => {
-    if (!currentUserId || activity.userId !== currentUserId) {
+    const isOwner = (currentUserId && activity.userId === currentUserId) || 
+                    (athleteName && activity.name && activity.name.toLowerCase().trim() === athleteName.toLowerCase().trim());
+    const canEdit = isCreator || isOwner;
+
+    if (!canEdit) {
       alert('Você não tem permissão para remover fotos deste treino.');
       return;
     }
@@ -260,7 +279,10 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
     }
   };
 
-  const hasDeletableActivity = score.activities.some(act => act.userId && act.userId === currentUserId);
+  const hasDeletableActivity = isCreator || score.activities.some(act => 
+    (act.userId && act.userId === currentUserId) || 
+    (athleteName && act.name && act.name.toLowerCase().trim() === athleteName.toLowerCase().trim())
+  );
 
   const activitiesByDate: { [date: string]: Activity[] } = {};
   score.activities.forEach(a => {
@@ -706,7 +728,9 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
               </thead>
               <tbody className="divide-y divide-slate-850 bg-slate-950">
                 {score.activities.map((act) => {
-                  const isDeletable = act.userId && act.userId === currentUserId;
+                  const isDeletable = isCreator || 
+                    (act.userId && act.userId === currentUserId) || 
+                    (athleteName && act.name && act.name.toLowerCase().trim() === athleteName.toLowerCase().trim());
                   const typeLower = act.type.toLowerCase();
                   
                   // Choose dynamic icon

@@ -16,6 +16,7 @@ interface AddActivityFormProps {
   onSignIn: () => void;
   activities?: Activity[];
   onDeleteActivity?: (id: string) => void | Promise<void>;
+  isCreator?: boolean;
 }
 
 export function AddActivityForm({ 
@@ -24,7 +25,8 @@ export function AddActivityForm({
   athleteName, 
   onSignIn,
   activities,
-  onDeleteActivity
+  onDeleteActivity,
+  isCreator
 }: AddActivityFormProps) {
   const [selectedNameOption, setSelectedNameOption] = useState('existing'); // 'existing' | 'new'
   const [existingName, setExistingName] = useState('');
@@ -923,6 +925,10 @@ export function AddActivityForm({
                     const isGym = act.isGymWorkout || act.type.toLowerCase().includes('treino');
                     const isNatacao = act.type.toLowerCase().includes('natação') || act.type.toLowerCase().includes('natacao');
 
+                    const canDelete = isCreator || 
+                      (athleteName && act.name && act.name.toLowerCase().trim() === athleteName.toLowerCase().trim()) ||
+                      (auth.currentUser && act.userId === auth.currentUser.uid);
+
                     return (
                       <div 
                         key={act.id} 
@@ -947,20 +953,22 @@ export function AddActivityForm({
                           </div>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (window.confirm('Tem certeza de que deseja excluir este treino permanentemente?')) {
-                              onDeleteActivity?.(act.id);
-                            }
-                          }}
-                          className="p-2 bg-red-950/30 hover:bg-red-900/40 text-red-400 rounded-lg cursor-pointer transition-all shrink-0 notranslate border border-red-900/10 hover:border-red-500/20 flex items-center justify-center shadow-sm"
-                          translate="no"
-                          title="Excluir Atividade"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {canDelete && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm('Tem certeza de que deseja excluir este treino permanentemente?')) {
+                                onDeleteActivity?.(act.id);
+                              }
+                            }}
+                            className="p-2 bg-red-950/30 hover:bg-red-900/40 text-red-400 rounded-lg cursor-pointer transition-all shrink-0 notranslate border border-red-900/10 hover:border-red-500/20 flex items-center justify-center shadow-sm"
+                            translate="no"
+                            title="Excluir Atividade"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     );
                   })}
