@@ -361,7 +361,9 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
             </div>
             <div>
               <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">AERÓBICO</div>
-              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">{score.totalDistance.toFixed(1)} Km rodados</div>
+              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">
+                {rules?.distanceMultiplier ?? 1.0} {(rules?.distanceMultiplier ?? 1.0) === 1 ? 'ponto' : 'pontos'} por Km • {score.totalDistance.toFixed(1)} Km rodados
+              </div>
             </div>
           </div>
           <div className="text-right shrink-0">
@@ -377,7 +379,9 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
             </div>
             <div>
               <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">Dias de Treino</div>
-              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">{score.gymPoints} pontos bônus</div>
+              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">
+                {rules?.gymPointsPerCheckIn ?? 5} {(rules?.gymPointsPerCheckIn ?? 5) === 1 ? 'ponto' : 'pontos'} por treino
+              </div>
             </div>
           </div>
           <div className="text-right shrink-0">
