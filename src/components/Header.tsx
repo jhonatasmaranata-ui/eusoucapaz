@@ -373,11 +373,11 @@ export function Header({
           
           {/* Brand/Logo Area & Interactive SVG Spartan Emblem with Menu Trigger */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left w-full sm:w-auto">
-            <div className="flex items-center justify-between sm:justify-start gap-4 w-full sm:w-auto">
+            <div className="relative flex items-center justify-center sm:justify-start gap-4 w-full sm:w-auto">
               {/* Custom Menu Trigger Circled in Green */}
               <button
                 onClick={onOpenDrawer}
-                className="p-3 bg-zinc-900/90 hover:bg-zinc-850 border border-zinc-800 hover:border-amber-500/55 rounded-2xl text-slate-300 hover:text-amber-400 cursor-pointer transition-all duration-200 flex items-center justify-center shrink-0 shadow-lg shadow-black/50 hover:scale-[1.05] active:scale-[0.96]"
+                className="absolute left-0 top-1/2 -translate-y-1/2 sm:relative sm:top-auto sm:translate-y-0 p-3 bg-zinc-900/90 hover:bg-zinc-850 border border-zinc-800 hover:border-amber-500/55 rounded-2xl text-slate-300 hover:text-amber-400 cursor-pointer transition-all duration-200 flex items-center justify-center shrink-0 shadow-lg shadow-black/50 hover:scale-[1.05] active:scale-[0.96]"
                 aria-label="Menu Principal"
                 title="Abrir Painel de Desafios"
               >
