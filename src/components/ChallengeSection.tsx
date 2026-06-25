@@ -458,9 +458,6 @@ export function ChallengeSection({
             <h3 className="text-xs font-bold font-mono tracking-wider text-slate-200 uppercase">
               {challengeName || 'Ciclo Desafio Ativo'}
             </h3>
-            <p className="text-[11px] text-zinc-400 mt-0.5 leading-normal">
-              O progresso de todos os atletas é contabilizado exclusivamente dentro desta janela de datas.
-            </p>
             {(() => {
               const diffDays = getDaysRemaining(endDate);
               if (diffDays === null) return null;
