@@ -344,12 +344,12 @@ export function ParticipantDetails({ score, currentUserId, onDeleteActivity, onU
               <Flame className="w-4.5 h-4.5 fill-amber-500/10" />
             </div>
             <div>
-              <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">Dias de Combos</div>
-              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">Treino + Cardio no mesmo dia</div>
+              <div className="text-[11px] font-bold text-slate-400 font-sans uppercase tracking-wider">TREINO+AERÓBICO</div>
+              <div className="text-[10px] text-slate-500 mt-0.5 font-sans leading-normal">10 pontos por dia</div>
             </div>
           </div>
           <div className="text-right shrink-0">
-            <div className="text-sm font-black text-amber-400 font-mono">{comboDaysCount} {comboDaysCount === 1 ? 'Dia' : 'Dias'}</div>
+            <div className="text-sm font-black text-amber-400 font-mono">{comboDaysCount} {comboDaysCount === 1 ? 'ponto' : 'pontos'}</div>
           </div>
         </div>
 
