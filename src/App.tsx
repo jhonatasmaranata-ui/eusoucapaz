@@ -1545,39 +1545,57 @@ export default function App() {
     if (!cleanName) throw new Error('O nome do atleta não pode ser vazio.');
 
     if (!user.uid.startsWith('local_')) {
+      // 1. Update main user profile document
       try {
         const userDocRef = doc(db, 'users', user.uid);
+        // Only include the fields that actually changed (athleteName and photoURL)
+        // to avoid mismatch errors on static fields like email and registeredAt
         const payload: any = {
           athleteName: cleanName,
-          email: user.email || '',
         };
         if (newPhoto) {
           payload.photoURL = newPhoto;
         }
         await setDoc(userDocRef, payload, { merge: true });
+      } catch (err: any) {
+        console.error("Failed to update user profile in Firestore:", err);
+        throw new Error(err.message || "Erro ao salvar perfil no banco de dados.");
+      }
 
-        // Update active group member record if in a group
-        if (activeGroupId && activeGroupId !== 'demo-group') {
+      // 2. Resiliently update member profiles in all joined groups
+      if (userGroups && userGroups.length > 0) {
+        for (const g of userGroups) {
+          if (g.id && g.id !== 'demo-group') {
+            try {
+              const memberRef = doc(db, 'groups', g.id, 'members', user.uid);
+              const memberPayload: any = {
+                athleteName: cleanName,
+              };
+              if (newPhoto) {
+                memberPayload.photoURL = newPhoto;
+              }
+              await setDoc(memberRef, memberPayload, { merge: true });
+            } catch (memberErr) {
+              console.warn(`Resilient profile update: could not update member doc in group ${g.id}:`, memberErr);
+            }
+          }
+        }
+      }
+
+      // Also ensure activeGroupId's member doc is updated if it isn't listed in userGroups yet
+      if (activeGroupId && activeGroupId !== 'demo-group' && !userGroups.some(g => g.id === activeGroupId)) {
+        try {
           const memberRef = doc(db, 'groups', activeGroupId, 'members', user.uid);
-          const existingMember = groupMembers.find(m => m.userId === user.uid);
-
           const memberPayload: any = {
-            userId: user.uid,
             athleteName: cleanName,
-            email: user.email || existingMember?.email || '',
-            role: existingMember?.role || 'member',
-            joinedAt: existingMember?.joinedAt || new Date().toISOString()
           };
           if (newPhoto) {
             memberPayload.photoURL = newPhoto;
-          } else if (existingMember?.photoURL || user.photoURL) {
-            memberPayload.photoURL = existingMember?.photoURL || user.photoURL || '';
           }
           await setDoc(memberRef, memberPayload, { merge: true });
+        } catch (memberErr) {
+          console.warn(`Resilient profile update: could not update active group member doc ${activeGroupId}:`, memberErr);
         }
-      } catch (err: any) {
-        console.error("Failed to update profile in Firestore:", err);
-        throw new Error(err.message || "Erro ao salvar perfil no banco de dados.");
       }
     }
 
