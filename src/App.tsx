@@ -275,6 +275,11 @@ export default function App() {
             setAthleteName(profileData.athleteName || fallbackName);
             setUserRole(profileData.role || 'user');
             
+            if (profileData.photoURL) {
+              currentUser = { ...currentUser, photoURL: profileData.photoURL } as any;
+              setUser(currentUser);
+            }
+            
             // Map joinedGroups
             if (profileData.joinedGroups) {
               const list = Object.entries(profileData.joinedGroups).map(([id, details]: [string, any]) => ({
@@ -1486,6 +1491,86 @@ export default function App() {
     }
   };
 
+  const handleUpdateProfile = async (newName: string, newPhoto: string | null) => {
+    if (!user) throw new Error('É necessário login para atualizar o perfil.');
+    const cleanName = newName.trim();
+    if (!cleanName) throw new Error('O nome do atleta não pode ser vazio.');
+
+    // Validate that the selected name is not already claimed/owned by another user with a different email
+    const nameLower = cleanName.toLowerCase();
+    const otherClaimant = groupMembers.find(m => 
+      m.athleteName && 
+      m.athleteName.trim().toLowerCase() === nameLower && 
+      m.email && 
+      m.email.trim() && 
+      m.email.toLowerCase().trim() !== (user.email || '').toLowerCase().trim()
+    );
+
+    if (otherClaimant) {
+      throw new Error(`O nome de atleta "${cleanName}" pertence a outra conta registrada (${otherClaimant.email}).`);
+    }
+
+    if (!user.uid.startsWith('local_')) {
+      try {
+        const userDocRef = doc(db, 'users', user.uid);
+        const payload: any = {
+          athleteName: cleanName,
+        };
+        if (newPhoto) {
+          payload.photoURL = newPhoto;
+        }
+        await setDoc(userDocRef, payload, { merge: true });
+
+        // Update active group member record if in a group
+        if (activeGroupId && activeGroupId !== 'demo-group') {
+          const memberRef = doc(db, 'groups', activeGroupId, 'members', user.uid);
+          const memberPayload: any = {
+            athleteName: cleanName,
+          };
+          if (newPhoto) {
+            memberPayload.photoURL = newPhoto;
+          }
+          await setDoc(memberRef, memberPayload, { merge: true });
+        }
+      } catch (err: any) {
+        console.error("Failed to update profile in Firestore:", err);
+        throw new Error(err.message || "Erro ao salvar perfil no banco de dados.");
+      }
+    }
+
+    // Update React local state
+    setAthleteName(cleanName);
+    const updatedUser = {
+      ...user,
+      displayName: cleanName,
+      ...(newPhoto ? { photoURL: newPhoto } : {})
+    };
+    setUser(updatedUser);
+
+    if (user.uid.startsWith('local_')) {
+      localStorage.setItem('es_capaz_simulated_user', JSON.stringify(updatedUser));
+      // update simulated group members too
+      if (activeGroupId && activeGroupId !== 'demo-group') {
+        setLocalMembers(prev => {
+          const current = prev[activeGroupId] || [];
+          const updatedList = current.map(m => {
+            if (m.userId === user.uid) {
+              return {
+                ...m,
+                athleteName: cleanName,
+                ...(newPhoto ? { photoURL: newPhoto } : {})
+              };
+            }
+            return m;
+          });
+          const updated = { ...prev, [activeGroupId]: updatedList };
+          localStorage.setItem('local_groups_members', JSON.stringify(updated));
+          return updated;
+        });
+      }
+    }
+  };
+
   // Configure Point multiplier parameters directly in App
   const handleUpdateRules = async (field: keyof RuleConfig, value: any) => {
     if (isChallengeLocked) {
@@ -2187,6 +2272,7 @@ export default function App() {
         onLeaveGroup={handleLeaveGroup}
         onRemoveMember={(userId) => handleKickMember(activeGroupId, userId)}
         onStartTraining={() => setActiveTab('registrar')}
+        onUpdateProfile={handleUpdateProfile}
       />
 
       {/* PWA mobile installation option banner */}

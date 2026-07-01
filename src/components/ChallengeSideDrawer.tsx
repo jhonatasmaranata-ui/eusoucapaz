@@ -29,7 +29,9 @@ import {
   Flag,
   HelpCircle,
   Trophy,
-  ArrowLeft
+  ArrowLeft,
+  Camera,
+  Edit2
 } from 'lucide-react';
 import { GroupChallenge, RuleConfig, GroupMember } from '../types';
 import { extractGroupCode } from '../utils';
@@ -49,6 +51,7 @@ interface ChallengeSideDrawerProps {
   onLeaveGroup?: (groupId: string) => void;
   onRemoveMember?: (userId: string) => Promise<void>;
   onStartTraining?: () => void;
+  onUpdateProfile?: (newName: string, newPhoto: string | null) => Promise<void>;
 }
 
 type DrawerViewMode = 'main' | 'create' | 'join' | 'details' | 'configure' | 'help' | 'about' | 'history';
@@ -67,7 +70,8 @@ export function ChallengeSideDrawer({
   onUpdateGroupRules,
   onLeaveGroup,
   onRemoveMember,
-  onStartTraining
+  onStartTraining,
+  onUpdateProfile
 }: ChallengeSideDrawerProps) {
   const [viewMode, setViewMode] = useState<DrawerViewMode>('main');
   const isCreator = activeGroup && (user?.email === 'jhonatasmaranata@gmail.com' || activeGroup.creatorId === user?.uid || activeGroup.creatorId === 'local_proxy');
@@ -92,10 +96,73 @@ export function ChallengeSideDrawer({
   const [editComboPoints, setEditComboPoints] = useState(10);
   const [editStartDate, setEditStartDate] = useState('');
   const [editEndDate, setEditEndDate] = useState('');
+  const [editCorridaMultiplier, setEditCorridaMultiplier] = useState(1.0);
+  const [editCiclismoMultiplier, setEditCiclismoMultiplier] = useState(0.33);
+  const [editNatacaoMultiplier, setEditNatacaoMultiplier] = useState(4.0);
+  const [editCaminhadaMultiplier, setEditCaminhadaMultiplier] = useState(1.0);
 
   // Status and loading messages
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Profile editing states
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editProfileName, setEditProfileName] = useState('');
+  const [editProfilePhoto, setEditProfilePhoto] = useState<string | null>(null);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+
+  // Sync profile editing states on mount/open
+  useEffect(() => {
+    if (isOpen) {
+      setEditProfileName(athleteName || user?.displayName || '');
+      setEditProfilePhoto(null);
+      setIsEditingProfile(false);
+      setProfileError(null);
+    }
+  }, [isOpen, athleteName, user]);
+
+  const handleProfilePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setProfileError('Por favor, selecione apenas arquivos de imagem.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        let maxDim = 150; 
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+        setEditProfilePhoto(dataUrl);
+        setProfileError(null);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Synchronize edit states when activeGroup changes
   useEffect(() => {
@@ -105,6 +172,12 @@ export function ChallengeSideDrawer({
       setEditComboPoints(activeGroup.rules.comboPointsPerDay);
       setEditStartDate(activeGroup.rules.startDate);
       setEditEndDate(activeGroup.rules.endDate || '');
+      
+      const distMult = activeGroup.rules.distanceMultiplier;
+      setEditCorridaMultiplier(activeGroup.rules.corridaMultiplier ?? 1.0 * distMult);
+      setEditCaminhadaMultiplier(activeGroup.rules.caminhadaMultiplier ?? 1.0 * distMult);
+      setEditCiclismoMultiplier(activeGroup.rules.ciclismoMultiplier ?? distMult / 3.0);
+      setEditNatacaoMultiplier(activeGroup.rules.natacaoMultiplier ?? 4.0 * distMult);
     }
   }, [activeGroup]);
 
@@ -203,7 +276,11 @@ export function ChallengeSideDrawer({
         endDate: editEndDate || '',
         gymPointsPerCheckIn: Number(editGymPoints),
         distanceMultiplier: Number(editDistanceMult),
-        comboPointsPerDay: Number(editComboPoints)
+        comboPointsPerDay: Number(editComboPoints),
+        corridaMultiplier: Number(editCorridaMultiplier),
+        ciclismoMultiplier: Number(editCiclismoMultiplier),
+        natacaoMultiplier: Number(editNatacaoMultiplier),
+        caminhadaMultiplier: Number(editCaminhadaMultiplier)
       });
       setStatusMsg({ type: 'success', text: 'Configurações atualizadas com sucesso!' });
       setTimeout(() => {
@@ -272,29 +349,130 @@ export function ChallengeSideDrawer({
             </button>
 
             {/* Profile Header Block */}
-            <div className="p-6 pt-10 border-b border-slate-900 flex flex-col items-start gap-3 bg-slate-900/20">
-              <div className="flex items-center gap-4 w-full">
-                {user?.photoURL ? (
-                  <img 
-                    src={user.photoURL} 
-                    alt="Perfil" 
-                    referrerPolicy="no-referrer"
-                    className="w-14 h-14 rounded-full object-cover border-2 border-red-500 shadow-md"
-                  />
-                ) : (
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md">
-                    {getUserInitials()}
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-extrabold text-base text-slate-100 truncate leading-tight">
-                    {getProfileName()}
-                  </h3>
-                  <p className="text-xs text-slate-450 mt-0.5 truncate">
-                    {user?.email || 'Atleta Local'}
-                  </p>
+            <div className="p-6 pt-10 border-b border-slate-900 flex flex-col gap-3 bg-slate-900/20 w-full">
+              {profileError && (
+                <div className="text-[10px] text-red-400 font-bold bg-red-950/20 border border-red-950 px-2.5 py-1 rounded-xl w-full">
+                  {profileError}
                 </div>
-              </div>
+              )}
+              
+              {isEditingProfile ? (
+                <div className="space-y-3 w-full">
+                  <div className="flex items-center gap-4 w-full">
+                    <div className="relative group/avatar cursor-pointer shrink-0">
+                      {editProfilePhoto || user?.photoURL ? (
+                        <img 
+                          src={editProfilePhoto || user.photoURL} 
+                          alt="Perfil" 
+                          className="w-14 h-14 rounded-full object-cover border-2 border-red-500 shadow-md"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md">
+                          {getUserInitials()}
+                        </div>
+                      )}
+                      <label htmlFor="profile-photo-upload" className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition duration-150 cursor-pointer">
+                        <Camera className="w-4 h-4 text-white" />
+                      </label>
+                      <input
+                        type="file"
+                        id="profile-photo-upload"
+                        accept="image/*"
+                        onChange={handleProfilePhotoChange}
+                        className="hidden"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <input
+                        type="text"
+                        value={editProfileName}
+                        onChange={(e) => setEditProfileName(e.target.value)}
+                        placeholder="Nome do Atleta"
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-slate-100 text-xs font-bold focus:outline-none focus:border-red-500"
+                      />
+                      <p className="text-[10px] text-slate-500 truncate">
+                        {user?.email || 'Atleta Local'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 w-full pt-1">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!editProfileName.trim()) {
+                          setProfileError('O nome não pode ser vazio.');
+                          return;
+                        }
+                        setIsUpdatingProfile(true);
+                        setProfileError(null);
+                        try {
+                          if (onUpdateProfile) {
+                            await onUpdateProfile(editProfileName.trim(), editProfilePhoto);
+                          }
+                          setIsEditingProfile(false);
+                        } catch (err: any) {
+                          setProfileError(err.message || 'Erro ao salvar.');
+                        } finally {
+                          setIsUpdatingProfile(false);
+                        }
+                      }}
+                      disabled={isUpdatingProfile}
+                      className="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] rounded-lg cursor-pointer transition flex items-center justify-center gap-1"
+                    >
+                      <Check className="w-3 h-3" />
+                      <span>{isUpdatingProfile ? 'Salvando...' : 'Confirmar'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditingProfile(false);
+                        setEditProfileName(athleteName || user?.displayName || '');
+                        setEditProfilePhoto(null);
+                        setProfileError(null);
+                      }}
+                      disabled={isUpdatingProfile}
+                      className="px-3 py-1.5 bg-slate-900 text-slate-350 font-bold text-[10px] rounded-lg cursor-pointer transition"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4 w-full">
+                  {user?.photoURL ? (
+                    <img 
+                      src={user.photoURL} 
+                      alt="Perfil" 
+                      referrerPolicy="no-referrer"
+                      className="w-14 h-14 rounded-full object-cover border-2 border-red-500 shadow-md"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md">
+                      {getUserInitials()}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-extrabold text-base text-slate-100 truncate leading-tight">
+                      {getProfileName()}
+                    </h3>
+                    <p className="text-xs text-slate-450 mt-0.5 truncate">
+                      {user?.email || 'Atleta Local'}
+                    </p>
+                    
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditProfileName(getProfileName());
+                        setIsEditingProfile(true);
+                      }}
+                      className="mt-1.5 py-1 px-2.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-white rounded-lg font-bold text-[10px] uppercase tracking-wider flex items-center gap-1 cursor-pointer transition-all"
+                    >
+                      <Edit2 className="w-3 h-3" />
+                      <span>Editar Perfil</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Dynamic Content Views */}
@@ -839,18 +1017,69 @@ export function ChallengeSideDrawer({
 
                         <div className="flex justify-between items-center gap-2">
                           <div>
-                            <span className="text-xs text-slate-300 font-bold block">🏃 Multiplicador Cardio</span>
-                            <span className="text-[10px] text-slate-500">Pontos por km de corrida/caminhada</span>
+                            <span className="text-xs text-slate-300 font-bold block">🏃 Corrida</span>
+                            <span className="text-[10px] text-slate-500">Pontos por km de corrida</span>
                           </div>
                           <input
                             type="number"
                             step="0.1"
                             min="0.1"
-                            max="10"
+                            max="50"
                             disabled={!isCreator}
-                            value={editDistanceMult}
-                            onChange={(e) => setEditDistanceMult(Number(e.target.value) || 1)}
+                            value={editCorridaMultiplier}
+                            onChange={(e) => setEditCorridaMultiplier(Number(e.target.value) || 1)}
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-indigo-400 focus:outline-none focus:border-indigo-550 disabled:opacity-60"
+                          />
+                        </div>
+
+                        <div className="flex justify-between items-center gap-2">
+                          <div>
+                            <span className="text-xs text-slate-300 font-bold block">🚶 Caminhada</span>
+                            <span className="text-[10px] text-slate-500">Pontos por km de caminhada</span>
+                          </div>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0.1"
+                            max="50"
+                            disabled={!isCreator}
+                            value={editCaminhadaMultiplier}
+                            onChange={(e) => setEditCaminhadaMultiplier(Number(e.target.value) || 1)}
+                            className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-550 disabled:opacity-60"
+                          />
+                        </div>
+
+                        <div className="flex justify-between items-center gap-2">
+                          <div>
+                            <span className="text-xs text-slate-300 font-bold block">🚴 Ciclismo</span>
+                            <span className="text-[10px] text-slate-500">Pontos por km de pedalada</span>
+                          </div>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            max="50"
+                            disabled={!isCreator}
+                            value={editCiclismoMultiplier}
+                            onChange={(e) => setEditCiclismoMultiplier(Number(e.target.value) || 0.33)}
+                            className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-teal-400 focus:outline-none focus:border-teal-550 disabled:opacity-60"
+                          />
+                        </div>
+
+                        <div className="flex justify-between items-center gap-2">
+                          <div>
+                            <span className="text-xs text-slate-300 font-bold block">🏊 Natação</span>
+                            <span className="text-[10px] text-slate-500">Pontos por 1000m/km de natação</span>
+                          </div>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0.1"
+                            max="100"
+                            disabled={!isCreator}
+                            value={editNatacaoMultiplier}
+                            onChange={(e) => setEditNatacaoMultiplier(Number(e.target.value) || 4)}
+                            className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-sky-400 focus:outline-none focus:border-sky-550 disabled:opacity-60"
                           />
                         </div>
 
@@ -889,10 +1118,37 @@ export function ChallengeSideDrawer({
 
                       <div className="p-3 bg-indigo-950/20 border border-indigo-950/50 rounded-xl space-y-1">
                         <span className="font-extrabold text-indigo-400 text-xs flex items-center gap-1.5">
-                          🏃 Aeróbico / Cárdio
+                          🏃 Corrida
                         </span>
                         <p className="text-slate-300 text-[11px]">
-                          Cada km de corrida/caminhada garante <strong>{editDistanceMult} pontos</strong> (Ex: 5 km = {5 * editDistanceMult} pts).
+                          Cada km de corrida garante <strong>{editCorridaMultiplier} pontos</strong>.
+                        </p>
+                      </div>
+
+                      <div className="p-3 bg-emerald-950/20 border border-emerald-950/50 rounded-xl space-y-1">
+                        <span className="font-extrabold text-emerald-400 text-xs flex items-center gap-1.5">
+                          🚶 Caminhada
+                        </span>
+                        <p className="text-slate-300 text-[11px]">
+                          Cada km de caminhada garante <strong>{editCaminhadaMultiplier} pontos</strong>.
+                        </p>
+                      </div>
+
+                      <div className="p-3 bg-teal-950/20 border border-teal-950/50 rounded-xl space-y-1">
+                        <span className="font-extrabold text-teal-400 text-xs flex items-center gap-1.5">
+                          🚴 Ciclismo
+                        </span>
+                        <p className="text-slate-300 text-[11px]">
+                          Cada km de ciclismo/pedal garante <strong>{editCiclismoMultiplier} pontos</strong>.
+                        </p>
+                      </div>
+
+                      <div className="p-3 bg-sky-950/20 border border-sky-950/50 rounded-xl space-y-1">
+                        <span className="font-extrabold text-sky-400 text-xs flex items-center gap-1.5">
+                          🏊 Natação
+                        </span>
+                        <p className="text-slate-300 text-[11px]">
+                          Cada 1000m (1km) de natação garante <strong>{editNatacaoMultiplier} pontos</strong>.
                         </p>
                       </div>
 

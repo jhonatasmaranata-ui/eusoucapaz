@@ -314,10 +314,10 @@ export function ParticipantDetails({
   let otherDistance = 0;
 
   const distMult = rules?.distanceMultiplier ?? 1.0;
-  const runFactor = 1.0 * distMult;
-  const walkFactor = 1.0 * distMult;
-  const bikeFactor = distMult / 3.0;
-  const swimFactor = 4.0 * distMult;
+  const runFactor = typeof rules?.corridaMultiplier === 'number' ? rules.corridaMultiplier : 1.0 * distMult;
+  const walkFactor = typeof rules?.caminhadaMultiplier === 'number' ? rules.caminhadaMultiplier : 1.0 * distMult;
+  const bikeFactor = typeof rules?.ciclismoMultiplier === 'number' ? rules.ciclismoMultiplier : distMult / 3.0;
+  const swimFactor = typeof rules?.natacaoMultiplier === 'number' ? rules.natacaoMultiplier : 4.0 * distMult;
 
   let runPoints = 0;
   let walkPoints = 0;
@@ -338,7 +338,7 @@ export function ParticipantDetails({
       walkPoints += dist * walkFactor;
     } else if (typeLower.includes('pedalada') || typeLower.includes('pedal') || typeLower.includes('bike') || typeLower.includes('bicicleta') || typeLower.includes('cycling') || typeLower.includes('ride')) {
       bikeDistance += dist;
-      bikePoints += (dist / 3.0) * distMult;
+      bikePoints += dist * bikeFactor;
     } else if (typeLower.includes('natação') || typeLower.includes('natacao') || typeLower.includes('swim')) {
       swimDistance += dist;
       swimPoints += (dist / 1000.0) * swimFactor;

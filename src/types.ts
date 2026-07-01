@@ -37,6 +37,10 @@ export interface RuleConfig {
   gymPointsPerCheckIn: number;         // Points awarded per unique workout check-in (default: 5)
   distanceMultiplier: number;          // Points multiplier per km (default: 1)
   comboPointsPerDay: number;           // Points awarded for combo days (default: 10)
+  corridaMultiplier?: number;          // Multiplier for Running (default: 1.0)
+  ciclismoMultiplier?: number;         // Multiplier for Cycling (default: 0.33)
+  natacaoMultiplier?: number;          // Multiplier for Swimming (default: 4.0)
+  caminhadaMultiplier?: number;        // Multiplier for Walking (default: 1.0)
 }
 
 export interface Challenge {

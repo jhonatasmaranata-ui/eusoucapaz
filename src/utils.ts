@@ -470,23 +470,27 @@ export function calculateScores(activities: Activity[], rules: RuleConfig): Part
         let pts = 0;
 
         if (typeLower.includes('corrida') || typeLower.includes('run')) {
-          pts = a.distance * 1.0;
+          const mult = typeof rules.corridaMultiplier === 'number' ? rules.corridaMultiplier : 1.0 * distMult;
+          pts = a.distance * mult;
           totalDistance += a.distance;
         } else if (typeLower.includes('caminhada') || typeLower.includes('walk')) {
-          pts = a.distance * 1.0;
+          const mult = typeof rules.caminhadaMultiplier === 'number' ? rules.caminhadaMultiplier : 1.0 * distMult;
+          pts = a.distance * mult;
           totalDistance += a.distance;
         } else if (typeLower.includes('pedalada') || typeLower.includes('pedal') || typeLower.includes('bike') || typeLower.includes('bicicleta') || typeLower.includes('cycling') || typeLower.includes('ride')) {
-          pts = a.distance / 3.0;
+          const mult = typeof rules.ciclismoMultiplier === 'number' ? rules.ciclismoMultiplier : distMult / 3.0;
+          pts = a.distance * mult;
           totalDistance += a.distance;
         } else if (typeLower.includes('natação') || typeLower.includes('natacao') || typeLower.includes('swim')) {
-          pts = (a.distance / 1000.0) * 4.0;
+          const mult = typeof rules.natacaoMultiplier === 'number' ? rules.natacaoMultiplier : 4.0 * distMult;
+          pts = (a.distance / 1000.0) * mult;
           totalDistance += a.distance / 1000.0;
         } else {
-          pts = a.distance * 1.0;
+          pts = a.distance * distMult;
           totalDistance += a.distance;
         }
 
-        distancePoints += pts * distMult;
+        distancePoints += pts;
       });
 
       // 3. COMBO = Treino + Aeróbico on the same day totalizes comboPointsPerDay base points (no simple gym check-in added on this day)
