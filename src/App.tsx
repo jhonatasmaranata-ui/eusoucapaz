@@ -1556,7 +1556,7 @@ export default function App() {
         if (newPhoto) {
           payload.photoURL = newPhoto;
         }
-        await setDoc(userDocRef, payload, { merge: true });
+        await updateDoc(userDocRef, payload);
       } catch (err: any) {
         console.error("Failed to update user profile in Firestore:", err);
         throw new Error(err.message || "Erro ao salvar perfil no banco de dados.");
@@ -1574,7 +1574,7 @@ export default function App() {
               if (newPhoto) {
                 memberPayload.photoURL = newPhoto;
               }
-              await setDoc(memberRef, memberPayload, { merge: true });
+              await updateDoc(memberRef, memberPayload);
             } catch (memberErr) {
               console.warn(`Resilient profile update: could not update member doc in group ${g.id}:`, memberErr);
             }
@@ -1592,7 +1592,7 @@ export default function App() {
           if (newPhoto) {
             memberPayload.photoURL = newPhoto;
           }
-          await setDoc(memberRef, memberPayload, { merge: true });
+          await updateDoc(memberRef, memberPayload);
         } catch (memberErr) {
           console.warn(`Resilient profile update: could not update active group member doc ${activeGroupId}:`, memberErr);
         }
