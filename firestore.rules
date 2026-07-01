@@ -39,7 +39,7 @@ service cloud.firestore {
         && data.email is string
         && data.email.size() <= 100
         && (!data.keys().hasAll(['registeredAt']) || (data.registeredAt is string))
-        && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 3000))
+        && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 300000))
         && (!data.keys().hasAll(['role']) || (data.role is string))
         && (!data.keys().hasAll(['joinedGroups']) || (data.joinedGroups is map))
         && (!data.keys().hasAll(['stravaIntegration']) || (data.stravaIntegration is map));
@@ -89,7 +89,7 @@ service cloud.firestore {
         && data.email.size() <= 100
         && data.role is string
         && data.joinedAt is string
-        && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 3000));
+        && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 300000));
     }
 
     // Workout Activity Schema Validation
