@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Dumbbell, Route, Calendar, ArrowRight, Compass, CheckCircle, Lock, UserPlus, LogIn, Sparkles, Waves, Flame, Camera, UploadCloud, Trash2, Image, ChevronDown, ChevronUp, RefreshCw, Unlink, Link } from 'lucide-react';
-import { Activity } from '../types';
+import { Activity, GroupMember } from '../types';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
@@ -17,6 +17,7 @@ interface AddActivityFormProps {
   activities?: Activity[];
   onDeleteActivity?: (id: string) => void | Promise<void>;
   isCreator?: boolean;
+  groupMembers?: GroupMember[];
 }
 
 export function AddActivityForm({ 
@@ -26,7 +27,8 @@ export function AddActivityForm({
   onSignIn,
   activities,
   onDeleteActivity,
-  isCreator
+  isCreator,
+  groupMembers = []
 }: AddActivityFormProps) {
   const [selectedNameOption, setSelectedNameOption] = useState('existing'); // 'existing' | 'new'
   const [existingName, setExistingName] = useState('');
@@ -404,11 +406,25 @@ export function AddActivityForm({
     setErrorInfo(null);
     setSuccessInfo(null);
 
-    const resolvedName = selectedNameOption === 'existing' ? existingName : newName.trim();
+    const resolvedName = athleteName ? athleteName : (selectedNameOption === 'existing' ? existingName : newName.trim());
 
     if (!resolvedName) {
       setErrorInfo('Por favor, informe ou selecione o nome do atleta.');
       return;
+    }
+
+    if (!athleteName) {
+      const nameLower = resolvedName.trim().toLowerCase();
+      const claimedMember = groupMembers.find(m => 
+        m.athleteName && 
+        m.athleteName.trim().toLowerCase() === nameLower && 
+        m.email && 
+        m.email.trim()
+      );
+      if (claimedMember) {
+        setErrorInfo(`O nome de atleta "${resolvedName}" é de uso exclusivo da conta vinculada (${claimedMember.email}). Por favor, faça login com a sua conta do Google para postar treinos para este perfil.`);
+        return;
+      }
     }
 
     let distVal = 0;
@@ -540,59 +556,72 @@ export function AddActivityForm({
 
       <form onSubmit={handleSubmit} className="space-y-4 text-xs font-mono">
         
-        {/* Atleta Name Selection - Always shown so user can select who is competing */}
-        <div>
-          <label className="block text-slate-400 mb-1.5 font-semibold">Atleta / Participante:</label>
-          <div className="flex gap-4 mb-2 text-[10px]">
-            <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
-              <input
-                type="radio"
-                name="nameOption"
-                checked={selectedNameOption === 'existing'}
-                onChange={() => setSelectedNameOption('existing')}
-                className="accent-emerald-500"
-              />
-              Atleta Existente
-            </label>
-            <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
-              <input
-                type="radio"
-                name="nameOption"
-                checked={selectedNameOption === 'new'}
-                onChange={() => setSelectedNameOption('new')}
-                className="accent-emerald-500"
-              />
-              Digitar Outro Nome
-            </label>
+        {/* Atleta Name Selection */}
+        {athleteName ? (
+          <div className="bg-slate-950/40 border border-slate-850 p-3.5 rounded-xl flex items-center justify-between shadow-inner">
+            <div>
+              <span className="block text-[9.5px] text-slate-500 font-bold uppercase tracking-wider font-sans mb-0.5">Postando como atleta ativo:</span>
+              <span className="text-sm font-black text-emerald-400 notranslate" translate="no">{athleteName}</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold font-mono uppercase tracking-wide">
+              <Sparkles className="w-3 h-3 text-emerald-400 animate-pulse" />
+              Sua Conta
+            </div>
           </div>
+        ) : (
+          <div>
+            <label className="block text-slate-400 mb-1.5 font-semibold">Atleta / Participante:</label>
+            <div className="flex gap-4 mb-2 text-[10px]">
+              <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
+                <input
+                  type="radio"
+                  name="nameOption"
+                  checked={selectedNameOption === 'existing'}
+                  onChange={() => setSelectedNameOption('existing')}
+                  className="accent-emerald-500"
+                />
+                Atleta Existente
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
+                <input
+                  type="radio"
+                  name="nameOption"
+                  checked={selectedNameOption === 'new'}
+                  onChange={() => setSelectedNameOption('new')}
+                  className="accent-emerald-500"
+                />
+                Digitar Outro Nome
+              </label>
+            </div>
 
-          {selectedNameOption === 'existing' ? (
-            <select
-              value={existingName}
-              onChange={(e) => setExistingName(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-850 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 notranslate font-bold"
-              translate="no"
-            >
-              {existingNames.length === 0 ? (
-                <option value="">Nenhum atleta ativo</option>
-              ) : (
-                existingNames.map(name => (
-                  <option key={name} value={name} className="notranslate" translate="no">{name}</option>
-                ))
-              )}
-            </select>
-          ) : (
-            <input
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="Exemplo: Nome Sobrenome..."
-              className="w-full bg-slate-950 border border-slate-850 rounded-lg px-3 py-2 text-slate-200 placeholder:text-slate-650 focus:outline-none focus:border-emerald-500 notranslate font-bold"
-              translate="no"
-              required
-            />
-          )}
-        </div>
+            {selectedNameOption === 'existing' ? (
+              <select
+                value={existingName}
+                onChange={(e) => setExistingName(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-850 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500 notranslate font-bold"
+                translate="no"
+              >
+                {existingNames.length === 0 ? (
+                  <option value="">Nenhum atleta ativo</option>
+                ) : (
+                  existingNames.map(name => (
+                    <option key={name} value={name} className="notranslate" translate="no">{name}</option>
+                  ))
+                )}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Exemplo: Nome Sobrenome..."
+                className="w-full bg-slate-950 border border-slate-850 rounded-lg px-3 py-2 text-slate-200 placeholder:text-slate-650 focus:outline-none focus:border-emerald-500 notranslate font-bold"
+                translate="no"
+                required
+              />
+            )}
+          </div>
+        )}
 
         {/* Activity Type Block */}
         <div>

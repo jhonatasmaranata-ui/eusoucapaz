@@ -1752,6 +1752,38 @@ export default function App() {
     return Array.from(list).sort();
   }, [groupMembers, activities]);
 
+  // Filter claimable historical names so users cannot claim someone else's name
+  const claimableNames = useMemo(() => {
+    const list = new Set<string>();
+    
+    // Create a mapping of athleteNames to registered emails in groupMembers
+    const nameToEmails: Record<string, string[]> = {};
+    groupMembers.forEach(m => {
+      if (m.athleteName) {
+        const cleanName = m.athleteName.trim();
+        if (!nameToEmails[cleanName]) {
+          nameToEmails[cleanName] = [];
+        }
+        if (m.email && m.email.trim()) {
+          nameToEmails[cleanName].push(m.email.toLowerCase().trim());
+        }
+      }
+    });
+
+    existingNames.forEach(name => {
+      const associatedEmails = nameToEmails[name] || [];
+      const currentUserEmailClean = user?.email?.toLowerCase().trim();
+      const isClaimedBySomeoneElse = associatedEmails.length > 0 && 
+        !associatedEmails.includes(currentUserEmailClean || '');
+        
+      if (!isClaimedBySomeoneElse) {
+        list.add(name);
+      }
+    });
+
+    return Array.from(list).sort();
+  }, [existingNames, groupMembers, user]);
+
 
   // Login Routines with detailed help details
   const handleSignIn = () => {
@@ -1793,6 +1825,22 @@ export default function App() {
 
   const handleCompleteRegistration = async (selectedAthleteName: string) => {
     if (!user) return;
+
+    // Validate that the selected name is not already claimed/owned by another user with a different email
+    const nameLower = selectedAthleteName.trim().toLowerCase();
+    const otherClaimant = groupMembers.find(m => 
+      m.athleteName && 
+      m.athleteName.trim().toLowerCase() === nameLower && 
+      m.email && 
+      m.email.trim() && 
+      m.email.toLowerCase().trim() !== (user.email || '').toLowerCase().trim()
+    );
+
+    if (otherClaimant) {
+      alert(`O nome de atleta "${selectedAthleteName}" pertence a outra conta registrada (${otherClaimant.email}). Por favor, escolha outro nome.`);
+      return;
+    }
+
     if (user.uid.startsWith('local_')) {
       const updatedUser = { ...user, displayName: selectedAthleteName };
       setUser(updatedUser as any);
@@ -1878,7 +1926,7 @@ export default function App() {
 
       {isRegistrationPending && user && (
         <RegistrationModal 
-          existingNames={existingNames} 
+          existingNames={claimableNames} 
           email={user.email || ''} 
           onRegister={handleCompleteRegistration} 
           onCancel={() => setIsRegistrationPending(false)}
@@ -2047,6 +2095,7 @@ export default function App() {
                   activities={activities}
                   onDeleteActivity={handleDeleteActivity}
                   isCreator={isModerator}
+                  groupMembers={groupMembers}
                 />
               </div>
             )}
