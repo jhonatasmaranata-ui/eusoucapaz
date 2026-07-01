@@ -1468,12 +1468,6 @@ export default function App() {
 
   // Update dynamic Group rules (admin creators only)
   const handleUpdateGroupRules = async (updatedRules: RuleConfig) => {
-    if (isChallengeLocked) {
-      const lockError = new Error("As regras estão bloqueadas e não podem ser atualizadas.");
-      console.warn(lockError.message);
-      throw lockError;
-    }
-
     if (activeGroupId === 'demo-group') {
       setRules(updatedRules);
       return;
@@ -1627,11 +1621,6 @@ export default function App() {
 
   // Configure Point multiplier parameters directly in App
   const handleUpdateRules = async (field: keyof RuleConfig, value: any) => {
-    if (isChallengeLocked) {
-      console.warn("Rules are currently locked and cannot be updated.");
-      return;
-    }
-
     const updated = {
       ...rules,
       [field]: value
