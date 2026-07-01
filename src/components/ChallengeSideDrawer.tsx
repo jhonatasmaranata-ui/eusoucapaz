@@ -1232,90 +1232,60 @@ export function ChallengeSideDrawer({
               )}
 
               {/* VIEW: HELP / SCORING RULES */}
-              {viewMode === 'help' && (() => {
-                const currentGymPoints = activeGroup?.rules?.gymPointsPerCheckIn ?? 5;
-                const currentDistMult = activeGroup?.rules?.distanceMultiplier ?? 1.0;
-                const currentCorridaMultiplier = activeGroup?.rules?.corridaMultiplier ?? (1.0 * currentDistMult);
-                const currentCaminhadaMultiplier = activeGroup?.rules?.caminhadaMultiplier ?? (1.0 * currentDistMult);
-                const currentCiclismoMultiplier = activeGroup?.rules?.ciclismoMultiplier ?? (0.3 * currentDistMult);
-                const currentNatacaoMultiplier = activeGroup?.rules?.natacaoMultiplier ?? (4.0 * currentDistMult);
-                const currentComboPoints = activeGroup?.rules?.comboPointsPerDay ?? 10;
+              {viewMode === 'help' && (
+                <div className="space-y-4 animate-fadeIn p-2">
+                  <div className="flex items-center gap-2 pb-2 border-b border-slate-900">
+                    <button onClick={() => setViewMode('main')} className="p-1 hover:bg-slate-900 rounded-full cursor-pointer text-slate-400 hover:text-slate-200 transition">
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <h4 className="font-extrabold text-base text-slate-100 font-sans">Ajuda & Feedback</h4>
+                  </div>
 
-                return (
-                  <div className="space-y-4 animate-fadeIn p-2">
-                    <div className="flex items-center gap-2 pb-2 border-b border-slate-900">
-                      <button onClick={() => setViewMode('main')} className="p-1 hover:bg-slate-900 rounded-full cursor-pointer text-slate-400 hover:text-slate-200 transition">
-                        <ArrowLeft className="w-5 h-5" />
-                      </button>
-                      <h4 className="font-extrabold text-base text-slate-100 font-sans">Regras e Pontuação</h4>
-                    </div>
+                  <div className="space-y-4 text-xs text-slate-300 leading-relaxed font-sans">
+                    <p className="text-slate-400">
+                      O <strong>Eu Sou Capaz</strong> estimula a consistência física diária e saudável. Confira abaixo as principais informações para tirar o máximo proveito do aplicativo:
+                    </p>
 
-                    <div className="space-y-3.5 text-xs text-slate-300 leading-relaxed font-sans">
-                      <p>
-                        O <strong>Eu Sou Capaz</strong> estimula a consistência física recompensando seus treinos de musculação e cárdio com pontuações justas:
-                      </p>
-
-                      <div className="p-3 bg-red-950/30 border border-red-900/40 rounded-2xl space-y-1">
-                        <span className="font-extrabold text-red-400 flex items-center gap-1.5">
-                          🏋️ Musculação ou Pilates
+                    <div className="space-y-3">
+                      <div className="p-3.5 bg-slate-900/60 border border-slate-850 rounded-2xl space-y-1.5">
+                        <span className="font-extrabold text-indigo-400 flex items-center gap-1.5 text-[12px]">
+                          📱 Como Lançar Treinos?
                         </span>
-                        <p className="text-red-350 text-[11px]">
-                          Garante os pontos base configurados no desafio (atualmente: <strong>{formatMultiplier(currentGymPoints)} pontos</strong>). Limite de 1 check-in por dia.
+                        <p className="text-slate-300 text-[11px] leading-relaxed">
+                          Utilize o botão <strong className="text-slate-100">"+"</strong> na página principal para registrar musculação ou cárdio manual. Lembre-se que o check-in de musculação é limitado a 1 por dia.
                         </p>
                       </div>
 
-                      <div className="p-3 bg-indigo-950/30 border border-indigo-900/40 rounded-2xl space-y-1">
-                        <span className="font-extrabold text-indigo-400 flex items-center gap-1.5">
-                          🏃 Corrida ao Ar Livre ou Esteira
+                      <div className="p-3.5 bg-slate-900/60 border border-slate-850 rounded-2xl space-y-1.5">
+                        <span className="font-extrabold text-teal-400 flex items-center gap-1.5 text-[12px]">
+                          🚴 Sincronização Automática (Strava)
                         </span>
-                        <p className="text-indigo-350 text-[11px]">
-                          A quilometragem é multiplicada pela taxa configurada. Atualmente, <strong>1 km de corrida = {formatMultiplier(currentCorridaMultiplier)} ponto{Number(currentCorridaMultiplier) === 1 ? '' : 's'}</strong>.
+                        <p className="text-slate-300 text-[11px] leading-relaxed">
+                          Conecte sua conta do Strava clicando em <strong className="text-slate-100">"Editar Perfil"</strong> e depois em <strong className="text-slate-100">"Conectar Strava"</strong>. Suas corridas, caminhadas, pedaladas e natação serão computadas automaticamente de forma transparente!
                         </p>
                       </div>
 
-                      <div className="p-3 bg-emerald-950/30 border border-emerald-900/40 rounded-2xl space-y-1">
-                        <span className="font-extrabold text-emerald-400 flex items-center gap-1.5">
-                          🚶 Caminhada ao Ar Livre
+                      <div className="p-3.5 bg-slate-900/60 border border-slate-850 rounded-2xl space-y-1.5">
+                        <span className="font-extrabold text-amber-500 flex items-center gap-1.5 text-[12px]">
+                          ⚙️ Onde ver os Pontos do Desafio?
                         </span>
-                        <p className="text-emerald-350 text-[11px]">
-                          A quilometragem é multiplicada pela taxa configurada. Atualmente, <strong>1 km de caminhada = {formatMultiplier(currentCaminhadaMultiplier)} ponto{Number(currentCaminhadaMultiplier) === 1 ? '' : 's'}</strong>.
+                        <p className="text-slate-300 text-[11px] leading-relaxed">
+                          As regras de pontuação ativas e multiplicadores de cada modalidade esportiva estão disponíveis no menu anterior em <strong className="text-slate-100">"Regras do Desafio"</strong> ou <strong className="text-slate-100">"Configurações do Desafio"</strong>.
                         </p>
                       </div>
 
-                      <div className="p-3 bg-teal-950/30 border border-teal-900/40 rounded-2xl space-y-1">
-                        <span className="font-extrabold text-teal-400 flex items-center gap-1.5">
-                          🚴 Ciclismo ou Pedal
+                      <div className="p-3.5 bg-slate-900/60 border border-slate-850 rounded-2xl space-y-1.5">
+                        <span className="font-extrabold text-rose-400 flex items-center gap-1.5 text-[12px]">
+                          💬 Enviar Feedback ou Suporte
                         </span>
-                        <p className="text-teal-350 text-[11px]">
-                          A quilometragem é multiplicada pela taxa configurada. Atualmente, <strong>1 km de ciclismo/pedal = {formatMultiplier(currentCiclismoMultiplier)} ponto{Number(currentCiclismoMultiplier) === 1 ? '' : 's'}</strong>.
+                        <p className="text-slate-300 text-[11px] leading-relaxed">
+                          Caso encontre algum problema, queira sugerir novas ideias ou precise de ajuda, entre em contato direto com o administrador do seu grupo ou mande uma mensagem de feedback. Todo treino conta!
                         </p>
                       </div>
-
-                      <div className="p-3 bg-sky-950/30 border border-sky-900/40 rounded-2xl space-y-1">
-                        <span className="font-extrabold text-sky-400 flex items-center gap-1.5">
-                          🏊 Natação
-                        </span>
-                        <p className="text-sky-350 text-[11px]">
-                          A distância é multiplicada pela taxa configurada. Atualmente, <strong>1000 m de natação = {formatMultiplier(currentNatacaoMultiplier)} ponto{Number(currentNatacaoMultiplier) === 1 ? '' : 's'}</strong>.
-                        </p>
-                      </div>
-
-                      <div className="p-3 bg-amber-950/30 border border-amber-900/40 rounded-2xl space-y-1">
-                        <span className="font-extrabold text-amber-500 flex items-center gap-1.5">
-                          🔥 Bônus Combo Diário
-                        </span>
-                        <p className="text-amber-400/90 text-[11px]">
-                          Treinar musculação e fazer cardio de distância no mesmo dia dá um bônus de combo incrível (atualmente: <strong>+{formatMultiplier(currentComboPoints)} pontos extras</strong>)!
-                        </p>
-                      </div>
-
-                      <p className="pt-1 text-[11px] text-slate-500">
-                        Caso o grupo utilize integração com o Strava, as atividades esportivas são atualizadas e computadas automaticamente de forma transparente.
-                      </p>
                     </div>
                   </div>
-                );
-              })()}
+                </div>
+              )}
 
               {/* VIEW: ABOUT */}
               {viewMode === 'about' && (
