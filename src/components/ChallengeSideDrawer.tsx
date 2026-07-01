@@ -76,8 +76,10 @@ export function ChallengeSideDrawer({
   const [viewMode, setViewMode] = useState<DrawerViewMode>('main');
   const isCreator = activeGroup && (user?.email === 'jhonatasmaranata@gmail.com' || activeGroup.creatorId === user?.uid || activeGroup.creatorId === 'local_proxy');
   
-  const formatMultiplier = (val: number) => {
-    const rounded = Math.round(val * 10000) / 10000;
+  const formatMultiplier = (val: any) => {
+    const num = Number(val);
+    if (isNaN(num)) return '0';
+    const rounded = Math.round(num * 10000) / 10000;
     return rounded.toString().replace('.', ',');
   };
 
@@ -92,20 +94,20 @@ export function ChallengeSideDrawer({
   const [joinCode, setJoinCode] = useState('');
   const [startDate, setStartDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState('');
-  const [gymPoints, setGymPoints] = useState(5);
-  const [distanceMult, setDistanceMult] = useState(1);
-  const [comboPoints, setComboPoints] = useState(10);
+  const [gymPoints, setGymPoints] = useState<number | string>(5);
+  const [distanceMult, setDistanceMult] = useState<number | string>(1);
+  const [comboPoints, setComboPoints] = useState<number | string>(10);
 
   // Configuration Edit States
-  const [editGymPoints, setEditGymPoints] = useState(5);
-  const [editDistanceMult, setEditDistanceMult] = useState(1);
-  const [editComboPoints, setEditComboPoints] = useState(10);
+  const [editGymPoints, setEditGymPoints] = useState<number | string>(5);
+  const [editDistanceMult, setEditDistanceMult] = useState<number | string>(1);
+  const [editComboPoints, setEditComboPoints] = useState<number | string>(10);
   const [editStartDate, setEditStartDate] = useState('');
   const [editEndDate, setEditEndDate] = useState('');
-  const [editCorridaMultiplier, setEditCorridaMultiplier] = useState(1.0);
-  const [editCiclismoMultiplier, setEditCiclismoMultiplier] = useState(0.3);
-  const [editNatacaoMultiplier, setEditNatacaoMultiplier] = useState(4.0);
-  const [editCaminhadaMultiplier, setEditCaminhadaMultiplier] = useState(1.0);
+  const [editCorridaMultiplier, setEditCorridaMultiplier] = useState<number | string>(1.0);
+  const [editCiclismoMultiplier, setEditCiclismoMultiplier] = useState<number | string>(0.3);
+  const [editNatacaoMultiplier, setEditNatacaoMultiplier] = useState<number | string>(4.0);
+  const [editCaminhadaMultiplier, setEditCaminhadaMultiplier] = useState<number | string>(1.0);
 
   // Status and loading messages
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -256,9 +258,9 @@ export function ChallengeSideDrawer({
       const newGroupId = await onCreateGroup(groupName.trim(), groupDesc.trim(), {
         startDate,
         endDate: endDate || '',
-        gymPointsPerCheckIn: Number(gymPoints),
-        distanceMultiplier: Number(distanceMult),
-        comboPointsPerDay: Number(comboPoints)
+        gymPointsPerCheckIn: gymPoints === '' ? 5 : Number(gymPoints),
+        distanceMultiplier: distanceMult === '' ? 1 : Number(distanceMult),
+        comboPointsPerDay: comboPoints === '' ? 10 : Number(comboPoints)
       });
       setStatusMsg({ type: 'success', text: `Desafio "${groupName}" criado com sucesso!\nCódigo de convite: ${newGroupId}` });
       setGroupName('');
@@ -324,13 +326,13 @@ export function ChallengeSideDrawer({
       await onUpdateGroupRules({
         startDate: editStartDate,
         endDate: editEndDate || '',
-        gymPointsPerCheckIn: Number(editGymPoints),
-        distanceMultiplier: Number(editDistanceMult),
-        comboPointsPerDay: Number(editComboPoints),
-        corridaMultiplier: Number(editCorridaMultiplier),
-        ciclismoMultiplier: Number(editCiclismoMultiplier),
-        natacaoMultiplier: Number(editNatacaoMultiplier),
-        caminhadaMultiplier: Number(editCaminhadaMultiplier)
+        gymPointsPerCheckIn: editGymPoints === '' ? 5 : Number(editGymPoints),
+        distanceMultiplier: editDistanceMult === '' ? 1 : Number(editDistanceMult),
+        comboPointsPerDay: editComboPoints === '' ? 10 : Number(editComboPoints),
+        corridaMultiplier: editCorridaMultiplier === '' ? 1.0 : Number(editCorridaMultiplier),
+        ciclismoMultiplier: editCiclismoMultiplier === '' ? 0.3 : Number(editCiclismoMultiplier),
+        natacaoMultiplier: editNatacaoMultiplier === '' ? 4.0 : Number(editNatacaoMultiplier),
+        caminhadaMultiplier: editCaminhadaMultiplier === '' ? 1.0 : Number(editCaminhadaMultiplier)
       });
       setStatusMsg({ type: 'success', text: 'Configurações atualizadas com sucesso!' });
       setTimeout(() => {
@@ -758,7 +760,7 @@ export function ChallengeSideDrawer({
                             min="1"
                             max="50"
                             value={gymPoints}
-                            onChange={(e) => setGymPoints(Number(e.target.value) || 5)}
+                            onChange={(e) => setGymPoints(e.target.value)}
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-red-500 focus:outline-none focus:border-red-500"
                           />
                         </div>
@@ -770,7 +772,7 @@ export function ChallengeSideDrawer({
                             min="0.1"
                             max="10"
                             value={distanceMult}
-                            onChange={(e) => setDistanceMult(Number(e.target.value) || 1)}
+                            onChange={(e) => setDistanceMult(e.target.value)}
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-indigo-400 focus:outline-none focus:border-indigo-550"
                           />
                         </div>
@@ -781,7 +783,7 @@ export function ChallengeSideDrawer({
                             min="1"
                             max="100"
                             value={comboPoints}
-                            onChange={(e) => setComboPoints(Number(e.target.value) || 10)}
+                            onChange={(e) => setComboPoints(e.target.value)}
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-amber-500 focus:outline-none focus:border-amber-500"
                           />
                         </div>
@@ -1060,7 +1062,7 @@ export function ChallengeSideDrawer({
                             max="50"
                             disabled={!isCreator}
                             value={editGymPoints}
-                            onChange={(e) => setEditGymPoints(Number(e.target.value) || 5)}
+                            onChange={(e) => setEditGymPoints(e.target.value)}
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-red-500 focus:outline-none focus:border-red-500 disabled:opacity-60"
                           />
                         </div>
@@ -1077,7 +1079,7 @@ export function ChallengeSideDrawer({
                             max="50"
                             disabled={!isCreator}
                             value={editCorridaMultiplier}
-                            onChange={(e) => setEditCorridaMultiplier(Number(e.target.value) || 1)}
+                            onChange={(e) => setEditCorridaMultiplier(e.target.value)}
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-indigo-400 focus:outline-none focus:border-indigo-550 disabled:opacity-60"
                           />
                         </div>
@@ -1094,7 +1096,7 @@ export function ChallengeSideDrawer({
                             max="50"
                             disabled={!isCreator}
                             value={editCaminhadaMultiplier}
-                            onChange={(e) => setEditCaminhadaMultiplier(Number(e.target.value) || 1)}
+                            onChange={(e) => setEditCaminhadaMultiplier(e.target.value)}
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-550 disabled:opacity-60"
                           />
                         </div>
@@ -1111,7 +1113,7 @@ export function ChallengeSideDrawer({
                             max="50"
                             disabled={!isCreator}
                             value={editCiclismoMultiplier}
-                            onChange={(e) => setEditCiclismoMultiplier(Number(e.target.value) || 0.3)}
+                            onChange={(e) => setEditCiclismoMultiplier(e.target.value)}
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-teal-400 focus:outline-none focus:border-teal-550 disabled:opacity-60"
                           />
                         </div>
@@ -1128,7 +1130,7 @@ export function ChallengeSideDrawer({
                             max="100"
                             disabled={!isCreator}
                             value={editNatacaoMultiplier}
-                            onChange={(e) => setEditNatacaoMultiplier(Number(e.target.value) || 4)}
+                            onChange={(e) => setEditNatacaoMultiplier(e.target.value)}
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-sky-400 focus:outline-none focus:border-sky-550 disabled:opacity-60"
                           />
                         </div>
@@ -1144,7 +1146,7 @@ export function ChallengeSideDrawer({
                             max="100"
                             disabled={!isCreator}
                             value={editComboPoints}
-                            onChange={(e) => setEditComboPoints(Number(e.target.value) || 10)}
+                            onChange={(e) => setEditComboPoints(e.target.value)}
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-amber-500 focus:outline-none focus:border-amber-500 disabled:opacity-60"
                           />
                         </div>
