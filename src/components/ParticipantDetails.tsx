@@ -316,7 +316,7 @@ export function ParticipantDetails({
   const distMult = rules?.distanceMultiplier ?? 1.0;
   const runFactor = typeof rules?.corridaMultiplier === 'number' ? rules.corridaMultiplier : 1.0 * distMult;
   const walkFactor = typeof rules?.caminhadaMultiplier === 'number' ? rules.caminhadaMultiplier : 1.0 * distMult;
-  const bikeFactor = typeof rules?.ciclismoMultiplier === 'number' ? rules.ciclismoMultiplier : distMult / 3.0;
+  const bikeFactor = typeof rules?.ciclismoMultiplier === 'number' ? rules.ciclismoMultiplier : 0.3 * distMult;
   const swimFactor = typeof rules?.natacaoMultiplier === 'number' ? rules.natacaoMultiplier : 4.0 * distMult;
 
   let runPoints = 0;

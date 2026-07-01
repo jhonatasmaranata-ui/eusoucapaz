@@ -75,6 +75,12 @@ export function ChallengeSideDrawer({
 }: ChallengeSideDrawerProps) {
   const [viewMode, setViewMode] = useState<DrawerViewMode>('main');
   const isCreator = activeGroup && (user?.email === 'jhonatasmaranata@gmail.com' || activeGroup.creatorId === user?.uid || activeGroup.creatorId === 'local_proxy');
+  
+  const formatMultiplier = (val: number) => {
+    const rounded = Math.round(val * 10000) / 10000;
+    return rounded.toString().replace('.', ',');
+  };
+
   const [selectedGroupForDetails, setSelectedGroupForDetails] = useState<GroupChallenge | null>(null);
   const [copied, setCopied] = useState(false);
   const [confirmKickId, setConfirmKickId] = useState<string | null>(null);
@@ -97,7 +103,7 @@ export function ChallengeSideDrawer({
   const [editStartDate, setEditStartDate] = useState('');
   const [editEndDate, setEditEndDate] = useState('');
   const [editCorridaMultiplier, setEditCorridaMultiplier] = useState(1.0);
-  const [editCiclismoMultiplier, setEditCiclismoMultiplier] = useState(0.33);
+  const [editCiclismoMultiplier, setEditCiclismoMultiplier] = useState(0.3);
   const [editNatacaoMultiplier, setEditNatacaoMultiplier] = useState(4.0);
   const [editCaminhadaMultiplier, setEditCaminhadaMultiplier] = useState(1.0);
 
@@ -220,7 +226,7 @@ export function ChallengeSideDrawer({
       const distMult = activeGroup.rules.distanceMultiplier;
       setEditCorridaMultiplier(activeGroup.rules.corridaMultiplier ?? 1.0 * distMult);
       setEditCaminhadaMultiplier(activeGroup.rules.caminhadaMultiplier ?? 1.0 * distMult);
-      setEditCiclismoMultiplier(activeGroup.rules.ciclismoMultiplier ?? distMult / 3.0);
+      setEditCiclismoMultiplier(activeGroup.rules.ciclismoMultiplier ?? 0.3 * distMult);
       setEditNatacaoMultiplier(activeGroup.rules.natacaoMultiplier ?? 4.0 * distMult);
     }
   }, [activeGroup]);
@@ -1105,7 +1111,7 @@ export function ChallengeSideDrawer({
                             max="50"
                             disabled={!isCreator}
                             value={editCiclismoMultiplier}
-                            onChange={(e) => setEditCiclismoMultiplier(Number(e.target.value) || 0.33)}
+                            onChange={(e) => setEditCiclismoMultiplier(Number(e.target.value) || 0.3)}
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-teal-400 focus:outline-none focus:border-teal-550 disabled:opacity-60"
                           />
                         </div>
@@ -1156,7 +1162,7 @@ export function ChallengeSideDrawer({
                           🏋️ Academia
                         </span>
                         <p className="text-slate-300 text-[11px]">
-                          Cada check-in diário garante <strong>{editGymPoints} pontos</strong>. Limite de 1 por dia.
+                          Cada check-in diário garante <strong>{formatMultiplier(editGymPoints)} pontos</strong>. Limite de 1 por dia.
                         </p>
                       </div>
 
@@ -1165,7 +1171,7 @@ export function ChallengeSideDrawer({
                           🏃 Corrida
                         </span>
                         <p className="text-slate-300 text-[11px]">
-                          Cada km de corrida garante <strong>{editCorridaMultiplier} pontos</strong>.
+                          Cada km de corrida garante <strong>{formatMultiplier(editCorridaMultiplier)} pontos</strong>.
                         </p>
                       </div>
 
@@ -1174,7 +1180,7 @@ export function ChallengeSideDrawer({
                           🚶 Caminhada
                         </span>
                         <p className="text-slate-300 text-[11px]">
-                          Cada km de caminhada garante <strong>{editCaminhadaMultiplier} pontos</strong>.
+                          Cada km de caminhada garante <strong>{formatMultiplier(editCaminhadaMultiplier)} pontos</strong>.
                         </p>
                       </div>
 
@@ -1183,7 +1189,7 @@ export function ChallengeSideDrawer({
                           🚴 Ciclismo
                         </span>
                         <p className="text-slate-300 text-[11px]">
-                          Cada km de ciclismo/pedal garante <strong>{editCiclismoMultiplier} pontos</strong>.
+                          Cada km de ciclismo/pedal garante <strong>{formatMultiplier(editCiclismoMultiplier)} pontos</strong>.
                         </p>
                       </div>
 
@@ -1192,7 +1198,7 @@ export function ChallengeSideDrawer({
                           🏊 Natação
                         </span>
                         <p className="text-slate-300 text-[11px]">
-                          Cada 1000 m de natação garante <strong>{editNatacaoMultiplier} pontos</strong>.
+                          Cada 1000 m de natação garante <strong>{formatMultiplier(editNatacaoMultiplier)} pontos</strong>.
                         </p>
                       </div>
 
@@ -1201,7 +1207,7 @@ export function ChallengeSideDrawer({
                           🔥 Bônus Combo Diário
                         </span>
                         <p className="text-slate-300 text-[11px]">
-                          Fazer check-in e atividade aeróbica no mesmo dia concede <strong>+{editComboPoints} pontos</strong> extras!
+                          Fazer check-in e atividade aeróbica no mesmo dia concede <strong>+{formatMultiplier(editComboPoints)} pontos</strong> extras!
                         </p>
                       </div>
                     </div>

@@ -478,7 +478,7 @@ export function calculateScores(activities: Activity[], rules: RuleConfig): Part
           pts = a.distance * mult;
           totalDistance += a.distance;
         } else if (typeLower.includes('pedalada') || typeLower.includes('pedal') || typeLower.includes('bike') || typeLower.includes('bicicleta') || typeLower.includes('cycling') || typeLower.includes('ride')) {
-          const mult = typeof rules.ciclismoMultiplier === 'number' ? rules.ciclismoMultiplier : distMult / 3.0;
+          const mult = typeof rules.ciclismoMultiplier === 'number' ? rules.ciclismoMultiplier : 0.3 * distMult;
           pts = a.distance * mult;
           totalDistance += a.distance;
         } else if (typeLower.includes('natação') || typeLower.includes('natacao') || typeLower.includes('swim')) {

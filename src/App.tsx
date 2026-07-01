@@ -1478,13 +1478,41 @@ export default function App() {
       return;
     }
 
-    if (user && groupDetails && groupDetails.creatorId === user.uid && !user.uid.startsWith('local_')) {
+    // Always update local React state and cache first to guarantee zero page-refresh reverting
+    setRules(updatedRules);
+    setGroupDetails(prev => {
+      if (!prev) return null;
+      return { ...prev, rules: updatedRules };
+    });
+
+    setLocalGroups(prev => {
+      if (!activeGroupId) return prev;
+      const currentGroup = prev[activeGroupId] || groupDetails;
+      if (!currentGroup) return prev;
+      const updatedGroup = { ...currentGroup, rules: updatedRules };
+      const updated = { ...prev, [activeGroupId]: updatedGroup };
+      localStorage.setItem('local_groups_data', JSON.stringify(updated));
+      return updated;
+    });
+
+    // Check if user is authorized to save to Cloud Firestore (Google login, creator or special admin)
+    const isAuthorized = user && (
+      user.email === 'jhonatasmaranata@gmail.com' ||
+      (groupDetails && (
+        groupDetails.creatorId === user.uid ||
+        groupDetails.creatorId === 'local_proxy' ||
+        userRole === 'admin' ||
+        userRole === 'moderator'
+      ))
+    );
+
+    if (isAuthorized && !user.uid.startsWith('local_')) {
       try {
         const docRef = doc(db, 'groups', activeGroupId);
         await setDoc(docRef, {
           rules: updatedRules
         }, { merge: true });
-        setRules(updatedRules);
+        console.log("Group rules updated successfully in Firestore!");
       } catch (error) {
         console.error("Failed to update group rules in Firestore:", error);
       }
