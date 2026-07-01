@@ -2316,6 +2316,8 @@ export default function App() {
         onRemoveMember={(userId) => handleKickMember(activeGroupId, userId)}
         onStartTraining={() => setActiveTab('registrar')}
         onUpdateProfile={handleUpdateProfile}
+        activities={activities}
+        onAddActivity={handleAddManualActivity}
       />
 
       {/* PWA mobile installation option banner */}
