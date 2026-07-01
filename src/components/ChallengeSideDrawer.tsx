@@ -103,6 +103,10 @@ export function ChallengeSideDrawer({
   const [gymPoints, setGymPoints] = useState<number | string>(5);
   const [distanceMult, setDistanceMult] = useState<number | string>(1);
   const [comboPoints, setComboPoints] = useState<number | string>(10);
+  const [corridaMultiplier, setCorridaMultiplier] = useState<number | string>(1.0);
+  const [caminhadaMultiplier, setCaminhadaMultiplier] = useState<number | string>(1.0);
+  const [ciclismoMultiplier, setCiclismoMultiplier] = useState<number | string>(0.33);
+  const [natacaoMultiplier, setNatacaoMultiplier] = useState<number | string>(4.0);
 
   // Configuration Edit States
   const [editGymPoints, setEditGymPoints] = useState<number | string>(5);
@@ -501,7 +505,11 @@ export function ChallengeSideDrawer({
         endDate: endDate || '',
         gymPointsPerCheckIn: gymPoints === '' ? 5 : Number(gymPoints),
         distanceMultiplier: distanceMult === '' ? 1 : Number(distanceMult),
-        comboPointsPerDay: comboPoints === '' ? 10 : Number(comboPoints)
+        comboPointsPerDay: comboPoints === '' ? 10 : Number(comboPoints),
+        corridaMultiplier: corridaMultiplier === '' ? 1.0 : Number(corridaMultiplier),
+        caminhadaMultiplier: caminhadaMultiplier === '' ? 1.0 : Number(caminhadaMultiplier),
+        ciclismoMultiplier: ciclismoMultiplier === '' ? 0.33 : Number(ciclismoMultiplier),
+        natacaoMultiplier: natacaoMultiplier === '' ? 4.0 : Number(natacaoMultiplier)
       });
       setStatusMsg({ type: 'success', text: `Desafio "${groupName}" criado com sucesso!\nCódigo de convite: ${newGroupId}` });
       setGroupName('');
@@ -1066,9 +1074,12 @@ export function ChallengeSideDrawer({
                     <div className="bg-slate-900/60 p-4 border border-slate-850 rounded-2xl space-y-3 mt-2">
                       <span className="text-xs font-extrabold text-slate-200 uppercase tracking-wider block pb-1 border-b border-slate-800">🎯 Regras de Pontuação</span>
                       
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="flex justify-between items-center gap-2">
-                          <span className="text-xs text-slate-400 font-medium">🏋️ Gym Check-in</span>
+                          <div>
+                            <span className="text-xs text-slate-300 font-bold block">🏋️ Check-in de Academia</span>
+                            <span className="text-[10px] text-slate-500">Pontos por musculação/pilates/luta</span>
+                          </div>
                           <input
                             type="number"
                             min="1"
@@ -1078,20 +1089,76 @@ export function ChallengeSideDrawer({
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-red-500 focus:outline-none focus:border-red-500"
                           />
                         </div>
+
                         <div className="flex justify-between items-center gap-2">
-                          <span className="text-xs text-slate-400 font-medium">🏃 Multiplicador Cardio</span>
+                          <div>
+                            <span className="text-xs text-slate-300 font-bold block">🏃 Corrida</span>
+                            <span className="text-[10px] text-slate-500">Pontos por km de corrida</span>
+                          </div>
                           <input
                             type="number"
                             step="0.1"
                             min="0.1"
-                            max="10"
-                            value={distanceMult}
-                            onChange={(e) => setDistanceMult(e.target.value)}
+                            max="50"
+                            value={corridaMultiplier}
+                            onChange={(e) => setCorridaMultiplier(e.target.value)}
                             className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-indigo-400 focus:outline-none focus:border-indigo-550"
                           />
                         </div>
+
                         <div className="flex justify-between items-center gap-2">
-                          <span className="text-xs text-slate-400 font-medium">🔥 Bônus Combo Diário</span>
+                          <div>
+                            <span className="text-xs text-slate-300 font-bold block">🚶 Caminhada</span>
+                            <span className="text-[10px] text-slate-500">Pontos por km de caminhada</span>
+                          </div>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0.1"
+                            max="50"
+                            value={caminhadaMultiplier}
+                            onChange={(e) => setCaminhadaMultiplier(e.target.value)}
+                            className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-550"
+                          />
+                        </div>
+
+                        <div className="flex justify-between items-center gap-2">
+                          <div>
+                            <span className="text-xs text-slate-300 font-bold block">🚴 Ciclismo</span>
+                            <span className="text-[10px] text-slate-500">Pontos por km de pedalada</span>
+                          </div>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            max="50"
+                            value={ciclismoMultiplier}
+                            onChange={(e) => setCiclismoMultiplier(e.target.value)}
+                            className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-teal-400 focus:outline-none focus:border-teal-550"
+                          />
+                        </div>
+
+                        <div className="flex justify-between items-center gap-2">
+                          <div>
+                            <span className="text-xs text-slate-300 font-bold block">🏊 Natação</span>
+                            <span className="text-[10px] text-slate-500">Pontos por 1000 m de natação</span>
+                          </div>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0.1"
+                            max="100"
+                            value={natacaoMultiplier}
+                            onChange={(e) => setNatacaoMultiplier(e.target.value)}
+                            className="w-14 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-center text-xs font-bold text-sky-400 focus:outline-none focus:border-sky-550"
+                          />
+                        </div>
+
+                        <div className="flex justify-between items-center gap-2">
+                          <div>
+                            <span className="text-xs text-slate-300 font-bold block">🔥 Bônus Combo Diário</span>
+                            <span className="text-[10px] text-slate-500">Pontos extras por dia musculação + cardio</span>
+                          </div>
                           <input
                             type="number"
                             min="1"
