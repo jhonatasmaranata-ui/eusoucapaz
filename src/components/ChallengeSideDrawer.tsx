@@ -1069,7 +1069,7 @@ export function ChallengeSideDrawer({
                         <div className="flex justify-between items-center gap-2">
                           <div>
                             <span className="text-xs text-slate-300 font-bold block">🏊 Natação</span>
-                            <span className="text-[10px] text-slate-500">Pontos por 1000m/km de natação</span>
+                            <span className="text-[10px] text-slate-500">Pontos por 1000 m de natação</span>
                           </div>
                           <input
                             type="number"
@@ -1148,7 +1148,7 @@ export function ChallengeSideDrawer({
                           🏊 Natação
                         </span>
                         <p className="text-slate-300 text-[11px]">
-                          Cada 1000m (1km) de natação garante <strong>{editNatacaoMultiplier} pontos</strong>.
+                          Cada 1000 m de natação garante <strong>{editNatacaoMultiplier} pontos</strong>.
                         </p>
                       </div>
 
