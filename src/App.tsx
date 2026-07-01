@@ -1469,8 +1469,9 @@ export default function App() {
   // Update dynamic Group rules (admin creators only)
   const handleUpdateGroupRules = async (updatedRules: RuleConfig) => {
     if (isChallengeLocked) {
-      console.warn("Rules are currently locked and cannot be updated.");
-      return;
+      const lockError = new Error("As regras estão bloqueadas e não podem ser atualizadas.");
+      console.warn(lockError.message);
+      throw lockError;
     }
 
     if (activeGroupId === 'demo-group') {
@@ -1478,7 +1479,28 @@ export default function App() {
       return;
     }
 
-    // Always update local React state and cache first to guarantee zero page-refresh reverting
+    // Keep backup of original states to revert in case of server failure
+    const originalRules = rules;
+    const originalGroupDetails = groupDetails;
+
+    // Check if user is authorized to save to Cloud Firestore (Google login, creator or special admin)
+    const isAuthorized = user && (
+      user.email === 'jhonatasmaranata@gmail.com' ||
+      (groupDetails && (
+        groupDetails.creatorId === user.uid ||
+        groupDetails.creatorId === 'local_proxy' ||
+        userRole === 'admin' ||
+        userRole === 'moderator'
+      ))
+    );
+
+    if (!isAuthorized) {
+      const authError = new Error("Apenas o criador do desafio ou administrador do sistema pode editar as regras.");
+      console.error(authError.message);
+      throw authError;
+    }
+
+    // Always update local React state and cache first to guarantee zero lag, but with reverting capability
     setRules(updatedRules);
     setGroupDetails(prev => {
       if (!prev) return null;
@@ -1495,26 +1517,30 @@ export default function App() {
       return updated;
     });
 
-    // Check if user is authorized to save to Cloud Firestore (Google login, creator or special admin)
-    const isAuthorized = user && (
-      user.email === 'jhonatasmaranata@gmail.com' ||
-      (groupDetails && (
-        groupDetails.creatorId === user.uid ||
-        groupDetails.creatorId === 'local_proxy' ||
-        userRole === 'admin' ||
-        userRole === 'moderator'
-      ))
-    );
-
-    if (isAuthorized && !user.uid.startsWith('local_')) {
+    if (!user.uid.startsWith('local_')) {
       try {
         const docRef = doc(db, 'groups', activeGroupId);
         await setDoc(docRef, {
           rules: updatedRules
         }, { merge: true });
         console.log("Group rules updated successfully in Firestore!");
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to update group rules in Firestore:", error);
+        
+        // Revert to original states on server write rejection
+        setRules(originalRules);
+        setGroupDetails(originalGroupDetails);
+        setLocalGroups(prev => {
+          if (!activeGroupId) return prev;
+          const currentGroup = prev[activeGroupId];
+          if (!currentGroup || !originalGroupDetails) return prev;
+          const updatedGroup = { ...currentGroup, rules: originalRules };
+          const updated = { ...prev, [activeGroupId]: updatedGroup };
+          localStorage.setItem('local_groups_data', JSON.stringify(updated));
+          return updated;
+        });
+
+        throw new Error("Erro ao salvar no servidor: Permissão negada ou falha de conexão. Por favor, tente novamente.");
       }
     }
   };
