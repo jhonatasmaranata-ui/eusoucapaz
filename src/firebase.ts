@@ -36,18 +36,18 @@ const defaultFirebaseConfig = {
 };
 
 const firebaseConfig = {
-  apiKey: metaEnv.VITE_FIREBASE_API_KEY || defaultFirebaseConfig.apiKey,
-  authDomain: metaEnv.VITE_FIREBASE_AUTH_DOMAIN || defaultFirebaseConfig.authDomain,
-  projectId: metaEnv.VITE_FIREBASE_PROJECT_ID || defaultFirebaseConfig.projectId,
-  storageBucket: metaEnv.VITE_FIREBASE_STORAGE_BUCKET || defaultFirebaseConfig.storageBucket,
-  messagingSenderId: metaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID || defaultFirebaseConfig.messagingSenderId,
-  appId: metaEnv.VITE_FIREBASE_APP_ID || defaultFirebaseConfig.appId,
+  apiKey: metaEnv.VITE_FIREBASE_API_KEY || (isSandbox ? appletConfig.apiKey : defaultFirebaseConfig.apiKey),
+  authDomain: metaEnv.VITE_FIREBASE_AUTH_DOMAIN || (isSandbox ? appletConfig.authDomain : defaultFirebaseConfig.authDomain),
+  projectId: metaEnv.VITE_FIREBASE_PROJECT_ID || (isSandbox ? appletConfig.projectId : defaultFirebaseConfig.projectId),
+  storageBucket: metaEnv.VITE_FIREBASE_STORAGE_BUCKET || (isSandbox ? appletConfig.storageBucket : defaultFirebaseConfig.storageBucket),
+  messagingSenderId: metaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID || (isSandbox ? appletConfig.messagingSenderId : defaultFirebaseConfig.messagingSenderId),
+  appId: metaEnv.VITE_FIREBASE_APP_ID || (isSandbox ? appletConfig.appId : defaultFirebaseConfig.appId),
 };
 
 const app = initializeApp(firebaseConfig);
 
 // Use production default database
-let databaseId = metaEnv.VITE_FIREBASE_DATABASE_ID || undefined;
+let databaseId = metaEnv.VITE_FIREBASE_DATABASE_ID || (isSandbox ? appletConfig.firestoreDatabaseId : undefined);
 
 // LocalStorage override for database recovery (allows recovery to '(default)' if named instance times out)
 if (typeof window !== 'undefined') {
