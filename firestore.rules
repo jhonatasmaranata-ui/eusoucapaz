@@ -40,7 +40,9 @@ service cloud.firestore {
         && data.email.size() <= 100
         && (!data.keys().hasAll(['registeredAt']) || (data.registeredAt is string))
         && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 3000))
-        && (!data.keys().hasAll(['joinedGroups']) || (data.joinedGroups is map));
+        && (!data.keys().hasAll(['role']) || (data.role is string))
+        && (!data.keys().hasAll(['joinedGroups']) || (data.joinedGroups is map))
+        && (!data.keys().hasAll(['stravaIntegration']) || (data.stravaIntegration is map));
     }
 
     // Group schema validation
@@ -136,7 +138,8 @@ service cloud.firestore {
         && isValidUserProfile(incoming());
       allow update: if isSignedIn() 
         && isValidId(userId) 
-        && request.auth.uid == userId;
+        && request.auth.uid == userId
+        && isValidUserProfile(incoming());
       allow delete: if false;
     }
 

@@ -1545,18 +1545,17 @@ export default function App() {
     if (!cleanName) throw new Error('O nome do atleta não pode ser vazio.');
 
     if (!user.uid.startsWith('local_')) {
-      // 1. Update main user profile document
+      // 1. Update main user profile document (using setDoc with merge to robustly handle non-existent documents)
       try {
         const userDocRef = doc(db, 'users', user.uid);
-        // Only include the fields that actually changed (athleteName and photoURL)
-        // to avoid mismatch errors on static fields like email and registeredAt
         const payload: any = {
           athleteName: cleanName,
+          email: user.email || '',
         };
         if (newPhoto) {
           payload.photoURL = newPhoto;
         }
-        await updateDoc(userDocRef, payload);
+        await setDoc(userDocRef, payload, { merge: true });
       } catch (err: any) {
         console.error("Failed to update user profile in Firestore:", err);
         throw new Error(err.message || "Erro ao salvar perfil no banco de dados.");
