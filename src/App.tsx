@@ -1549,6 +1549,7 @@ export default function App() {
         const userDocRef = doc(db, 'users', user.uid);
         const payload: any = {
           athleteName: cleanName,
+          email: user.email || '',
         };
         if (newPhoto) {
           payload.photoURL = newPhoto;
@@ -1558,11 +1559,19 @@ export default function App() {
         // Update active group member record if in a group
         if (activeGroupId && activeGroupId !== 'demo-group') {
           const memberRef = doc(db, 'groups', activeGroupId, 'members', user.uid);
+          const existingMember = groupMembers.find(m => m.userId === user.uid);
+
           const memberPayload: any = {
+            userId: user.uid,
             athleteName: cleanName,
+            email: user.email || existingMember?.email || '',
+            role: existingMember?.role || 'member',
+            joinedAt: existingMember?.joinedAt || new Date().toISOString()
           };
           if (newPhoto) {
             memberPayload.photoURL = newPhoto;
+          } else if (existingMember?.photoURL || user.photoURL) {
+            memberPayload.photoURL = existingMember?.photoURL || user.photoURL || '';
           }
           await setDoc(memberRef, memberPayload, { merge: true });
         }
