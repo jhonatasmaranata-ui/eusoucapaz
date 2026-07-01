@@ -1544,20 +1544,6 @@ export default function App() {
     const cleanName = newName.trim();
     if (!cleanName) throw new Error('O nome do atleta não pode ser vazio.');
 
-    // Validate that the selected name is not already claimed/owned by another user with a different email
-    const nameLower = cleanName.toLowerCase();
-    const otherClaimant = groupMembers.find(m => 
-      m.athleteName && 
-      m.athleteName.trim().toLowerCase() === nameLower && 
-      m.email && 
-      m.email.trim() && 
-      m.email.toLowerCase().trim() !== (user.email || '').toLowerCase().trim()
-    );
-
-    if (otherClaimant) {
-      throw new Error(`O nome de atleta "${cleanName}" pertence a outra conta registrada (${otherClaimant.email}).`);
-    }
-
     if (!user.uid.startsWith('local_')) {
       try {
         const userDocRef = doc(db, 'users', user.uid);
@@ -1953,21 +1939,6 @@ export default function App() {
 
   const handleCompleteRegistration = async (selectedAthleteName: string) => {
     if (!user) return;
-
-    // Validate that the selected name is not already claimed/owned by another user with a different email
-    const nameLower = selectedAthleteName.trim().toLowerCase();
-    const otherClaimant = groupMembers.find(m => 
-      m.athleteName && 
-      m.athleteName.trim().toLowerCase() === nameLower && 
-      m.email && 
-      m.email.trim() && 
-      m.email.toLowerCase().trim() !== (user.email || '').toLowerCase().trim()
-    );
-
-    if (otherClaimant) {
-      alert(`O nome de atleta "${selectedAthleteName}" pertence a outra conta registrada (${otherClaimant.email}). Por favor, escolha outro nome.`);
-      return;
-    }
 
     if (user.uid.startsWith('local_')) {
       const updatedUser = { ...user, displayName: selectedAthleteName };

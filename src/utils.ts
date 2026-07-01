@@ -397,7 +397,7 @@ export function isSameAthlete(a: string, b: string): boolean {
  * Calculates current rankings and statistics using the validated Excel logic
  */
 export function calculateScores(activities: Activity[], rules: RuleConfig): ParticipantScore[] {
-  const participantsMap: { [name: string]: Activity[] } = {};
+  const participantsMap: { [key: string]: { name: string; activities: Activity[] } } = {};
 
   // Filter activities strictly according to the date range
   const filteredActivities = activities.filter(act => {
@@ -406,31 +406,37 @@ export function calculateScores(activities: Activity[], rules: RuleConfig): Part
     return true;
   });
 
-  // Group by participant
+  // Group by participant (using userId as primary key if available, fallback to athleteName)
   filteredActivities.forEach(act => {
     const trimmedName = act.name.trim();
     if (!trimmedName) return;
-    
-    // Find if there is an existing participant mapped that matches this trimmedName
-    const existingKey = Object.keys(participantsMap).find(key => isSameAthlete(key, trimmedName));
-    let targetName = existingKey || trimmedName;
 
-    // Prefer the longer/more complete name for high-end leaderboard presentation
-    if (existingKey && trimmedName.length > existingKey.length) {
-      const existingActs = participantsMap[existingKey];
-      delete participantsMap[existingKey];
-      participantsMap[trimmedName] = existingActs;
-      targetName = trimmedName;
+    let key = '';
+    if (act.userId) {
+      key = 'user_' + act.userId;
+    } else {
+      // Find matching offline key using isSameAthlete
+      const existingKey = Object.keys(participantsMap).find(k => !k.startsWith('user_') && isSameAthlete(k, trimmedName));
+      key = existingKey || trimmedName;
     }
 
-    if (!participantsMap[targetName]) {
-      participantsMap[targetName] = [];
+    if (!participantsMap[key]) {
+      participantsMap[key] = {
+        name: trimmedName,
+        activities: []
+      };
+    } else if (trimmedName.length > participantsMap[key].name.length) {
+      // Keep the most complete/longest name representation
+      participantsMap[key].name = trimmedName;
     }
-    participantsMap[targetName].push(act);
+
+    participantsMap[key].activities.push(act);
   });
 
-  const scores: ParticipantScore[] = Object.keys(participantsMap).map(name => {
-    const pActs = participantsMap[name];
+  const scores: ParticipantScore[] = Object.keys(participantsMap).map(key => {
+    const pData = participantsMap[key];
+    const name = pData.name;
+    const pActs = pData.activities;
 
     // Group participant's activities by day
     const activitiesByDay: { [date: string]: Activity[] } = {};
