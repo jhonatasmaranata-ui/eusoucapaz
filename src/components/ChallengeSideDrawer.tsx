@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Users, 
@@ -111,6 +111,50 @@ export function ChallengeSideDrawer({
   const [editProfilePhoto, setEditProfilePhoto] = useState<string | null>(null);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
+
+  // Computed states to retrieve group metadata (including rules and end dates)
+  const localGroupsData = useMemo(() => {
+    try {
+      const raw = localStorage.getItem('local_groups_data');
+      return raw ? JSON.parse(raw) : {};
+    } catch (_) {
+      return {};
+    }
+  }, [userGroups]);
+
+  const isGroupFinished = useCallback((g: { id: string; name: string }) => {
+    if (g.id === '99H0DP') {
+      const todayStr = new Date().toISOString().split('T')[0];
+      return todayStr > '2026-06-11';
+    }
+    
+    const groupDetail = localGroupsData[g.id];
+    const endDateStr = groupDetail?.rules?.endDate;
+    if (!endDateStr) return false;
+
+    const parts = endDateStr.split('-');
+    if (parts.length !== 3) return false;
+
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+
+    const target = new Date(year, month, day);
+    const today = new Date();
+
+    target.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    return today.getTime() > target.getTime();
+  }, [localGroupsData]);
+
+  const activePrivateGroups = useMemo(() => {
+    return userGroups.filter(g => !isGroupFinished(g));
+  }, [userGroups, isGroupFinished]);
+
+  const concludedPrivateGroups = useMemo(() => {
+    return userGroups.filter(g => isGroupFinished(g));
+  }, [userGroups, isGroupFinished]);
 
   // Sync profile editing states on mount/open
   useEffect(() => {
@@ -515,7 +559,7 @@ export function ChallengeSideDrawer({
                         <Compass className={`w-5 h-5 ${isDemoActive ? 'text-red-500' : 'text-slate-500'}`} />
                         <span>Desafio Público Geral (Mensal)</span>
                       </div>
-                      {isDemoActive && <span className="text-[10px] bg-red-950/50 text-red-400 border border-red-900/45 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Ativo</span>}
+                      {isDemoActive && <span className="text-[10px] bg-red-950/50 text-red-400 border border-red-900/45 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Selecionado</span>}
                     </button>
 
                     {/* PRIVATE ACTIVE CHALLENGES */}
@@ -524,11 +568,11 @@ export function ChallengeSideDrawer({
                         Grupos Particulares
                       </div>
                       
-                      {userGroups.length === 0 ? (
-                        <p className="px-3.5 py-2 text-xs text-slate-500 italic font-medium">Nenhum grupo particular</p>
+                      {activePrivateGroups.length === 0 ? (
+                        <p className="px-3.5 py-2 text-xs text-slate-500 italic font-medium">Nenhum grupo particular ativo</p>
                       ) : (
                         <div className="space-y-0.5">
-                          {userGroups.map((g) => {
+                          {activePrivateGroups.map((g) => {
                             const isThisActive = activeGroup?.id === g.id;
                             return (
                               <div key={g.id} className="flex items-center justify-between rounded-2xl overflow-hidden hover:bg-slate-900">
@@ -544,12 +588,12 @@ export function ChallengeSideDrawer({
                                   <Trophy className={`w-5 h-5 ${isThisActive ? 'text-indigo-400' : 'text-slate-500'}`} />
                                   <span className="truncate">{g.name}</span>
                                   {isThisActive && (
-                                    <span className="text-[9px] bg-indigo-950 text-indigo-400 border border-indigo-900/50 font-extrabold px-1.5 py-0.5 rounded-md uppercase">Ativo</span>
+                                    <span className="text-[9px] bg-indigo-950 text-indigo-400 border border-indigo-900/50 font-extrabold px-1.5 py-0.5 rounded-md uppercase">Selecionado</span>
                                   )}
                                 </button>
                                 <button
                                   onClick={() => {
-                                    setSelectedGroupForDetails(activeGroup?.id === g.id ? activeGroup : null);
+                                    setSelectedGroupForDetails(localGroupsData[g.id] || null);
                                     setViewMode('details');
                                   }}
                                   className="p-3 text-slate-400 hover:text-slate-200 cursor-pointer transition"
@@ -1268,17 +1312,59 @@ export function ChallengeSideDrawer({
                     <h4 className="font-extrabold text-base text-slate-100 font-sans">Desafios Concluídos</h4>
                   </div>
 
-                  <div className="text-center py-8 space-y-3 bg-slate-900/40 border border-slate-900 rounded-2xl">
-                    <div className="w-12 h-12 bg-slate-950 text-slate-500 rounded-full flex items-center justify-center mx-auto border border-slate-850">
-                      <Flag className="w-6 h-6" />
+                  {concludedPrivateGroups.length === 0 ? (
+                    <div className="text-center py-8 space-y-3 bg-slate-900/40 border border-slate-900 rounded-2xl">
+                      <div className="w-12 h-12 bg-slate-950 text-slate-500 rounded-full flex items-center justify-center mx-auto border border-slate-850">
+                        <Flag className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h5 className="text-xs font-bold text-slate-400 font-sans">Sem histórico no momento</h5>
+                        <p className="text-[11px] text-slate-500 mt-1 leading-relaxed max-w-[200px] mx-auto font-sans">
+                          Seus desafios passados e encerrados ficarão listados aqui quando expirarem.
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h5 className="text-xs font-bold text-slate-400 font-sans">Sem histórico no momento</h5>
-                      <p className="text-[11px] text-slate-500 mt-1 leading-relaxed max-w-[200px] mx-auto font-sans">
-                        Seus desafios passados e encerrados ficarão listados aqui quando expirarem.
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-[11px] text-slate-400 font-sans leading-relaxed pb-1">
+                        Estes desafios já foram finalizados de acordo com a data de encerramento estipulada. Clique em um deles para visualizar seu ranking e estatísticas finais:
                       </p>
+                      <div className="space-y-1.5">
+                        {concludedPrivateGroups.map((g) => {
+                          const isThisActive = activeGroup?.id === g.id;
+                          return (
+                            <div key={g.id} className="flex items-center justify-between rounded-2xl overflow-hidden bg-slate-900/30 border border-slate-900 hover:border-slate-800 hover:bg-slate-900 transition-all">
+                              <button
+                                onClick={() => {
+                                  onSelectGroup(g.id);
+                                  onClose();
+                                }}
+                                className={`flex-1 flex items-center gap-3 p-3 text-left text-xs sm:text-sm transition cursor-pointer ${
+                                  isThisActive ? 'text-amber-500 font-black' : 'text-slate-400 font-medium'
+                                }`}
+                              >
+                                <Flag className={`w-4 h-4 ${isThisActive ? 'text-indigo-400 animate-pulse' : 'text-slate-500'}`} />
+                                <span className="truncate">{g.name}</span>
+                                {isThisActive && (
+                                  <span className="text-[8px] bg-indigo-950 text-indigo-400 border border-indigo-900/50 font-extrabold px-1.5 py-0.5 rounded-md uppercase">Selecionado</span>
+                                )}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setSelectedGroupForDetails(localGroupsData[g.id] || null);
+                                  setViewMode('details');
+                                }}
+                                className="p-3 text-slate-400 hover:text-slate-200 cursor-pointer transition"
+                                title="Ver integrantes e código"
+                              >
+                                <Info className="w-4 h-4" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
 
