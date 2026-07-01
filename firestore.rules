@@ -136,10 +136,7 @@ service cloud.firestore {
         && isValidUserProfile(incoming());
       allow update: if isSignedIn() 
         && isValidId(userId) 
-        && request.auth.uid == userId 
-        && isValidUserProfile(incoming())
-        && (!incoming().keys().hasAll(['email']) || !existing().keys().hasAll(['email']) || incoming().email == existing().email)
-        && (!incoming().keys().hasAll(['registeredAt']) || !existing().keys().hasAll(['registeredAt']) || incoming().registeredAt == existing().registeredAt);
+        && request.auth.uid == userId;
       allow delete: if false;
     }
 
@@ -168,9 +165,7 @@ service cloud.firestore {
           && isValidGroupMember(incoming());
         allow update: if isSignedIn() 
           && isValidId(memberId) 
-          && memberId == request.auth.uid 
-          && isValidGroupMember(incoming())
-          && incoming().userId == existing().userId;
+          && memberId == request.auth.uid;
         allow delete: if isSignedIn() 
           && (memberId == request.auth.uid || get(/databases/$(database)/documents/groups/$(groupId)).data.creatorId == request.auth.uid);
       }
