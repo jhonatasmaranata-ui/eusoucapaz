@@ -19,7 +19,8 @@ const metaEnv = (import.meta as any).env || {};
 const isSandbox = typeof window !== 'undefined' && (
   window.location.hostname.includes('.run.app') ||
   window.location.hostname.includes('localhost') ||
-  window.location.hostname.includes('127.0.0.1')
+  window.location.hostname.includes('127.0.0.1') ||
+  (!!appletConfig && !!appletConfig.projectId && appletConfig.projectId.length > 0 && !appletConfig.projectId.includes("YOUR_PROJECT"))
 );
 
 // Detect if custom environmental database settings are supplied manually
@@ -43,6 +44,8 @@ const firebaseConfig = {
   messagingSenderId: metaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID || (isSandbox ? appletConfig.messagingSenderId : defaultFirebaseConfig.messagingSenderId),
   appId: metaEnv.VITE_FIREBASE_APP_ID || (isSandbox ? appletConfig.appId : defaultFirebaseConfig.appId),
 };
+
+console.log("[Firebase Init] Target Firebase Project:", firebaseConfig.projectId, "isSandbox:", isSandbox);
 
 const app = initializeApp(firebaseConfig);
 
