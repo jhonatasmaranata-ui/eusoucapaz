@@ -1544,6 +1544,9 @@ export default function App() {
     const cleanName = newName.trim();
     if (!cleanName) throw new Error('O nome do atleta não pode ser vazio.');
 
+    // Use selected new photo, or fallback to the user's current photoURL (from Google/email) or empty string
+    const finalPhoto = newPhoto !== null ? newPhoto : (user.photoURL || '');
+
     if (!user.uid.startsWith('local_')) {
       // 1. Update main user profile document (using setDoc with merge to robustly handle non-existent documents)
       try {
@@ -1551,10 +1554,8 @@ export default function App() {
         const payload: any = {
           athleteName: cleanName,
           email: user.email || '',
+          photoURL: finalPhoto,
         };
-        if (newPhoto) {
-          payload.photoURL = newPhoto;
-        }
         await setDoc(userDocRef, payload, { merge: true });
       } catch (err: any) {
         console.error("Failed to update user profile in Firestore:", err);
@@ -1569,10 +1570,8 @@ export default function App() {
               const memberRef = doc(db, 'groups', g.id, 'members', user.uid);
               const memberPayload: any = {
                 athleteName: cleanName,
+                photoURL: finalPhoto,
               };
-              if (newPhoto) {
-                memberPayload.photoURL = newPhoto;
-              }
               await updateDoc(memberRef, memberPayload);
             } catch (memberErr) {
               console.warn(`Resilient profile update: could not update member doc in group ${g.id}:`, memberErr);
@@ -1587,10 +1586,8 @@ export default function App() {
           const memberRef = doc(db, 'groups', activeGroupId, 'members', user.uid);
           const memberPayload: any = {
             athleteName: cleanName,
+            photoURL: finalPhoto,
           };
-          if (newPhoto) {
-            memberPayload.photoURL = newPhoto;
-          }
           await updateDoc(memberRef, memberPayload);
         } catch (memberErr) {
           console.warn(`Resilient profile update: could not update active group member doc ${activeGroupId}:`, memberErr);
@@ -1603,7 +1600,7 @@ export default function App() {
     const updatedUser = {
       ...user,
       displayName: cleanName,
-      ...(newPhoto ? { photoURL: newPhoto } : {})
+      photoURL: finalPhoto,
     };
     setUser(updatedUser);
 
@@ -1618,7 +1615,7 @@ export default function App() {
               return {
                 ...m,
                 athleteName: cleanName,
-                ...(newPhoto ? { photoURL: newPhoto } : {})
+                photoURL: finalPhoto,
               };
             }
             return m;
