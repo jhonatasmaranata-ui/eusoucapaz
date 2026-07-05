@@ -31,83 +31,84 @@ service cloud.firestore {
 
     // User Profile schema validation
     function isValidUserProfile(data) {
-      return (data.get('athleteName', null) == null || (data.get('athleteName', null) is string && data.get('athleteName', '').size() >= 1 && data.get('athleteName', '').size() <= 200))
-        && (data.get('email', null) == null || (data.get('email', null) is string && data.get('email', '').size() <= 100))
-        && (data.get('registeredAt', null) == null || data.get('registeredAt', null) is string || data.get('registeredAt', null) is timestamp)
-        && (data.get('photoURL', null) == null || data.get('photoURL', null) is string)
-        && (data.get('role', null) == null || data.get('role', null) is string)
-        && (data.get('joinedGroups', null) == null || data.get('joinedGroups', null) is map)
-        && (data.get('stravaIntegration', null) == null || data.get('stravaIntegration', null) is map);
+      return data.athleteName is string 
+        && data.athleteName.size() >= 1 
+        && data.athleteName.size() <= 200
+        && (!('email' in data) || data.email is string)
+        && (!('registeredAt' in data) || data.registeredAt is string || data.registeredAt is timestamp)
+        && (!('photoURL' in data) || data.photoURL is string)
+        && (!('role' in data) || data.role is string)
+        && (!('joinedGroups' in data) || data.joinedGroups is map)
+        && (!('stravaIntegration' in data) || data.stravaIntegration is map);
     }
 
     // Group schema validation
     function isValidGroup(data) {
-      return data.get('id', null) is string
-        && data.get('id', '').size() >= 1
-        && data.get('id', '').size() <= 64
-        && data.get('name', null) is string
-        && data.get('name', '').size() >= 1
-        && data.get('name', '').size() <= 200
-        && data.get('description', null) is string
-        && data.get('description', '').size() <= 2000
-        && data.get('creatorId', null) is string
-        && (data.get('creatorId', null) == request.auth.uid || data.get('creatorId', null) == 'local_proxy' || (request.auth.token.email == 'jhonatasmaranata@gmail.com' && request.auth.token.email_verified == true))
-        && data.get('inviteCode', null) is string
-        && data.get('inviteCode', '').size() >= 1
-        && data.get('inviteCode', '').size() <= 64
-        && data.get('createdAt', null) is string
-        && data.get('rules', null) is map
-        && data.get('rules', {}).get('startDate', null) is string
-        && data.get('rules', {}).get('gymPointsPerCheckIn', null) is number
-        && data.get('rules', {}).get('distanceMultiplier', null) is number
-        && data.get('rules', {}).get('comboPointsPerDay', null) is number
-        && (data.get('rules', {}).get('corridaMultiplier', null) == null || data.get('rules', {}).get('corridaMultiplier', null) is number)
-        && (data.get('rules', {}).get('caminhadaMultiplier', null) == null || data.get('rules', {}).get('caminhadaMultiplier', null) is number)
-        && (data.get('rules', {}).get('ciclismoMultiplier', null) == null || data.get('rules', {}).get('ciclismoMultiplier', null) is number)
-        && (data.get('rules', {}).get('natacaoMultiplier', null) == null || data.get('rules', {}).get('natacaoMultiplier', null) is number);
+      return data.id is string
+        && data.id.size() >= 1
+        && data.id.size() <= 64
+        && data.name is string
+        && data.name.size() >= 1
+        && data.name.size() <= 200
+        && data.description is string
+        && data.description.size() <= 2000
+        && data.creatorId is string
+        && (data.creatorId == request.auth.uid || data.creatorId == 'local_proxy' || (request.auth.token.email == 'jhonatasmaranata@gmail.com' && request.auth.token.email_verified == true))
+        && data.inviteCode is string
+        && data.inviteCode.size() >= 1
+        && data.inviteCode.size() <= 64
+        && data.createdAt is string
+        && data.rules is map
+        && data.rules.startDate is string
+        && data.rules.gymPointsPerCheckIn is number
+        && data.rules.distanceMultiplier is number
+        && data.rules.comboPointsPerDay is number
+        && (!('corridaMultiplier' in data.rules) || data.rules.corridaMultiplier is number)
+        && (!('caminhadaMultiplier' in data.rules) || data.rules.caminhadaMultiplier is number)
+        && (!('ciclismoMultiplier' in data.rules) || data.rules.ciclismoMultiplier is number)
+        && (!('natacaoMultiplier' in data.rules) || data.rules.natacaoMultiplier is number);
     }
 
     // Group Member schema validation
     function isValidGroupMember(data) {
-      return data.get('userId', null) is string
-        && data.get('userId', null) == request.auth.uid
-        && (data.get('athleteName', null) == null || (data.get('athleteName', null) is string && data.get('athleteName', '').size() >= 1 && data.get('athleteName', '').size() <= 200))
-        && (data.get('email', null) == null || (data.get('email', null) is string && data.get('email', '').size() <= 100))
-        && (data.get('role', null) == null || data.get('role', null) is string)
-        && (data.get('joinedAt', null) == null || data.get('joinedAt', null) is string)
-        && (data.get('photoURL', null) == null || data.get('photoURL', null) is string);
+      return data.userId is string
+        && data.userId == request.auth.uid
+        && (!('athleteName' in data) || data.athleteName is string)
+        && (!('email' in data) || data.email is string)
+        && (!('role' in data) || data.role is string)
+        && (!('joinedAt' in data) || data.joinedAt is string)
+        && (!('photoURL' in data) || data.photoURL is string);
     }
 
     // Workout Activity Schema Validation
     function isValidActivity(data) {
-      return data.get('name', null) is string
-        && data.get('name', '').size() >= 1
-        && data.get('name', '').size() <= 200
-        && data.get('type', null) is string
-        && data.get('type', '').size() >= 1
-        && data.get('type', '').size() <= 200
-        && data.get('distance', null) is number
-        && data.get('distance', 0) >= 0.0
-        && data.get('distance', 0) <= 1000.0
-        && data.get('date', null) is string
-        && data.get('date', '').size() == 10
-        && data.get('userId', null) is string
-        && data.get('userId', null) == request.auth.uid
-        && data.get('timestamp', null) is string
-        && data.get('timestamp', '').size() >= 2
-        && data.get('timestamp', '').size() <= 30
-        && data.get('checkInCode', '') is string
-        && data.get('checkInCode', '').size() <= 100
-        && data.get('isGymWorkout', null) is bool
-        && (data.get('customActivityName', null) == null || (data.get('customActivityName', null) is string && data.get('customActivityName', '').size() <= 100))
-        && (data.get('calories', null) == null || data.get('calories', null) is number);
+      return data.name is string
+        && data.name.size() >= 1
+        && data.name.size() <= 200
+        && data.type is string
+        && data.type.size() >= 1
+        && data.type.size() <= 200
+        && data.distance is number
+        && data.distance >= 0.0
+        && data.distance <= 1000.0
+        && data.date is string
+        && data.date.size() == 10
+        && data.userId is string
+        && data.userId == request.auth.uid
+        && data.timestamp is string
+        && data.timestamp.size() >= 2
+        && data.timestamp.size() <= 30
+        && (!('checkInCode' in data) || data.checkInCode is string)
+        && data.isGymWorkout is bool
+        && (!('customActivityName' in data) || data.customActivityName is string)
+        && (!('calories' in data) || data.calories is number);
     }
 
     // Challenge Goal validation
     function isValidChallengeGoal(data) {
-      return data.get('id', null) is string
-        && data.get('athleteName', null) is string
-        && data.get('type', null) is string;
+      return data.id is string
+        && data.athleteName is string
+        && data.type is string;
     }
 
     // Users Collection rules

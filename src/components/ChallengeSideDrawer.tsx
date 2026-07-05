@@ -444,10 +444,11 @@ export function ChallengeSideDrawer({
                 <div className="space-y-3 w-full">
                   <div className="flex items-center gap-4 w-full">
                     <div className="relative group/avatar cursor-pointer shrink-0">
-                      {editProfilePhoto || user?.photoURL ? (
+                      {editProfilePhoto || user?.photoURL || getEmailPhotoURL() ? (
                         <img 
-                          src={editProfilePhoto || user.photoURL} 
+                          src={editProfilePhoto || user?.photoURL || getEmailPhotoURL() || undefined} 
                           alt="Perfil" 
+                          referrerPolicy="no-referrer"
                           className="w-14 h-14 rounded-full object-cover border-2 border-red-500 shadow-md"
                         />
                       ) : (
@@ -489,22 +490,6 @@ export function ChallengeSideDrawer({
                       <Upload className="w-3.5 h-3.5 text-red-500" />
                       <span>Enviar Nova Foto</span>
                     </label>
-                    
-                    {getEmailPhotoURL() && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const emailPhoto = getEmailPhotoURL();
-                          if (emailPhoto) {
-                            setEditProfilePhoto(emailPhoto);
-                          }
-                        }}
-                        className="py-1 px-2.5 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white rounded-lg font-bold text-[9px] uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all"
-                      >
-                        <Mail className="w-3.5 h-3.5 text-red-500" />
-                        <span>Usar Foto do E-mail</span>
-                      </button>
-                    )}
                   </div>
 
                   {/* Strava Integration Block inside Profile Edit */}
