@@ -31,15 +31,11 @@ service cloud.firestore {
 
     // User Profile schema validation
     function isValidUserProfile(data) {
-      return data.keys().hasAll(['athleteName'])
-        && data.keys().size() <= 15
-        && data.athleteName is string
-        && data.athleteName.size() >= 1
-        && data.athleteName.size() <= 200
-        && (!data.keys().hasAll(['email']) || (data.email is string && data.email.size() <= 100))
-        && (!data.keys().hasAll(['registeredAt']) || (data.registeredAt is string || data.registeredAt is timestamp))
-        && (!data.keys().hasAll(['photoURL']) || data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 3000))
-        && (!data.keys().hasAll(['joinedGroups']) || (data.joinedGroups is map));
+      return (data.get('athleteName', null) == null || (data.athleteName is string && data.athleteName.size() >= 1 && data.athleteName.size() <= 200))
+        && (data.get('email', null) == null || (data.email is string && data.email.size() <= 100))
+        && (data.get('registeredAt', null) == null || (data.registeredAt is string || data.registeredAt is timestamp))
+        && (data.get('photoURL', null) == null || (data.photoURL is string && data.photoURL.size() <= 3000))
+        && (data.get('joinedGroups', null) == null || (data.joinedGroups is map));
     }
 
     // Group schema validation
