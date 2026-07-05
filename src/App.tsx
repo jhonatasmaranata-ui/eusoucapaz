@@ -1558,7 +1558,7 @@ export default function App() {
         await setDoc(userDocRef, payload, { merge: true });
       } catch (err: any) {
         console.error("Failed to update user profile in Firestore:", err);
-        throw new Error(err.message || "Erro ao salvar perfil no banco de dados.");
+        handleFirestoreError(err, OperationType.WRITE, 'users/' + user.uid);
       }
 
       // 2. Resiliently update member profiles in all joined groups
@@ -2020,8 +2020,9 @@ export default function App() {
           joinedAt: new Date().toISOString()
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration write failed:", error);
+      handleFirestoreError(error, OperationType.WRITE, 'users/' + user.uid);
     }
   };
 
