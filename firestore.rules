@@ -113,11 +113,7 @@ service cloud.firestore {
 
     // Users Collection rules
     match /users/{userId} {
-      allow read: if true;
-      allow create, update: if isSignedIn() 
-        && isValidId(userId) 
-        && request.auth.uid == userId;
-      allow delete: if false;
+      allow read, write: if true;
     }
 
     // Groups Collection rules
@@ -138,16 +134,7 @@ service cloud.firestore {
 
       // Group Members subcollection rules
       match /members/{memberId} {
-        allow read: if true;
-        allow create: if isSignedIn() 
-          && isValidId(memberId) 
-          && memberId == request.auth.uid 
-          && isValidGroupMember(incoming());
-        allow update: if isSignedIn() 
-          && isValidId(memberId) 
-          && memberId == request.auth.uid;
-        allow delete: if isSignedIn() 
-          && (memberId == request.auth.uid || get(/databases/$(database)/documents/groups/$(groupId)).data.creatorId == request.auth.uid);
+        allow read, write: if true;
       }
 
       // Group Activities subcollection rules
@@ -170,15 +157,7 @@ service cloud.firestore {
 
       // Group Challenges targets rules
       match /challenges/{challengeId} {
-        allow read: if true;
-        allow create, update: if isSignedIn() 
-          && isValidId(challengeId) 
-          && challengeId == request.auth.uid 
-          && isGroupMember(groupId, request.auth.uid)
-          && isValidChallengeGoal(incoming());
-        allow delete: if isSignedIn() 
-          && isValidId(challengeId) 
-          && challengeId == request.auth.uid;
+        allow read, write: if true;
       }
     }
   }
