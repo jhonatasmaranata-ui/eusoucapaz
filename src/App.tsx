@@ -1993,13 +1993,19 @@ export default function App() {
     try {
       const profileDocRef = doc(db, 'users', user.uid);
       const userDoc = await getDoc(profileDocRef);
-      const originalRegisteredAt = userDoc.exists() ? userDoc.data().registeredAt : new Date().toISOString();
+      const originalRegisteredAt = (userDoc.exists() && userDoc.data()?.registeredAt) 
+        ? userDoc.data().registeredAt 
+        : new Date().toISOString();
+      const originalRole = (userDoc.exists() && userDoc.data()?.role)
+        ? userDoc.data().role
+        : 'user';
 
       await setDoc(profileDocRef, {
         athleteName: selectedAthleteName,
         email: user.email || '',
         photoURL: user.photoURL || '',
-        registeredAt: originalRegisteredAt
+        registeredAt: originalRegisteredAt,
+        role: originalRole
       }, { merge: true });
 
       setAthleteName(selectedAthleteName);

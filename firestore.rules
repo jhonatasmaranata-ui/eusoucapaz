@@ -4,7 +4,7 @@ service cloud.firestore {
 
     // Global Safety Net
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
 
     // Primitive Helpers
@@ -31,20 +31,23 @@ service cloud.firestore {
 
     // User Profile schema validation
     function isValidUserProfile(data) {
-      return data.athleteName is string 
-        && data.athleteName.size() >= 1 
+      return data.keys().hasAll(['athleteName'])
+        && data.keys().size() <= 15
+        && data.athleteName is string
+        && data.athleteName.size() >= 1
         && data.athleteName.size() <= 200
-        && (!('email' in data) || data.email is string)
-        && (!('registeredAt' in data) || data.registeredAt is string || data.registeredAt is timestamp)
-        && (!('photoURL' in data) || data.photoURL is string)
-        && (!('role' in data) || data.role is string)
-        && (!('joinedGroups' in data) || data.joinedGroups is map)
-        && (!('stravaIntegration' in data) || data.stravaIntegration is map);
+        && (!data.keys().hasAll(['email']) || (data.email is string && data.email.size() <= 100))
+        && (!data.keys().hasAll(['registeredAt']) || (data.registeredAt is string || data.registeredAt is timestamp))
+        && (!data.keys().hasAll(['photoURL']) || data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 3000))
+        && (!data.keys().hasAll(['joinedGroups']) || (data.joinedGroups is map));
     }
 
     // Group schema validation
     function isValidGroup(data) {
-      return data.id is string
+      return data.keys().hasAll(['id', 'name', 'description', 'creatorId', 'inviteCode', 'rules', 'createdAt'])
+        && data.keys().size() >= 7
+        && data.keys().size() <= 15
+        && data.id is string
         && data.id.size() >= 1
         && data.id.size() <= 64
         && data.name is string
@@ -53,36 +56,41 @@ service cloud.firestore {
         && data.description is string
         && data.description.size() <= 2000
         && data.creatorId is string
-        && (data.creatorId == request.auth.uid || data.creatorId == 'local_proxy' || (request.auth.token.email == 'jhonatasmaranata@gmail.com' && request.auth.token.email_verified == true))
+        && data.creatorId == request.auth.uid
         && data.inviteCode is string
         && data.inviteCode.size() >= 1
         && data.inviteCode.size() <= 64
         && data.createdAt is string
         && data.rules is map
+        && data.rules.keys().hasAll(['startDate', 'gymPointsPerCheckIn', 'distanceMultiplier', 'comboPointsPerDay'])
         && data.rules.startDate is string
         && data.rules.gymPointsPerCheckIn is number
         && data.rules.distanceMultiplier is number
-        && data.rules.comboPointsPerDay is number
-        && (!('corridaMultiplier' in data.rules) || data.rules.corridaMultiplier is number)
-        && (!('caminhadaMultiplier' in data.rules) || data.rules.caminhadaMultiplier is number)
-        && (!('ciclismoMultiplier' in data.rules) || data.rules.ciclismoMultiplier is number)
-        && (!('natacaoMultiplier' in data.rules) || data.rules.natacaoMultiplier is number);
+        && data.rules.comboPointsPerDay is number;
     }
 
     // Group Member schema validation
     function isValidGroupMember(data) {
-      return data.userId is string
+      return data.keys().hasAll(['userId', 'athleteName', 'email', 'role', 'joinedAt'])
+        && data.keys().size() <= 15
+        && data.userId is string
         && data.userId == request.auth.uid
-        && (!('athleteName' in data) || data.athleteName is string)
-        && (!('email' in data) || data.email is string)
-        && (!('role' in data) || data.role is string)
-        && (!('joinedAt' in data) || data.joinedAt is string)
-        && (!('photoURL' in data) || data.photoURL is string);
+        && data.athleteName is string
+        && data.athleteName.size() >= 1
+        && data.athleteName.size() <= 200
+        && data.email is string
+        && data.email.size() <= 100
+        && data.role is string
+        && data.joinedAt is string
+        && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 3000));
     }
 
     // Workout Activity Schema Validation
     function isValidActivity(data) {
-      return data.name is string
+      return data.keys().hasAll(['name', 'type', 'distance', 'date', 'userId', 'timestamp', 'checkInCode', 'isGymWorkout'])
+        && data.keys().size() >= 8
+        && data.keys().size() <= 15
+        && data.name is string
         && data.name.size() >= 1
         && data.name.size() <= 200
         && data.type is string
@@ -98,22 +106,34 @@ service cloud.firestore {
         && data.timestamp is string
         && data.timestamp.size() >= 2
         && data.timestamp.size() <= 30
-        && (!('checkInCode' in data) || data.checkInCode is string)
+        && data.checkInCode is string
+        && data.checkInCode.size() <= 100
         && data.isGymWorkout is bool
-        && (!('customActivityName' in data) || data.customActivityName is string)
-        && (!('calories' in data) || data.calories is number);
+        && (!data.keys().hasAll(['customActivityName']) || (data.customActivityName is string && data.customActivityName.size() <= 100))
+        && (!data.keys().hasAll(['calories']) || (data.calories is number));
     }
 
     // Challenge Goal validation
     function isValidChallengeGoal(data) {
-      return data.id is string
+      return data.keys().hasAll(['id', 'athleteName', 'type'])
+        && data.keys().size() <= 15
+        && data.id is string
         && data.athleteName is string
         && data.type is string;
     }
 
     // Users Collection rules
     match /users/{userId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if isSignedIn() 
+        && isValidId(userId) 
+        && request.auth.uid == userId 
+        && isValidUserProfile(incoming());
+      allow update: if isSignedIn() 
+        && isValidId(userId) 
+        && request.auth.uid == userId 
+        && isValidUserProfile(incoming());
+      allow delete: if false;
     }
 
     // Groups Collection rules
@@ -124,7 +144,7 @@ service cloud.firestore {
         && isValidGroup(incoming());
       allow update: if isSignedIn() 
         && isValidId(groupId) 
-        && (existing().creatorId == request.auth.uid || existing().creatorId == 'local_proxy' || (request.auth.token.email == 'jhonatasmaranata@gmail.com' && request.auth.token.email_verified == true))
+        && existing().creatorId == request.auth.uid 
         && isValidGroup(incoming())
         && incoming().creatorId == existing().creatorId
         && incoming().createdAt == existing().createdAt;
@@ -134,7 +154,18 @@ service cloud.firestore {
 
       // Group Members subcollection rules
       match /members/{memberId} {
-        allow read, write: if true;
+        allow read: if true;
+        allow create: if isSignedIn() 
+          && isValidId(memberId) 
+          && memberId == request.auth.uid 
+          && isValidGroupMember(incoming());
+        allow update: if isSignedIn() 
+          && isValidId(memberId) 
+          && memberId == request.auth.uid 
+          && isValidGroupMember(incoming())
+          && incoming().userId == existing().userId;
+        allow delete: if isSignedIn() 
+          && (memberId == request.auth.uid || get(/databases/$(database)/documents/groups/$(groupId)).data.creatorId == request.auth.uid);
       }
 
       // Group Activities subcollection rules
@@ -157,7 +188,15 @@ service cloud.firestore {
 
       // Group Challenges targets rules
       match /challenges/{challengeId} {
-        allow read, write: if true;
+        allow read: if true;
+        allow create, update: if isSignedIn() 
+          && isValidId(challengeId) 
+          && challengeId == request.auth.uid 
+          && isGroupMember(groupId, request.auth.uid)
+          && isValidChallengeGoal(incoming());
+        allow delete: if isSignedIn() 
+          && isValidId(challengeId) 
+          && challengeId == request.auth.uid;
       }
     }
   }
