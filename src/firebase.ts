@@ -62,6 +62,7 @@ if (typeof window !== 'undefined') {
 }
 
 let initializedDb: Firestore;
+console.log("[Firebase Init] Initializing Firestore with databaseId:", databaseId || '(default)');
 try {
   initializedDb = initializeFirestore(app, {
     localCache: memoryLocalCache(),
