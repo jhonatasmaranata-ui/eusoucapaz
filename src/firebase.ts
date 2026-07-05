@@ -19,8 +19,7 @@ const metaEnv = (import.meta as any).env || {};
 const isSandbox = typeof window !== 'undefined' && (
   window.location.hostname.includes('.run.app') ||
   window.location.hostname.includes('localhost') ||
-  window.location.hostname.includes('127.0.0.1') ||
-  (!!appletConfig && !!appletConfig.projectId && appletConfig.projectId.length > 0 && !appletConfig.projectId.includes("YOUR_PROJECT"))
+  window.location.hostname.includes('127.0.0.1')
 );
 
 // Detect if custom environmental database settings are supplied manually
