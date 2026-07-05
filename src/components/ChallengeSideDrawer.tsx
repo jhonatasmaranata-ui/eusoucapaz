@@ -31,7 +31,9 @@ import {
   Trophy,
   ArrowLeft,
   Camera,
-  Edit2
+  Edit2,
+  Mail,
+  Upload
 } from 'lucide-react';
 import { GroupChallenge, RuleConfig, GroupMember, Activity } from '../types';
 import { extractGroupCode } from '../utils';
@@ -129,6 +131,18 @@ export function ChallengeSideDrawer({
   const [editProfilePhoto, setEditProfilePhoto] = useState<string | null>(null);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
+
+  const getEmailPhotoURL = () => {
+    // 1. Check provider data first (e.g. Google auth photo)
+    const providerPhoto = user?.providerData?.find((p: any) => p.photoURL)?.photoURL;
+    if (providerPhoto) return providerPhoto;
+    
+    // 2. Fallback to Gravatar via unavatar.io if email is present
+    if (user?.email) {
+      return `https://unavatar.io/gravatar/${encodeURIComponent(user.email.trim().toLowerCase())}`;
+    }
+    return null;
+  };
 
 
 
@@ -464,6 +478,33 @@ export function ChallengeSideDrawer({
                         {user?.email || 'Atleta Local'}
                       </p>
                     </div>
+                  </div>
+
+                  {/* Photo Actions Row */}
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <label 
+                      htmlFor="profile-photo-upload" 
+                      className="py-1 px-2.5 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white rounded-lg font-bold text-[9px] uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-red-500" />
+                      <span>Enviar Nova Foto</span>
+                    </label>
+                    
+                    {getEmailPhotoURL() && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const emailPhoto = getEmailPhotoURL();
+                          if (emailPhoto) {
+                            setEditProfilePhoto(emailPhoto);
+                          }
+                        }}
+                        className="py-1 px-2.5 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white rounded-lg font-bold text-[9px] uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition-all"
+                      >
+                        <Mail className="w-3.5 h-3.5 text-red-500" />
+                        <span>Usar Foto do E-mail</span>
+                      </button>
+                    )}
                   </div>
 
                   {/* Strava Integration Block inside Profile Edit */}

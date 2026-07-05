@@ -31,92 +31,83 @@ service cloud.firestore {
 
     // User Profile schema validation
     function isValidUserProfile(data) {
-      return (!data.keys().hasAll(['athleteName']) || (data.athleteName is string && data.athleteName.size() >= 1 && data.athleteName.size() <= 200))
-        && (!data.keys().hasAll(['email']) || (data.email is string && data.email.size() <= 100))
-        && (!data.keys().hasAll(['registeredAt']) || data.registeredAt == null || data.registeredAt is string || data.registeredAt is timestamp)
-        && (!data.keys().hasAll(['photoURL']) || data.photoURL == null || data.photoURL is string)
-        && (!data.keys().hasAll(['role']) || data.role == null || data.role is string)
-        && (!data.keys().hasAll(['joinedGroups']) || data.joinedGroups == null || data.joinedGroups is map)
-        && (!data.keys().hasAll(['stravaIntegration']) || data.stravaIntegration == null || data.stravaIntegration is map);
+      return (data.get('athleteName', null) == null || (data.get('athleteName', null) is string && data.get('athleteName', '').size() >= 1 && data.get('athleteName', '').size() <= 200))
+        && (data.get('email', null) == null || (data.get('email', null) is string && data.get('email', '').size() <= 100))
+        && (data.get('registeredAt', null) == null || data.get('registeredAt', null) is string || data.get('registeredAt', null) is timestamp)
+        && (data.get('photoURL', null) == null || data.get('photoURL', null) is string)
+        && (data.get('role', null) == null || data.get('role', null) is string)
+        && (data.get('joinedGroups', null) == null || data.get('joinedGroups', null) is map)
+        && (data.get('stravaIntegration', null) == null || data.get('stravaIntegration', null) is map);
     }
 
     // Group schema validation
     function isValidGroup(data) {
-      return data.keys().hasAll(['id', 'name', 'description', 'creatorId', 'inviteCode', 'rules', 'createdAt'])
-        && data.keys().size() >= 7
-        && data.keys().size() <= 15
-        && data.id is string
-        && data.id.size() >= 1
-        && data.id.size() <= 64
-        && data.name is string
-        && data.name.size() >= 1
-        && data.name.size() <= 200
-        && data.description is string
-        && data.description.size() <= 2000
-        && data.creatorId is string
-        && (data.creatorId == request.auth.uid || data.creatorId == 'local_proxy' || (request.auth.token.email == 'jhonatasmaranata@gmail.com' && request.auth.token.email_verified == true))
-        && data.inviteCode is string
-        && data.inviteCode.size() >= 1
-        && data.inviteCode.size() <= 64
-        && data.createdAt is string
-        && data.rules is map
-        && data.rules.keys().hasAll(['startDate', 'gymPointsPerCheckIn', 'distanceMultiplier', 'comboPointsPerDay'])
-        && data.rules.startDate is string
-        && data.rules.gymPointsPerCheckIn is number
-        && data.rules.distanceMultiplier is number
-        && data.rules.comboPointsPerDay is number
-        && (!data.rules.keys().hasAll(['corridaMultiplier']) || data.rules.corridaMultiplier is number)
-        && (!data.rules.keys().hasAll(['caminhadaMultiplier']) || data.rules.caminhadaMultiplier is number)
-        && (!data.rules.keys().hasAll(['ciclismoMultiplier']) || data.rules.ciclismoMultiplier is number)
-        && (!data.rules.keys().hasAll(['natacaoMultiplier']) || data.rules.natacaoMultiplier is number);
+      return data.get('id', null) is string
+        && data.get('id', '').size() >= 1
+        && data.get('id', '').size() <= 64
+        && data.get('name', null) is string
+        && data.get('name', '').size() >= 1
+        && data.get('name', '').size() <= 200
+        && data.get('description', null) is string
+        && data.get('description', '').size() <= 2000
+        && data.get('creatorId', null) is string
+        && (data.get('creatorId', null) == request.auth.uid || data.get('creatorId', null) == 'local_proxy' || (request.auth.token.email == 'jhonatasmaranata@gmail.com' && request.auth.token.email_verified == true))
+        && data.get('inviteCode', null) is string
+        && data.get('inviteCode', '').size() >= 1
+        && data.get('inviteCode', '').size() <= 64
+        && data.get('createdAt', null) is string
+        && data.get('rules', null) is map
+        && data.get('rules', {}).get('startDate', null) is string
+        && data.get('rules', {}).get('gymPointsPerCheckIn', null) is number
+        && data.get('rules', {}).get('distanceMultiplier', null) is number
+        && data.get('rules', {}).get('comboPointsPerDay', null) is number
+        && (data.get('rules', {}).get('corridaMultiplier', null) == null || data.get('rules', {}).get('corridaMultiplier', null) is number)
+        && (data.get('rules', {}).get('caminhadaMultiplier', null) == null || data.get('rules', {}).get('caminhadaMultiplier', null) is number)
+        && (data.get('rules', {}).get('ciclismoMultiplier', null) == null || data.get('rules', {}).get('ciclismoMultiplier', null) is number)
+        && (data.get('rules', {}).get('natacaoMultiplier', null) == null || data.get('rules', {}).get('natacaoMultiplier', null) is number);
     }
 
     // Group Member schema validation
     function isValidGroupMember(data) {
-      return data.userId is string
-        && data.userId == request.auth.uid
-        && (!data.keys().hasAll(['athleteName']) || (data.athleteName is string && data.athleteName.size() >= 1 && data.athleteName.size() <= 200))
-        && (!data.keys().hasAll(['email']) || (data.email is string && data.email.size() <= 100))
-        && (!data.keys().hasAll(['role']) || data.role == null || data.role is string)
-        && (!data.keys().hasAll(['joinedAt']) || data.joinedAt == null || data.joinedAt is string)
-        && (!data.keys().hasAll(['photoURL']) || data.photoURL == null || data.photoURL is string);
+      return data.get('userId', null) is string
+        && data.get('userId', null) == request.auth.uid
+        && (data.get('athleteName', null) == null || (data.get('athleteName', null) is string && data.get('athleteName', '').size() >= 1 && data.get('athleteName', '').size() <= 200))
+        && (data.get('email', null) == null || (data.get('email', null) is string && data.get('email', '').size() <= 100))
+        && (data.get('role', null) == null || data.get('role', null) is string)
+        && (data.get('joinedAt', null) == null || data.get('joinedAt', null) is string)
+        && (data.get('photoURL', null) == null || data.get('photoURL', null) is string);
     }
 
     // Workout Activity Schema Validation
     function isValidActivity(data) {
-      return data.keys().hasAll(['name', 'type', 'distance', 'date', 'userId', 'timestamp', 'checkInCode', 'isGymWorkout'])
-        && data.keys().size() >= 8
-        && data.keys().size() <= 15
-        && data.name is string
-        && data.name.size() >= 1
-        && data.name.size() <= 200
-        && data.type is string
-        && data.type.size() >= 1
-        && data.type.size() <= 200
-        && data.distance is number
-        && data.distance >= 0.0
-        && data.distance <= 1000.0
-        && data.date is string
-        && data.date.size() == 10
-        && data.userId is string
-        && data.userId == request.auth.uid
-        && data.timestamp is string
-        && data.timestamp.size() >= 2
-        && data.timestamp.size() <= 30
-        && data.checkInCode is string
-        && data.checkInCode.size() <= 100
-        && data.isGymWorkout is bool
-        && (!data.keys().hasAll(['customActivityName']) || (data.customActivityName is string && data.customActivityName.size() <= 100))
-        && (!data.keys().hasAll(['calories']) || (data.calories is number));
+      return data.get('name', null) is string
+        && data.get('name', '').size() >= 1
+        && data.get('name', '').size() <= 200
+        && data.get('type', null) is string
+        && data.get('type', '').size() >= 1
+        && data.get('type', '').size() <= 200
+        && data.get('distance', null) is number
+        && data.get('distance', 0) >= 0.0
+        && data.get('distance', 0) <= 1000.0
+        && data.get('date', null) is string
+        && data.get('date', '').size() == 10
+        && data.get('userId', null) is string
+        && data.get('userId', null) == request.auth.uid
+        && data.get('timestamp', null) is string
+        && data.get('timestamp', '').size() >= 2
+        && data.get('timestamp', '').size() <= 30
+        && data.get('checkInCode', '') is string
+        && data.get('checkInCode', '').size() <= 100
+        && data.get('isGymWorkout', null) is bool
+        && (data.get('customActivityName', null) == null || (data.get('customActivityName', null) is string && data.get('customActivityName', '').size() <= 100))
+        && (data.get('calories', null) == null || data.get('calories', null) is number);
     }
 
     // Challenge Goal validation
     function isValidChallengeGoal(data) {
-      return data.keys().hasAll(['id', 'athleteName', 'type'])
-        && data.keys().size() <= 15
-        && data.id is string
-        && data.athleteName is string
-        && data.type is string;
+      return data.get('id', null) is string
+        && data.get('athleteName', null) is string
+        && data.get('type', null) is string;
     }
 
     // Users Collection rules
