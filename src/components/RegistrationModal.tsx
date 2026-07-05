@@ -8,7 +8,7 @@ import { UserPlus, Sparkles, Check, ChevronRight, UserCheck } from 'lucide-react
 
 interface RegistrationModalProps {
   existingNames: string[];
-  onRegister: (athleteName: string) => void;
+  onRegister: (athleteName: string) => Promise<void> | void;
   email: string;
   onCancel?: () => void;
 }
@@ -17,8 +17,9 @@ export function RegistrationModal({ existingNames, onRegister, email, onCancel }
   const [regMode, setRegMode] = useState<'link' | 'new'>('new');
   const [customName, setCustomName] = useState('');
   const [selectedHistorical, setSelectedHistorical] = useState(existingNames[0] || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const finalName = regMode === 'new' ? customName.trim() : selectedHistorical;
 
@@ -27,7 +28,14 @@ export function RegistrationModal({ existingNames, onRegister, email, onCancel }
       return;
     }
 
-    onRegister(finalName);
+    try {
+      setIsSubmitting(true);
+      await onRegister(finalName);
+    } catch (err) {
+      console.error("Erro ao registrar:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -124,9 +132,10 @@ export function RegistrationModal({ existingNames, onRegister, email, onCancel }
 
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold p-3 rounded-xl tracking-wider hover:scale-[1.01] transition-all cursor-pointer mt-4"
+            disabled={isSubmitting}
+            className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-800 disabled:text-slate-400 text-slate-950 font-bold p-3 rounded-xl tracking-wider hover:scale-[1.01] transition-all cursor-pointer mt-4"
           >
-            Confirmar e Ingressar no Desafio
+            {isSubmitting ? 'Salvando Registro...' : 'Confirmar e Ingressar no Desafio'}
             <UserCheck className="w-4 h-4" />
           </button>
 

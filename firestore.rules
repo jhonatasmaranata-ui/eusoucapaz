@@ -31,13 +31,8 @@ service cloud.firestore {
 
     // User Profile schema validation
     function isValidUserProfile(data) {
-      return data.keys().hasAll(['athleteName', 'email'])
-        && data.keys().size() <= 15
-        && data.athleteName is string
-        && data.athleteName.size() >= 1
-        && data.athleteName.size() <= 200
-        && data.email is string
-        && data.email.size() <= 100
+      return (!data.keys().hasAll(['athleteName']) || (data.athleteName is string && data.athleteName.size() >= 1 && data.athleteName.size() <= 200))
+        && (!data.keys().hasAll(['email']) || (data.email is string && data.email.size() <= 100))
         && (!data.keys().hasAll(['registeredAt']) || data.registeredAt == null || data.registeredAt is string || data.registeredAt is timestamp)
         && (!data.keys().hasAll(['photoURL']) || data.photoURL == null || data.photoURL is string)
         && (!data.keys().hasAll(['role']) || data.role == null || data.role is string)
@@ -78,17 +73,12 @@ service cloud.firestore {
 
     // Group Member schema validation
     function isValidGroupMember(data) {
-      return data.keys().hasAll(['userId', 'athleteName', 'email', 'role', 'joinedAt'])
-        && data.keys().size() <= 15
-        && data.userId is string
+      return data.userId is string
         && data.userId == request.auth.uid
-        && data.athleteName is string
-        && data.athleteName.size() >= 1
-        && data.athleteName.size() <= 200
-        && data.email is string
-        && data.email.size() <= 100
-        && (data.role == null || data.role is string)
-        && (data.joinedAt == null || data.joinedAt is string)
+        && (!data.keys().hasAll(['athleteName']) || (data.athleteName is string && data.athleteName.size() >= 1 && data.athleteName.size() <= 200))
+        && (!data.keys().hasAll(['email']) || (data.email is string && data.email.size() <= 100))
+        && (!data.keys().hasAll(['role']) || data.role == null || data.role is string)
+        && (!data.keys().hasAll(['joinedAt']) || data.joinedAt == null || data.joinedAt is string)
         && (!data.keys().hasAll(['photoURL']) || data.photoURL == null || data.photoURL is string);
     }
 
