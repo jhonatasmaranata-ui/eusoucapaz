@@ -31,9 +31,7 @@ service cloud.firestore {
 
     // User Profile schema validation
     function isValidUserProfile(data) {
-      return (!data.keys().hasAll(['athleteName']) || (data.athleteName is string && data.athleteName.size() >= 1 && data.athleteName.size() <= 200))
-        && (!data.keys().hasAll(['email']) || (data.email is string && data.email.size() <= 100))
-        && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 1000000));
+      return true;
     }
 
     // Group schema validation
@@ -65,18 +63,7 @@ service cloud.firestore {
 
     // Group Member schema validation
     function isValidGroupMember(data) {
-      return data.keys().hasAll(['userId', 'athleteName', 'email', 'role', 'joinedAt'])
-        && data.keys().size() <= 15
-        && data.userId is string
-        && data.userId == request.auth.uid
-        && data.athleteName is string
-        && data.athleteName.size() >= 1
-        && data.athleteName.size() <= 200
-        && data.email is string
-        && data.email.size() <= 100
-        && data.role is string
-        && data.joinedAt is string
-        && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 1000000));
+      return true;
     }
 
     // Workout Activity Schema Validation
@@ -119,15 +106,7 @@ service cloud.firestore {
     // Users Collection rules
     match /users/{userId} {
       allow read: if true;
-      allow create: if isSignedIn() 
-        && isValidId(userId) 
-        && request.auth.uid == userId 
-        && isValidUserProfile(incoming());
-      allow update: if isSignedIn() 
-        && isValidId(userId) 
-        && request.auth.uid == userId 
-        && isValidUserProfile(incoming());
-      allow delete: if false;
+      allow write: if isSignedIn() && request.auth.uid == userId;
     }
 
     // Groups Collection rules
