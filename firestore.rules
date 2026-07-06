@@ -31,9 +31,9 @@ service cloud.firestore {
 
     // User Profile schema validation
     function isValidUserProfile(data) {
-      return data.get('athleteName', '') is string
-        && data.get('email', '') is string
-        && data.get('photoURL', '') is string;
+      return (!data.keys().hasAll(['athleteName']) || (data.athleteName is string && data.athleteName.size() >= 1 && data.athleteName.size() <= 200))
+        && (!data.keys().hasAll(['email']) || (data.email is string && data.email.size() <= 100))
+        && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 1000000));
     }
 
     // Group schema validation
