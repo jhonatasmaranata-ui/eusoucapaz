@@ -34,7 +34,7 @@ service cloud.firestore {
       return (data.get('athleteName', null) == null || (data.athleteName is string && data.athleteName.size() >= 1 && data.athleteName.size() <= 200))
         && (data.get('email', null) == null || (data.email is string && data.email.size() <= 100))
         && (data.get('registeredAt', null) == null || (data.registeredAt is string || data.registeredAt is timestamp))
-        && (data.get('photoURL', null) == null || (data.photoURL is string && data.photoURL.size() <= 3000))
+        && (data.get('photoURL', null) == null || (data.photoURL is string && data.photoURL.size() <= 1000000))
         && (data.get('joinedGroups', null) == null || (data.joinedGroups is map));
     }
 
@@ -78,7 +78,7 @@ service cloud.firestore {
         && data.email.size() <= 100
         && data.role is string
         && data.joinedAt is string
-        && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 3000));
+        && (!data.keys().hasAll(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 1000000));
     }
 
     // Workout Activity Schema Validation
