@@ -106,7 +106,8 @@ service cloud.firestore {
     // Users Collection rules
     match /users/{userId} {
       allow read: if true;
-      allow write: if isSignedIn() && request.auth.uid == userId;
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false;
     }
 
     // Groups Collection rules
@@ -136,7 +137,7 @@ service cloud.firestore {
           && isValidId(memberId) 
           && memberId == request.auth.uid 
           && isValidGroupMember(incoming())
-          && incoming().userId == existing().userId;
+          && (!incoming().keys().hasAll(['userId']) || incoming().userId == existing().userId);
         allow delete: if isSignedIn() 
           && (memberId == request.auth.uid || get(/databases/$(database)/documents/groups/$(groupId)).data.creatorId == request.auth.uid);
       }
