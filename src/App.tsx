@@ -1551,10 +1551,24 @@ export default function App() {
       // 1. Update main user profile document (using setDoc with merge to robustly handle non-existent documents)
       try {
         const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        const originalRegisteredAt = (userDoc.exists() && userDoc.data()?.registeredAt) 
+          ? userDoc.data().registeredAt 
+          : new Date().toISOString();
+        const originalRole = (userDoc.exists() && userDoc.data()?.role)
+          ? userDoc.data().role
+          : 'user';
+        const originalJoinedGroups = (userDoc.exists() && userDoc.data()?.joinedGroups)
+          ? userDoc.data().joinedGroups
+          : {};
+
         const payload: any = {
           athleteName: cleanName,
           email: user.email || '',
           photoURL: finalPhoto,
+          registeredAt: originalRegisteredAt,
+          role: originalRole,
+          joinedGroups: originalJoinedGroups
         };
         await setDoc(userDocRef, payload, { merge: true });
       } catch (err: any) {
