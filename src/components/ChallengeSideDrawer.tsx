@@ -60,7 +60,7 @@ interface ChallengeSideDrawerProps {
   onAddActivity?: (activity: Omit<Activity, 'id'>) => void | Promise<void>;
 }
 
-type DrawerViewMode = 'main' | 'create' | 'join' | 'details' | 'configure' | 'help' | 'about' | 'history';
+type DrawerViewMode = 'main' | 'create' | 'join' | 'details' | 'configure' | 'help' | 'about' | 'history' | 'invite';
 
 export function ChallengeSideDrawer({
   isOpen,
@@ -93,6 +93,7 @@ export function ChallengeSideDrawer({
 
   const [selectedGroupForDetails, setSelectedGroupForDetails] = useState<GroupChallenge | null>(null);
   const [copied, setCopied] = useState(false);
+  const [inviteGroupId, setInviteGroupId] = useState<string>('');
   const [confirmKickId, setConfirmKickId] = useState<string | null>(null);
   const [confirmLeaveId, setConfirmLeaveId] = useState<string | null>(null);
 
@@ -199,6 +200,19 @@ export function ChallengeSideDrawer({
       setProfileError(null);
     }
   }, [isOpen, athleteName, user]);
+
+  // Set default group to invite when entering invite view
+  useEffect(() => {
+    if (viewMode === 'invite') {
+      if (activeGroup && activeGroup.id !== 'demo-group') {
+        setInviteGroupId(activeGroup.id);
+      } else if (activePrivateGroups.length > 0) {
+        setInviteGroupId(activePrivateGroups[0].id);
+      } else {
+        setInviteGroupId('');
+      }
+    }
+  }, [viewMode, activeGroup, activePrivateGroups]);
 
 
 
@@ -690,6 +704,18 @@ export function ChallengeSideDrawer({
                       <span>Juntar-se ao grupo</span>
                     </button>
 
+                    {/* INVITE TO CHALLENGE */}
+                    <button
+                      onClick={() => {
+                        setViewMode('invite');
+                        setStatusMsg(null);
+                      }}
+                      className="w-full flex items-center gap-3.5 p-3.5 hover:bg-slate-900 rounded-2xl text-left text-slate-300 font-bold text-sm transition cursor-pointer"
+                    >
+                      <Share2 className="w-5 h-5 text-indigo-400" />
+                      <span>Convidar pessoas</span>
+                    </button>
+
                     {/* CONCLUDE/HISTORY */}
                     <button
                       onClick={() => setViewMode('history')}
@@ -950,6 +976,129 @@ export function ChallengeSideDrawer({
                       {isSubmitting ? 'Processando...' : 'Entrar no Desafio'}
                     </button>
                   </form>
+                </div>
+              )}
+
+              {/* VIEW: INVITE PEOPLE */}
+              {viewMode === 'invite' && (
+                <div className="space-y-4 animate-fadeIn p-2">
+                  <div className="flex items-center gap-2 pb-2 border-b border-slate-900">
+                    <button onClick={() => setViewMode('main')} className="p-1 hover:bg-slate-900 rounded-full cursor-pointer text-slate-400 hover:text-slate-200 transition">
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <h4 className="font-extrabold text-base text-slate-100">Convidar para o Desafio</h4>
+                  </div>
+
+                  {activePrivateGroups.length === 0 ? (
+                    <div className="text-center py-8 space-y-4">
+                      <p className="text-xs text-slate-500 italic max-w-[240px] mx-auto leading-relaxed">
+                        Você precisa estar em um grupo particular ativo para convidar outras pessoas.
+                      </p>
+                      <div className="flex flex-col gap-2 pt-2">
+                        <button
+                          onClick={() => setViewMode('create')}
+                          className="py-2.5 px-4 bg-[#e03a3a] hover:bg-[#c92f2f] text-white font-extrabold text-xs rounded-full cursor-pointer transition shadow-md uppercase tracking-wider"
+                        >
+                          Criar Grupo
+                        </button>
+                        <button
+                          onClick={() => setViewMode('join')}
+                          className="py-2.5 px-4 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-extrabold text-xs rounded-full cursor-pointer transition uppercase tracking-wider"
+                        >
+                          Entrar em Grupo
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 font-sans">
+                      {/* Selection if multiple private groups exist */}
+                      {activePrivateGroups.length > 1 ? (
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Selecione o Grupo</label>
+                          <select
+                            value={inviteGroupId}
+                            onChange={(e) => setInviteGroupId(e.target.value)}
+                            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-slate-200 text-sm focus:outline-none focus:border-red-500 focus:bg-slate-850 transition"
+                          >
+                            {activePrivateGroups.map((g) => (
+                              <option key={g.id} value={g.id}>
+                                {g.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Grupo Selecionado</label>
+                          <div className="p-3 bg-slate-900/60 border border-slate-850 rounded-xl text-sm text-slate-200 font-bold truncate">
+                            {activePrivateGroups[0]?.name || ''}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Code and Link Card */}
+                      {inviteGroupId && (
+                        <>
+                          {/* Invite Code display */}
+                          <div className="p-4 bg-slate-900 border border-slate-850 rounded-2xl flex flex-col items-center gap-1.5 shadow-inner">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Código de Convite</span>
+                            <strong className="text-2xl text-amber-400 font-mono tracking-widest uppercase font-black">{inviteGroupId}</strong>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(inviteGroupId);
+                                setCopied(true);
+                                setTimeout(() => setCopied(false), 2000);
+                              }}
+                              className="mt-2 text-xs text-red-400 hover:text-red-300 font-bold flex items-center gap-1.5 transition cursor-pointer"
+                            >
+                              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                              <span>{copied ? 'Copiado!' : 'Copiar Código'}</span>
+                            </button>
+                          </div>
+
+                          {/* Invite Link display */}
+                          <div className="p-4 bg-slate-900 border border-slate-850 rounded-2xl space-y-2">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block text-center">Link de Convite Direto</span>
+                            <div className="bg-slate-950 border border-slate-850 px-3 py-2 rounded-xl text-[11px] text-slate-400 font-mono break-all line-clamp-2 leading-relaxed">
+                              {`https://eusoucapaz.vercel.app/?group=${inviteGroupId}`}
+                            </div>
+                            <button
+                              onClick={() => handleCopyLink(inviteGroupId)}
+                              className="w-full py-2 bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition cursor-pointer"
+                            >
+                              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                              <span>{copied ? 'Copiado!' : 'Copiar Link Completo'}</span>
+                            </button>
+                          </div>
+
+                          {/* Sharing Actions */}
+                          <div className="pt-2">
+                            {(() => {
+                              const groupObj = localGroupsData[inviteGroupId] || (activeGroup?.id === inviteGroupId ? activeGroup : null);
+                              const groupNameText = groupObj ? groupObj.name : 'nosso grupo';
+                              const inviteLink = `https://eusoucapaz.vercel.app/?group=${inviteGroupId}`;
+                              const shareText = `Fala, atleta! 🏃\n\nParticipe do desafio "${groupNameText}" no Eu Sou Capaz! Treine e acompanhe nossa evolução juntos.\n\nClique no link para entrar direto:\n${inviteLink}\n\nOu use o código de convite: *${inviteGroupId}*`;
+                              const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+                              
+                              return (
+                                <a
+                                  href={whatsappUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-full py-3 bg-[#25D366] hover:bg-[#20ba56] text-slate-950 font-extrabold text-xs rounded-full flex items-center justify-center gap-2 transition shadow-md uppercase tracking-wider cursor-pointer"
+                                >
+                                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.665.989 3.3.15 5.34.15 5.42 0 9.832-4.412 9.835-9.835.002-2.627-1.02-5.1-2.871-6.953-1.851-1.852-4.316-2.871-6.94-2.871-5.43 0-9.843 4.414-9.846 9.839-.001 1.93.491 3.812 1.428 5.513l-.98 3.58 3.673-.963zm10.743-7.53c-.29-.145-1.716-.848-1.98-.942-.266-.096-.46-.144-.654.145-.19.29-.738.943-.905 1.137-.166.19-.33.213-.62.068-.29-.145-1.22-.45-2.325-1.434-.86-.767-1.44-1.714-1.61-2.004-.17-.29-.018-.446.127-.59.13-.13.29-.338.435-.508.145-.17.19-.29.29-.483.096-.19.047-.36-.024-.507-.07-.145-.654-1.57-.895-2.152-.236-.569-.475-.491-.654-.5-.17-.008-.36-.01-.55-.01-.19 0-.5.07-.76.362-.266.29-1.014.992-1.014 2.422 0 1.43 1.04 2.81 1.185 3 .145.19 2.05 3.13 4.97 4.385.694.3 1.236.478 1.66.613.698.222 1.334.19 1.838.115.56-.083 1.717-.7 1.96-1.378.24-.678.24-1.258.17-1.377-.07-.118-.26-.19-.55-.335z"/>
+                                  </svg>
+                                  <span>Convidar via WhatsApp</span>
+                                </a>
+                              );
+                            })()}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
